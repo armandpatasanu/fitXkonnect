@@ -1,8 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:fitxkonnect/mobile_screen_layout.dart';
-import 'package:fitxkonnect/responsive_layout.dart';
+import 'package:fitxkonnect/screens/login_screen.dart';
 import 'package:fitxkonnect/utils/colors.dart';
-import 'package:fitxkonnect/web_screen_layout.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
@@ -17,16 +15,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'WHAT',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: mobileBackgroundColor,
-      ),
-      home: const ResponsiveLayout(
-        mSLayout: MobileScreenLayout(),
-        wSLayout: WebScreenLayout(),
-      ),
-    );
+    return const MaterialApp(
+        debugShowCheckedModeBanner: false, home: LoginScreen());
   }
 }
