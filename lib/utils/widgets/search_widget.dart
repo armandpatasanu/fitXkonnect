@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 class SearchWidget extends StatefulWidget {
   final String text;
-  final ValueChanged<String> onChanged;
+  //final ValueChanged<String> onChanged;
   final String hintText;
 
   const SearchWidget({
     Key? key,
     required this.text,
-    required this.onChanged,
+    //required this.onChanged,
     required this.hintText,
   }) : super(key: key);
 
@@ -43,7 +43,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                   child: Icon(Icons.close, color: style.color),
                   onTap: () {
                     controller.clear();
-                    widget.onChanged('');
+                    //widget.onChanged('');
                     FocusScope.of(context).requestFocus(FocusNode());
                   },
                 )
@@ -53,7 +53,7 @@ class _SearchWidgetState extends State<SearchWidget> {
           border: InputBorder.none,
         ),
         style: style,
-        onChanged: widget.onChanged,
+        //onChanged: widget.onChanged,
       ),
     );
   }

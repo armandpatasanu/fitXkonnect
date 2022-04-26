@@ -33,4 +33,25 @@ class AuthMethods {
     }
     return result;
   }
+
+  Future<String> logInUser({
+    required String email,
+    required String password,
+  }) async {
+    String result = 'success';
+    try {
+      if (email.isEmpty) {
+        result = 'Email field cannot be empty!';
+      } else if (!regExp.hasMatch(email)) {
+        result = 'Email format is not valid!';
+      } else if (password.isEmpty) {
+        result = 'Password field cannot be empty!';
+      } else if (password.length < 6) {
+        result = 'Password length too short!';
+      }
+    } catch (error) {
+      result = error.toString();
+    }
+    return result;
+  }
 }

@@ -4,16 +4,17 @@ import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
 import 'package:fitxkonnect/screens/search_page.dart';
 import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 
-class TransitionPage extends StatefulWidget {
-  const TransitionPage({Key? key}) : super(key: key);
+class NavigationPage extends StatefulWidget {
+  const NavigationPage({Key? key}) : super(key: key);
 
   @override
-  State<TransitionPage> createState() => _TransitionPageState();
+  State<NavigationPage> createState() => _NavigationPageState();
 }
 
-class _TransitionPageState extends State<TransitionPage> {
+class _NavigationPageState extends State<NavigationPage> {
   int index = 0;
   @override
   Widget build(BuildContext context) {
@@ -26,11 +27,16 @@ class _TransitionPageState extends State<TransitionPage> {
   Widget buildBody() {
     switch (index) {
       case 1:
-        return SearchPage();
+        return SearchWidget(
+          text: 'lmao',
+          hintText: 'Search',
+        );
       case 2:
         return AddMatchPage();
       case 3:
         return ProfilePage();
+      // case 4:
+      // return MyMatches() ???
       default:
         return HomePage();
     }
@@ -65,7 +71,7 @@ class _TransitionPageState extends State<TransitionPage> {
         ),
         BottomNavyBarItem(
           icon: Icon(Icons.people),
-          title: Text('Profile'),
+          title: Text('My Account'),
           textAlign: TextAlign.center,
           activeColor: Colors.yellow,
           inactiveColor: Colors.grey,

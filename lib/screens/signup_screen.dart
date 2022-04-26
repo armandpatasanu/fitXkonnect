@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:fitxkonnect/methods/auth_methods.dart';
-import 'package:fitxkonnect/screens/transition_page.dart';
+import 'package:fitxkonnect/screens/navigation_page.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
 import 'package:fitxkonnect/utils/colors.dart';
 import 'package:fitxkonnect/utils/components/upside.dart';
@@ -73,7 +73,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } else {
       print("WHAT?");
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const TransitionPage()));
+          MaterialPageRoute(builder: (context) => const NavigationPage()));
     }
   }
 
