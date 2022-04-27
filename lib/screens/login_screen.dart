@@ -1,4 +1,4 @@
-import 'package:fitxkonnect/methods/auth_methods.dart';
+import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/screens/signup_screen.dart';
 import 'package:fitxkonnect/screens/navigation_page.dart';
 import 'package:fitxkonnect/utils/components/page_title_bar.dart';
@@ -75,10 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         const SizedBox(
                           height: 15,
-                        ),
-                        iconButton(context),
-                        const SizedBox(
-                          height: 20,
                         ),
                         const Text(
                           "or use your email account",

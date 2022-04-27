@@ -1,4 +1,7 @@
+import 'package:fitxkonnect/blocs/app_bloc.dart';
+import 'package:fitxkonnect/utils/widgets/map_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -10,8 +13,11 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text('Search for matches'),
+    return ChangeNotifierProvider(
+      create: ((context) => AppBloc()),
+      child: Container(
+        child: MapScreen(),
+      ),
     );
   }
 }

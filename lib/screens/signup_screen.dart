@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:fitxkonnect/methods/auth_methods.dart';
+import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/screens/navigation_page.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
 import 'package:fitxkonnect/utils/colors.dart';

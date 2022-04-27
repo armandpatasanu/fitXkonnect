@@ -27,10 +27,7 @@ class _NavigationPageState extends State<NavigationPage> {
   Widget buildBody() {
     switch (index) {
       case 1:
-        return SearchWidget(
-          text: 'lmao',
-          hintText: 'Search',
-        );
+        return SearchPage();
       case 2:
         return AddMatchPage();
       case 3:
