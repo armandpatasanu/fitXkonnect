@@ -1,16 +1,17 @@
 import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/screens/signup_screen.dart';
 import 'package:fitxkonnect/screens/navigation_page.dart';
-import 'package:fitxkonnect/utils/components/page_title_bar.dart';
-import 'package:fitxkonnect/utils/components/under_part.dart';
-import 'package:fitxkonnect/utils/components/upside.dart';
+import 'package:fitxkonnect/utils/user_greeting/page_title_bar.dart';
 import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/user_greeting/under_part.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_button.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_icon.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_input_field.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_password_field.dart';
 import 'package:flutter/material.dart';
+
+import '../utils/user_greeting/upside.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -25,6 +26,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   void logInUser() async {
+    setState(() {
+      _isLoading = true;
+    });
     String result = await AuthMethods().logInUser(
       email: _emailController.text,
       password: _passwordController.text,
@@ -32,9 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     print(result);
 
-    // setState(() {
-    //   _isLoading = false;
-    // });
     if (result != 'success') {
       showSnackBar(result, context);
     } else {
@@ -42,6 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const NavigationPage()));
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -58,7 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Upside(
                   imgUrl: "assets/images/login.png",
                 ),
-                const PageTitleBar(title: 'Login to your account'),
+                const PageTitleBar(
+                  title: 'Login to your account',
+                  topPadding: 260,
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 320.0),
                   child: Container(
@@ -97,6 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               switchListTile(),
                               RoundedButton(
+                                isLoading: _isLoading,
                                 text: 'LOGIN',
                                 press: logInUser,
                               ),
@@ -151,7 +159,11 @@ switchListTile() {
       dense: true,
       title: const Text(
         'Remember Me',
-        style: TextStyle(fontSize: 16, fontFamily: 'OpenSans'),
+        style: TextStyle(
+            fontSize: 16,
+            fontFamily: 'OpenSans',
+            color: kPrimaryColor,
+            fontWeight: FontWeight.bold),
       ),
       value: true,
       activeColor: kPrimaryColor,

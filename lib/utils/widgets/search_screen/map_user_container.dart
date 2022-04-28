@@ -49,7 +49,7 @@ class MapUserBadge extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Armand Seby',
+                  'Patasanu Armand',
                   style: TextStyle(
                       fontFamily: 'OpenSans',
                       fontWeight: FontWeight.bold,

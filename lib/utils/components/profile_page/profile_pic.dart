@@ -5,7 +5,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 class ProfilePic extends StatelessWidget {
   const ProfilePic({
     Key? key,
+    required this.profilePhoto,
   }) : super(key: key);
+  final String profilePhoto;
 
   @override
   Widget build(BuildContext context) {
@@ -16,17 +18,17 @@ class ProfilePic extends StatelessWidget {
         fit: StackFit.expand,
         clipBehavior: Clip.none,
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             backgroundImage: NetworkImage(
-              'https://spng.pngfind.com/pngs/s/110-1102775_download-empty-profile-hd-png-download.png',
+              profilePhoto,
             ),
           ),
           Positioned(
-            right: -16,
-            bottom: 0,
+            right: -8,
+            bottom: 2,
             child: SizedBox(
-              height: 46,
-              width: 46,
+              height: 35,
+              width: 35,
               child: TextButton(
                 style: TextButton.styleFrom(
                   shape: RoundedRectangleBorder(

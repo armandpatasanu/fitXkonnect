@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:fitxkonnect/blocs/app_bloc.dart';
 import 'package:fitxkonnect/utils/constants.dart';
-import 'package:fitxkonnect/utils/widgets/location_info.dart';
-import 'package:fitxkonnect/utils/widgets/map_user_container.dart';
+import 'package:fitxkonnect/utils/widgets/search_screen/location_info.dart';
+import 'package:fitxkonnect/utils/widgets/search_screen/map_user_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -25,8 +29,8 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final Completer<GoogleMapController> _mapController = Completer();
-  late final AppBloc applicationBloc;
-  late BitmapDescriptor sourceIcon;
+  late AppBloc _applicationBloc;
+  late Uint8List sourceIcon;
   late BitmapDescriptor destinationIcon;
   late LatLng destinationLocation;
   late double pinPillPosition = PIN_INVISIBLE_POSITION;
@@ -35,7 +39,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void initState() {
-    final applicationBloc = Provider.of<AppBloc>(context, listen: false);
+    _applicationBloc = Provider.of<AppBloc>(context, listen: false);
     setSourceAndDestinationMarkerIcons();
 
     super.initState();
@@ -43,18 +47,22 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
-    applicationBloc.dispose();
-
+    // _applicationBloc.dispose(); BUT HOW? Error AppBloc() still used after being disposed
     super.dispose();
   }
 
   void setSourceAndDestinationMarkerIcons() async {
-    sourceIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: 2), "assets/images/pin.png");
+    sourceIcon = await getBytesFromAsset('assets/images/pin.png', 300);
+  }
 
-    // destinationIcon = await BitmapDescriptor.fromAssetImage(
-    //     ImageConfiguration(devicePixelRatio: 2.0),
-    //     'assets/imgs/destination_pin_${parentCat}${Utils.deviceSuffix(context)}.png');
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
   }
 
   @override
@@ -62,11 +70,6 @@ class _MapScreenState extends State<MapScreen> {
     final applicationBloc = Provider.of<AppBloc>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 40,
-        title: Text('Navigate'),
-        centerTitle: true,
-      ),
       body: (applicationBloc.currentLocation == null)
           ? Center(
               child: CircularProgressIndicator(
@@ -98,18 +101,19 @@ class _MapScreenState extends State<MapScreen> {
                     },
                   ),
                 ),
-                Positioned(
-                  top: 0,
-                  left: -20,
-                  right: 30,
-                  child: MapUserBadge(),
-                ),
+                // Positioned(
+                //   top: 0,
+                //   left: -20,
+                //   right: 30,
+                //   child: MapUserBadge(),
+                // ),
                 AnimatedPositioned(
-                  duration: const Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
-                  left: 0,
-                  right: 0,
+                  left: -25,
+                  right: 25,
                   bottom: pinPillPosition,
+                  // top: 10,
                   child: LocationInfo(),
                 ),
                 // floatingActionButton: FloatingActionButton.extended(
@@ -138,7 +142,8 @@ class _MapScreenState extends State<MapScreen> {
       _markers.add(Marker(
           markerId: MarkerId('sourcePin'),
           position: SOURCE_LOCATION,
-          icon: sourceIcon,
+          icon: BitmapDescriptor.fromBytes(sourceIcon),
+          infoWindow: InfoWindow(title: 'Baza2'),
           onTap: () {
             setState(() {
               pinPillPosition = PIN_VISIBLE_POSITION;
@@ -149,7 +154,7 @@ class _MapScreenState extends State<MapScreen> {
         Marker(
           markerId: MarkerId('destinationPin'),
           position: DEST_LOCATION,
-          icon: sourceIcon,
+          icon: BitmapDescriptor.fromBytes(sourceIcon),
         ),
       );
     });

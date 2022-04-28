@@ -1,5 +1,5 @@
 import 'package:fitxkonnect/blocs/app_bloc.dart';
-import 'package:fitxkonnect/utils/widgets/map_screen.dart';
+import 'package:fitxkonnect/utils/widgets/search_screen/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,8 +15,21 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: ((context) => AppBloc()),
-      child: Container(
-        child: MapScreen(),
+      child: Scaffold(
+        appBar: AppBar(
+          leading: Icon(Icons.menu),
+          title: Text('Page title'),
+          actions: [
+            Icon(Icons.favorite),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Icon(Icons.search),
+            ),
+            Icon(Icons.more_vert),
+          ],
+          backgroundColor: Colors.purple,
+        ),
+        body: MapScreen(),
       ),
     );
   }

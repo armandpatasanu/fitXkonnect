@@ -1,4 +1,5 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/screens/add_match_page.dart';
 import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
@@ -6,6 +7,7 @@ import 'package:fitxkonnect/screens/search_page.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({Key? key}) : super(key: key);
@@ -22,6 +24,17 @@ class _NavigationPageState extends State<NavigationPage> {
       body: buildBody(),
       bottomNavigationBar: buildBottomNavigationBar(),
     );
+  }
+
+  addData() async {
+    UserProvider _userProvider = Provider.of(context, listen: false);
+    await _userProvider.refreshUser();
+  }
+
+  @override
+  void initState() {
+    addData();
+    super.initState();
   }
 
   Widget buildBody() {

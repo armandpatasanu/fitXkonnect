@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 
 class PageTitleBar extends StatelessWidget {
-  const PageTitleBar({Key? key, required this.title}) : super(key: key);
+  const PageTitleBar({Key? key, required this.title, required this.topPadding})
+      : super(key: key);
   final String title;
+  final double topPadding;
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 260.0),
+      padding: EdgeInsets.only(top: topPadding),
       child: Container(
         width: double.infinity,
         height: MediaQuery.of(context).size.height / 4,

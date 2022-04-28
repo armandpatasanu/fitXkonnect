@@ -1,18 +1,31 @@
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/services/storage_methods.dart';
+import 'package:fitxkonnect/utils/constants.dart';
 import 'package:gender_picker/source/enums.dart';
 
 class AuthMethods {
-  RegExp regExp = RegExp(
-    r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
-  );
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<UserModel> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot snap =
+        await _firestore.collection('users').doc(currentUser.uid).get();
+
+    return UserModel.fromSnap(snap);
+  }
 
   Future<String> registerValidation({
     required String email,
     required String password,
     required String username,
     required Uint8List? file,
-    required Gender? gender,
+    required String fullName,
     required String? country,
   }) async {
     String result = 'success';
@@ -27,6 +40,29 @@ class AuthMethods {
         result = 'Password length too short!';
       } else if (country == null) {
         result = 'Please select your country!';
+      } else if (file == null) {
+        result = 'Please select a picture!';
+      } else {
+        UserCredential credential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        String photoUrl = await StorageMethods()
+            .uploadImageToStorage('profilePics', file, false);
+
+        UserModel user = UserModel(
+          username: username,
+          fullName: fullName,
+          uid: credential.user!.uid,
+          profilePhoto: photoUrl,
+          email: email,
+          country: country,
+        );
+
+        _firestore.collection('users').doc(credential.user!.uid).set(
+              user.toJson(),
+            );
       }
     } catch (error) {
       result = error.toString();
@@ -48,10 +84,21 @@ class AuthMethods {
         result = 'Password field cannot be empty!';
       } else if (password.length < 6) {
         result = 'Password length too short!';
+      } else {
+        await _auth.signInWithEmailAndPassword(
+            email: email, password: password);
       }
     } catch (error) {
       result = error.toString();
     }
     return result;
+  }
+
+  Future logOutUser() async {
+    try {
+      return await _auth.signOut();
+    } catch (error) {
+      return null;
+    }
   }
 }
