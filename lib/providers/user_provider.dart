@@ -25,11 +25,4 @@ class UserProvider extends ChangeNotifier {
     _user = user;
     notifyListeners();
   }
-
-  Future<dynamic> getCertainUser(String uid) {
-    var userSnap =
-        FirebaseFirestore.instance.collection('users').doc(uid).get();
-
-    return userSnap;
-  }
 }

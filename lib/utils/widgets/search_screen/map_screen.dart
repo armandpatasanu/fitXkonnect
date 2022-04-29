@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/blocs/app_bloc.dart';
+import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/location_info.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/map_user_container.dart';
@@ -34,6 +36,7 @@ class _MapScreenState extends State<MapScreen> {
   late BitmapDescriptor destinationIcon;
   late LatLng destinationLocation;
   late double pinPillPosition = PIN_INVISIBLE_POSITION;
+  var locationData = {};
 
   Set<Marker> _markers = Set<Marker>();
 
@@ -113,8 +116,11 @@ class _MapScreenState extends State<MapScreen> {
                     onMapCreated: (GoogleMapController controller) {
                       _mapController = controller;
                       changeMapMode();
-                      showPinsOnMap();
-                      setState(() {});
+                      // showPinsOnMap();
+
+                      setState(() {
+                        startQuery();
+                      });
                     },
                   ),
                 ),
@@ -152,6 +158,34 @@ class _MapScreenState extends State<MapScreen> {
               ],
             ),
     );
+  }
+
+  startQuery() async {
+    var ref = await FirebaseFirestore.instance.collection('locations').get();
+    getMarkers(ref.docs);
+  }
+
+  void getMarkers(List<DocumentSnapshot> documentList) {
+    documentList.forEach((DocumentSnapshot snap) {
+      LocationModel location = LocationModel.fromSnap(snap);
+      GeoPoint geoPoint = location.geopoint;
+      print('############ ${location.name}');
+      print('@@@@@@@@@@@@ ${geoPoint.latitude}');
+      setState(() {
+        _markers.add(
+          Marker(
+              markerId: MarkerId(location.locationId),
+              position: LatLng(geoPoint.latitude, geoPoint.longitude),
+              icon: BitmapDescriptor.fromBytes(sourceIcon),
+              infoWindow: InfoWindow(title: location.name),
+              onTap: () {
+                setState(() {
+                  pinPillPosition = PIN_VISIBLE_POSITION;
+                });
+              }),
+        );
+      });
+    });
   }
 
   void showPinsOnMap() {

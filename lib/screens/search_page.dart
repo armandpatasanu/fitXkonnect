@@ -27,7 +27,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             Icon(Icons.more_vert),
           ],
-          backgroundColor: Colors.purple,
+          // backgroundColor: Colors.purple,
         ),
         body: MapScreen(),
       ),
