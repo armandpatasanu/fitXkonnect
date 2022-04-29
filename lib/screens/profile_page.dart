@@ -175,11 +175,11 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             ),
             isEditVisible == true
-                ? AnimatedPositioned(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    left: -25,
-                    right: 25,
+                ? Container(
+                    // duration: const Duration(milliseconds: 300),
+                    // curve: Curves.easeInOut,
+                    // left: -25,
+                    // right: 25,
                     // top: 10,
                     child: LocationInfo(),
                   )

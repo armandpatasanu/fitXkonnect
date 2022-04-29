@@ -29,9 +29,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = true;
     });
+
     String result = await AuthMethods().logInUser(
-      email: _emailController.text,
-      password: _passwordController.text,
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
     );
 
     print(result);
@@ -39,13 +40,20 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result != 'success') {
       showSnackBar(result, context);
     } else {
-      print("WHAT?");
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const NavigationPage()));
     }
     setState(() {
       _isLoading = false;
     });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override

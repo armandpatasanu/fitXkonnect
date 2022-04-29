@@ -1,11 +1,56 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class MatchCard extends StatelessWidget {
-  const MatchCard({Key? key}) : super(key: key);
+class MatchCard extends StatefulWidget {
+  final snap;
+  const MatchCard({
+    Key? key,
+    required this.snap,
+  }) : super(key: key);
+
+  @override
+  State<MatchCard> createState() => _MatchCardState();
+}
+
+class _MatchCardState extends State<MatchCard> {
+  var userData = {};
+  bool isLoading = false;
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      var userSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.snap['player1'])
+          .get();
+
+      userData = userSnap.data()!;
+
+      setState(() {});
+    } catch (e) {
+      showSnackBar(
+        e.toString(),
+        context,
+      );
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    var uzer = UserProvider().getCertainUser(widget.snap['player1']);
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
     return Padding(
@@ -62,9 +107,13 @@ class MatchCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     image: DecorationImage(
                       fit: BoxFit.fill,
-                      image: NetworkImage(
-                        'https://images.unsplash.com/photo-1650898005499-913c52dae1c7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80',
-                      ),
+                      image: userData['profilePhoto'] == null
+                          ? NetworkImage(
+                              'https://spng.pngfind.com/pngs/s/110-1102775_download-empty-profile-hd-png-download.png',
+                            )
+                          : NetworkImage(
+                              userData['profilePhoto'],
+                            ),
                     ),
                   ),
                 ),
@@ -80,16 +129,16 @@ class MatchCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Andreea Ionela',
+                      userData['fullName'] ?? 'John Doe',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         color: kPrimaryColor,
                         fontFamily: 'OpenSans',
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'Tennis',
+                      widget.snap['sport'],
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
@@ -101,7 +150,7 @@ class MatchCard extends StatelessWidget {
                       color: kPrimaryColor,
                     ),
                     Text(
-                      'Location: Banu Sport',
+                      widget.snap['location'],
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey,

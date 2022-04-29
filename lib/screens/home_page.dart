@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/match_card.dart';
 import 'package:flutter/material.dart';
@@ -61,9 +62,23 @@ class _HomePageState extends State<HomePage> {
         Expanded(
           child: SizedBox(
             height: 10,
-            child: ListView.builder(
-              itemCount: 3,
-              itemBuilder: (context, index) => MatchCard(),
+            child: StreamBuilder(
+              stream:
+                  FirebaseFirestore.instance.collection('matches').snapshots(),
+              builder: (context,
+                  AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                return ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) => MatchCard(
+                    snap: snapshot.data!.docs[index].data(),
+                  ),
+                );
+              },
             ),
           ),
         ),

@@ -74,7 +74,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } else {
       print("WHAT?");
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const NavigationPage()));
+          MaterialPageRoute(builder: (context) => const LoginScreen()));
     }
   }
 

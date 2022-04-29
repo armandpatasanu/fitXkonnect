@@ -28,7 +28,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  final Completer<GoogleMapController> _mapController = Completer();
+  late GoogleMapController _mapController;
   late AppBloc _applicationBloc;
   late Uint8List sourceIcon;
   late BitmapDescriptor destinationIcon;
@@ -65,6 +65,18 @@ class _MapScreenState extends State<MapScreen> {
         .asUint8List();
   }
 
+  changeMapMode() {
+    getJsonFile("assets/light.json").then(setMapStyle);
+  }
+
+  Future<String> getJsonFile(String path) async {
+    return await rootBundle.loadString(path);
+  }
+
+  void setMapStyle(String mapStyle) {
+    _mapController.setMapStyle(mapStyle);
+  }
+
   @override
   Widget build(BuildContext context) {
     final applicationBloc = Provider.of<AppBloc>(context);
@@ -81,7 +93,10 @@ class _MapScreenState extends State<MapScreen> {
                 Positioned.fill(
                   child: GoogleMap(
                     myLocationEnabled: true,
+                    zoomControlsEnabled: false,
                     compassEnabled: false,
+                    mapToolbarEnabled: false,
+                    zoomGesturesEnabled: true,
                     tiltGesturesEnabled: false,
                     markers: _markers,
                     mapType: MapType.normal,
@@ -96,8 +111,10 @@ class _MapScreenState extends State<MapScreen> {
                       });
                     },
                     onMapCreated: (GoogleMapController controller) {
-                      _mapController.complete(controller);
+                      _mapController = controller;
+                      changeMapMode();
                       showPinsOnMap();
+                      setState(() {});
                     },
                   ),
                 ),

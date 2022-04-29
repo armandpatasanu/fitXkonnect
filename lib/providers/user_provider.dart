@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,5 +24,12 @@ class UserProvider extends ChangeNotifier {
     UserModel user = await _authMethods.getUserDetails();
     _user = user;
     notifyListeners();
+  }
+
+  Future<dynamic> getCertainUser(String uid) {
+    var userSnap =
+        FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    return userSnap;
   }
 }

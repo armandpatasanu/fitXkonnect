@@ -1,13 +1,7 @@
-import 'package:fitxkonnect/models/user_model.dart';
-import 'package:fitxkonnect/providers/user_provider.dart';
-import 'package:fitxkonnect/services/firestore_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
-import 'package:fitxkonnect/utils/utils.dart';
-import 'package:fitxkonnect/utils/widgets/text_field_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:fitxkonnect/utils/colors.dart';
-import 'package:provider/provider.dart';
 
 class AddMatchPage extends StatefulWidget {
   @override
@@ -15,20 +9,12 @@ class AddMatchPage extends StatefulWidget {
 }
 
 class _AddMatchPageState extends State<AddMatchPage> {
-  final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _sportController = TextEditingController();
-  final TextEditingController _difficultyController = TextEditingController();
-  bool _isLoading = false;
-
   bool isSignupScreen = true;
   bool isMale = true;
   bool isRememberMe = false;
 
   @override
   Widget build(BuildContext context) {
-    final UserModel user = Provider.of<UserProvider>(context).getUser();
-
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: Stack(
@@ -62,7 +48,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
               ),
             ),
           ),
-          buildBottomHalfContainer(false, user),
+          buildBottomHalfContainer(false),
         ],
       ),
     );
@@ -73,10 +59,84 @@ class _AddMatchPageState extends State<AddMatchPage> {
       margin: EdgeInsets.only(top: 20),
       child: Column(
         children: [
-          buildTextField(Icons.place, "Location", _locationController),
-          buildTextField(Icons.sports_kabaddi, "Sport", _sportController),
-          buildTextField(Icons.quiz, "Difficulty", _difficultyController),
-          buildTextField(Icons.date_range, "Date", _dateController),
+          buildTextField(MaterialCommunityIcons.account_outline, "User Name",
+              false, false),
+          buildTextField(
+              MaterialCommunityIcons.email_outline, "email", false, true),
+          buildTextField(
+              MaterialCommunityIcons.lock_outline, "password", true, false),
+          Padding(
+            padding: const EdgeInsets.only(top: 10, left: 10),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isMale = true;
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 30,
+                        height: 30,
+                        margin: EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                            color: isMale ? textColor2 : Colors.transparent,
+                            border: Border.all(
+                                width: 1,
+                                color:
+                                    isMale ? Colors.transparent : textColor1),
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Icon(
+                          MaterialCommunityIcons.account_outline,
+                          color: isMale ? Colors.white : iconColor,
+                        ),
+                      ),
+                      Text(
+                        "Male",
+                        style: TextStyle(color: textColor1),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 30,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isMale = false;
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 30,
+                        height: 30,
+                        margin: EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                            color: isMale ? Colors.transparent : textColor2,
+                            border: Border.all(
+                                width: 1,
+                                color:
+                                    isMale ? textColor1 : Colors.transparent),
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Icon(
+                          MaterialCommunityIcons.account_outline,
+                          color: isMale ? iconColor : Colors.white,
+                        ),
+                      ),
+                      Text(
+                        "Female",
+                        style: TextStyle(color: textColor1),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -109,7 +169,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
   //   );
   // }
 
-  Widget buildBottomHalfContainer(bool showShadow, UserModel user) {
+  Widget buildBottomHalfContainer(bool showShadow) {
     return AnimatedPositioned(
       duration: Duration(milliseconds: 700),
       curve: Curves.bounceInOut,
@@ -135,27 +195,21 @@ class _AddMatchPageState extends State<AddMatchPage> {
           child: !showShadow
               ? Container(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                      Colors.white,
-                      kPrimaryColor,
-                    ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withOpacity(.3),
-                          spreadRadius: 1,
-                          blurRadius: 2,
-                          offset: Offset(0, 1))
-                    ],
-                  ),
-                  child: InkWell(
-                    onTap: () => createMatch(
-                      user,
-                    ),
-                    child: Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                    ),
+                      gradient: LinearGradient(colors: [
+                        Colors.white,
+                        kPrimaryColor,
+                      ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black.withOpacity(.3),
+                            spreadRadius: 1,
+                            blurRadius: 2,
+                            offset: Offset(0, 1))
+                      ]),
+                  child: Icon(
+                    Icons.arrow_forward,
+                    color: Colors.white,
                   ),
                 )
               : Center(),
@@ -165,12 +219,12 @@ class _AddMatchPageState extends State<AddMatchPage> {
   }
 
   Widget buildTextField(
-      IconData icon, String hintText, TextEditingController controller) {
+      IconData icon, String hintText, bool isPassword, bool isEmail) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: TextField(
-        style: TextStyle(color: kPrimaryColor),
-        controller: controller,
+        obscureText: isPassword,
+        keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
         decoration: InputDecoration(
           prefixIcon: Icon(
             icon,
@@ -190,53 +244,5 @@ class _AddMatchPageState extends State<AddMatchPage> {
         ),
       ),
     );
-  }
-
-  void clearTextFields() {
-    _dateController.clear();
-    _locationController.clear();
-    _difficultyController.clear();
-    _sportController.clear();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    _dateController.dispose();
-    _locationController.dispose();
-    _difficultyController.dispose();
-    _sportController.dispose();
-    super.dispose();
-  }
-
-  createMatch(UserModel user) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      String result = await FirestoreMethods().createMatch(
-          user.uid,
-          _locationController.text,
-          user.uid,
-          _dateController.text,
-          _sportController.text,
-          _difficultyController.text);
-
-      if (result == 'success') {
-        setState(() {
-          _isLoading = false;
-        });
-        showSnackBar('succesfully created a match!', context);
-        clearTextFields();
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        showSnackBar(result, context);
-      }
-    } catch (error) {
-      showSnackBar(error.toString(), context);
-    }
   }
 }

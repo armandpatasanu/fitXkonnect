@@ -89,7 +89,7 @@ class AuthMethods {
             email: email, password: password);
       }
     } catch (error) {
-      result = error.toString();
+      result = "Invalid username or password!";
     }
     return result;
   }
