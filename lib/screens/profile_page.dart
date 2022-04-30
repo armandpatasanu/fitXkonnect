@@ -181,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     // left: -25,
                     // right: 25,
                     // top: 10,
-                    child: LocationInfo(),
+                    child: Text('To be added edit'),
                   )
                 : Container(
                     width: 0,

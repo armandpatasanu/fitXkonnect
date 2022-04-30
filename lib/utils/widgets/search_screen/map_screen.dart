@@ -37,6 +37,13 @@ class _MapScreenState extends State<MapScreen> {
   late LatLng destinationLocation;
   late double pinPillPosition = PIN_INVISIBLE_POSITION;
   var locationData = {};
+  LocationModel _selectedLocation = LocationModel(
+      locationId: '',
+      contact: [],
+      schedule: '',
+      sports: [],
+      name: '',
+      geopoint: GeoPoint(0, 0));
 
   Set<Marker> _markers = Set<Marker>();
 
@@ -84,6 +91,20 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     final applicationBloc = Provider.of<AppBloc>(context);
 
+    // LocationModel location = LocationModel(
+    //     locationId: '',
+    //     contact: [],
+    //     schedule: '',
+    //     sports: [],
+    //     name: '',
+    //     geopoint: GeoPoint(0, 0));
+    // if (_selectedLocation != null) {
+    //    location = _selectedLocation;
+    // } else {
+    //   print(
+    //       "------------ After build this value is: ${_selectedLocation.name}");
+    // }
+    print("------------ After build this value is: ${_selectedLocation.name}");
     return Scaffold(
       body: (applicationBloc.currentLocation == null)
           ? Center(
@@ -133,11 +154,15 @@ class _MapScreenState extends State<MapScreen> {
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
-                  left: -25,
-                  right: 25,
+                  left: 0,
+                  right: 0,
                   bottom: pinPillPosition,
                   // top: 10,
-                  child: LocationInfo(),
+                  child: LocationInfo(
+                    selectedLocation: _selectedLocation,
+                    // name: _selectedLocation!.name,
+                    // contact: _selectedLocation!.contact,
+                  ),
                 ),
                 // floatingActionButton: FloatingActionButton.extended(
                 //   onPressed: () async {
@@ -169,8 +194,8 @@ class _MapScreenState extends State<MapScreen> {
     documentList.forEach((DocumentSnapshot snap) {
       LocationModel location = LocationModel.fromSnap(snap);
       GeoPoint geoPoint = location.geopoint;
-      print('############ ${location.name}');
-      print('@@@@@@@@@@@@ ${geoPoint.latitude}');
+      // print('############ ${location.name}');
+      // print('@@@@@@@@@@@@ ${geoPoint.latitude}');
       setState(() {
         _markers.add(
           Marker(
@@ -179,7 +204,14 @@ class _MapScreenState extends State<MapScreen> {
               icon: BitmapDescriptor.fromBytes(sourceIcon),
               infoWindow: InfoWindow(title: location.name),
               onTap: () {
+                // print('############ ${_selectedLocation!.name}');
+                // print(
+                //     '@@@@@@@@@@@@@@@@@@@@@@@@@ ${_selectedLocation!.locationId}');
                 setState(() {
+                  _selectedLocation = location;
+                  print('############ ${_selectedLocation.name}');
+                  print(
+                      '@@@@@@@@@@@@@@@@@@@@@@@@@ ${_selectedLocation.locationId}');
                   pinPillPosition = PIN_VISIBLE_POSITION;
                 });
               }),

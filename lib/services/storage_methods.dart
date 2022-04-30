@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fitxkonnect/models/location_model.dart';
 import 'package:uuid/uuid.dart';
 
 class StorageMethods {
@@ -25,4 +27,25 @@ class StorageMethods {
 
     return downloadUrl;
   }
+
+  Future<String> getLocationBkgImage(String file) async {
+    String downloadURL = await _storage
+        .ref()
+        .child("locationPics/backgroundPics/${file}.jpg")
+        .getDownloadURL();
+
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + downloadURL);
+    return downloadURL;
+  }
+
+  // LocationModel getEmptyLocation() {
+  //   return LocationModel(
+  //     schedule: "",
+  //     contact: [],
+  //     sports: [],
+  //     locationId: "",
+  //     name: "",
+  //     geopoint: GeoPoint(0, 0),
+  //   );
+  // }
 }
