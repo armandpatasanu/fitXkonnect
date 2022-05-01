@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:flutter/cupertino.dart';

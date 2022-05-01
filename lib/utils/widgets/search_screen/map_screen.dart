@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/blocs/app_bloc.dart';
 import 'package:fitxkonnect/models/location_model.dart';
+import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/location_info.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/map_user_container.dart';
@@ -37,13 +38,7 @@ class _MapScreenState extends State<MapScreen> {
   late LatLng destinationLocation;
   late double pinPillPosition = PIN_INVISIBLE_POSITION;
   var locationData = {};
-  LocationModel _selectedLocation = LocationModel(
-      locationId: '',
-      contact: [],
-      schedule: '',
-      sports: [],
-      name: '',
-      geopoint: GeoPoint(0, 0));
+  LocationModel _selectedLocation = StorageMethods().getEmptyLocation();
 
   Set<Marker> _markers = Set<Marker>();
 
@@ -57,7 +52,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
-    // _applicationBloc.dispose(); BUT HOW? Error AppBloc() still used after being disposed
+    // _applicationBloc.dispose();
     super.dispose();
   }
 
@@ -91,20 +86,6 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     final applicationBloc = Provider.of<AppBloc>(context);
 
-    // LocationModel location = LocationModel(
-    //     locationId: '',
-    //     contact: [],
-    //     schedule: '',
-    //     sports: [],
-    //     name: '',
-    //     geopoint: GeoPoint(0, 0));
-    // if (_selectedLocation != null) {
-    //    location = _selectedLocation;
-    // } else {
-    //   print(
-    //       "------------ After build this value is: ${_selectedLocation.name}");
-    // }
-    print("------------ After build this value is: ${_selectedLocation.name}");
     return Scaffold(
       body: (applicationBloc.currentLocation == null)
           ? Center(
@@ -114,42 +95,40 @@ class _MapScreenState extends State<MapScreen> {
             )
           : Stack(
               children: [
-                Positioned.fill(
-                  child: GoogleMap(
-                    myLocationEnabled: true,
-                    zoomControlsEnabled: false,
-                    compassEnabled: false,
-                    mapToolbarEnabled: false,
-                    zoomGesturesEnabled: true,
-                    tiltGesturesEnabled: false,
-                    markers: _markers,
-                    mapType: MapType.normal,
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(applicationBloc.currentLocation!.latitude,
-                          applicationBloc.currentLocation!.longitude),
-                      zoom: 14,
-                    ),
-                    onTap: (LatLng loc) {
-                      setState(() {
-                        pinPillPosition = PIN_INVISIBLE_POSITION;
-                      });
-                    },
-                    onMapCreated: (GoogleMapController controller) {
-                      _mapController = controller;
-                      changeMapMode();
-                      // showPinsOnMap();
-
-                      setState(() {
-                        startQuery();
-                      });
-                    },
+                GoogleMap(
+                  myLocationEnabled: true,
+                  zoomControlsEnabled: false,
+                  compassEnabled: false,
+                  mapToolbarEnabled: false,
+                  zoomGesturesEnabled: true,
+                  tiltGesturesEnabled: false,
+                  markers: _markers,
+                  mapType: MapType.normal,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(applicationBloc.currentLocation!.latitude,
+                        applicationBloc.currentLocation!.longitude),
+                    zoom: 14,
                   ),
+                  onTap: (LatLng loc) {
+                    setState(() {
+                      pinPillPosition = PIN_INVISIBLE_POSITION;
+                    });
+                  },
+                  onMapCreated: (GoogleMapController controller) {
+                    _mapController = controller;
+                    changeMapMode();
+                    setState(() {
+                      startQuery();
+                    });
+                  },
                 ),
-                // Positioned(
-                //   top: 0,
-                //   left: -20,
-                //   right: 30,
-                //   child: MapUserBadge(),
+                // Container(
+                //   color: Colors.white,
+                //   child: TextButton.icon(
+                //     //onPressed: handleMarkers,
+                //     icon: Icon(Icons.sports_tennis),
+                //     label: Text('Only this'),
+                //   ),
                 // ),
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
@@ -157,33 +136,25 @@ class _MapScreenState extends State<MapScreen> {
                   left: 0,
                   right: 0,
                   bottom: pinPillPosition,
-                  // top: 10,
                   child: LocationInfo(
                     selectedLocation: _selectedLocation,
-                    // name: _selectedLocation!.name,
-                    // contact: _selectedLocation!.contact,
                   ),
                 ),
-                // floatingActionButton: FloatingActionButton.extended(
-                //   onPressed: () async {
-                //     Position position = await GeolocatorService().getCurrentLocation();
-
-                //     _goToPlace(LatLng(position.latitude, position.longitude));
-                //     _markers.add(Marker(
-                //         icon: await BitmapDescriptor.fromAssetImage(
-                //             ImageConfiguration(devicePixelRatio: 2),
-                //             "assets/images/home_location.png"),
-                //         markerId: const MarkerId('currentLocation'),
-                //         position: LatLng(position.latitude, position.longitude)));
-                //     setState(() {});
-                //   },
-                //   label: const Text("Current Location"),
-                //   icon: const Icon(Icons.location_history),
-                // ),
               ],
             ),
     );
   }
+
+  // handleMarkers() {
+  //   _markers.forEach((element) async {
+  //     LocationModel location = LocationModel.fromSnap(await FirebaseFirestore
+  //         .instance
+  //         .collection('locations')
+  //         .where('')
+  //         .get());
+  //     if()
+  //   });
+  // }
 
   startQuery() async {
     var ref = await FirebaseFirestore.instance.collection('locations').get();
@@ -194,8 +165,6 @@ class _MapScreenState extends State<MapScreen> {
     documentList.forEach((DocumentSnapshot snap) {
       LocationModel location = LocationModel.fromSnap(snap);
       GeoPoint geoPoint = location.geopoint;
-      // print('############ ${location.name}');
-      // print('@@@@@@@@@@@@ ${geoPoint.latitude}');
       setState(() {
         _markers.add(
           Marker(
@@ -204,42 +173,13 @@ class _MapScreenState extends State<MapScreen> {
               icon: BitmapDescriptor.fromBytes(sourceIcon),
               infoWindow: InfoWindow(title: location.name),
               onTap: () {
-                // print('############ ${_selectedLocation!.name}');
-                // print(
-                //     '@@@@@@@@@@@@@@@@@@@@@@@@@ ${_selectedLocation!.locationId}');
                 setState(() {
                   _selectedLocation = location;
-                  print('############ ${_selectedLocation.name}');
-                  print(
-                      '@@@@@@@@@@@@@@@@@@@@@@@@@ ${_selectedLocation.locationId}');
                   pinPillPosition = PIN_VISIBLE_POSITION;
                 });
               }),
         );
       });
-    });
-  }
-
-  void showPinsOnMap() {
-    setState(() {
-      _markers.add(Marker(
-          markerId: MarkerId('sourcePin'),
-          position: SOURCE_LOCATION,
-          icon: BitmapDescriptor.fromBytes(sourceIcon),
-          infoWindow: InfoWindow(title: 'Baza2'),
-          onTap: () {
-            setState(() {
-              pinPillPosition = PIN_VISIBLE_POSITION;
-            });
-          }));
-
-      _markers.add(
-        Marker(
-          markerId: MarkerId('destinationPin'),
-          position: DEST_LOCATION,
-          icon: BitmapDescriptor.fromBytes(sourceIcon),
-        ),
-      );
     });
   }
 }

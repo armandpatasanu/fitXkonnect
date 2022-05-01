@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fitxkonnect/screens/navigation_page.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/match_card.dart';
 import 'package:flutter/material.dart';
@@ -42,29 +43,32 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            const Positioned(
+            Positioned(
               top: 115,
               left: 20,
-              child: Text(
-                "Matches",
-                style: TextStyle(
-                  fontSize: 30,
-                  color: Colors.black,
-                  fontFamily: 'OpenSans',
+              child: TextButton.icon(
+                label: Text(
+                  "Matches",
+                  style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.black,
+                    fontFamily: 'OpenSans',
+                  ),
                 ),
+                icon: Icon(Icons.arrow_circle_left),
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NavigationPage())),
               ),
-            )
+            ),
           ]),
         ),
-        // SizedBox(
-        //   height: height * 0.01,
-        // ),
         Expanded(
           child: SizedBox(
             height: 10,
-            child: StreamBuilder(
-              stream:
-                  FirebaseFirestore.instance.collection('matches').snapshots(),
+            child: FutureBuilder(
+              future: FirebaseFirestore.instance.collection("matches").get(),
               builder: (context,
                   AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {

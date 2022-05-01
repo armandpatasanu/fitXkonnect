@@ -1,14 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
-import 'package:fitxkonnect/utils/components/profile_page/profile_body.dart';
 import 'package:fitxkonnect/utils/components/profile_page/profile_menu.dart';
 import 'package:fitxkonnect/utils/components/profile_page/profile_pic.dart';
 import 'package:fitxkonnect/utils/constants.dart';
-import 'package:fitxkonnect/utils/widgets/search_screen/location_info.dart';
-import 'package:fitxkonnect/utils/widgets/search_screen/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -147,9 +143,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         Icons.sports_volleyball,
                         color: Colors.green,
                       ),
-                      // Icon(Icons.sports_tennis),
-                      // Icon(Icons.sports_soccer),
-                      // Icon(Icons.sports_volleyball),
                     ],
                   ),
                 ],
@@ -192,18 +185,6 @@ class _ProfilePageState extends State<ProfilePage> {
               icon: Icon(Icons.question_mark),
               press: () {},
             ),
-            // ProfileMenu(
-            //   text: "Log Out",
-            //   icon: Icon(Icons.logout),
-            //   press: () async {
-            //     await AuthMethods().logOutUser();
-            //     Navigator.of(context).pushReplacement(
-            //       MaterialPageRoute(
-            //         builder: ((context) => LoginScreen()),
-            //       ),
-            //     );
-            //   },
-            // ),
           ],
         ),
       ),

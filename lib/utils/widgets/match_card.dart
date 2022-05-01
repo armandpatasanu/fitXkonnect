@@ -128,7 +128,7 @@ class _MatchCardState extends State<MatchCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      userData['fullName'] ?? 'John Doe',
+                      userData['fullName'] ?? '',
                       style: TextStyle(
                         fontSize: 18,
                         color: kPrimaryColor,

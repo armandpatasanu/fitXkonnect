@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
-import 'package:gender_picker/source/enums.dart';
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;

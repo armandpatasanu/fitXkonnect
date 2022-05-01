@@ -1,17 +1,13 @@
 import 'dart:typed_data';
 
 import 'package:fitxkonnect/services/auth_methods.dart';
-import 'package:fitxkonnect/screens/navigation_page.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
-import 'package:fitxkonnect/utils/colors.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/user_greeting/page_title_bar.dart';
 import 'package:fitxkonnect/utils/user_greeting/under_part.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_input_field.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_password_field.dart';
 import 'package:flutter/material.dart';
-import 'package:gender_picker/source/enums.dart';
-import 'package:gender_picker/source/gender_picker.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/utils.dart';
@@ -43,13 +39,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _image = im;
     });
   }
-
-  // void updateGender(Gender? gender) {
-  //   setState(() {
-  //     _gender = gender;
-  //     print(_gender);
-  //   });
-  // }
 
   void signUpUser() async {
     setState(() {
@@ -98,14 +87,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 child: Center(
                   child: Stack(
-                    // ignore: prefer_const_literals_to_create_immutables
                     children: [
                       _image != null
                           ? CircleAvatar(
                               radius: 64,
                               backgroundImage: MemoryImage(_image!),
                             )
-                          // ignore: prefer_const_constructors
                           : const CircleAvatar(
                               radius: 64,
                               backgroundImage: NetworkImage(
@@ -127,9 +114,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
               ),
-              // const Upside(
-              //   imgUrl: "assets/images/register.png",
-              // ),
               const PageTitleBar(
                 topPadding: 220,
                 title: 'Create New Account',
@@ -173,27 +157,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             RoundedPasswordField(
                               controller: _passwordController,
                             ),
-                            // GenderPickerWithImage(
-                            //   showOtherGender: false,
-                            //   verticalAlignedText: false,
-                            //   selectedGenderTextStyle: const TextStyle(
-                            //       color: Color(0xFF8b32a8),
-                            //       fontWeight: FontWeight.bold),
-                            //   unSelectedGenderTextStyle: const TextStyle(
-                            //       color: Colors.white,
-                            //       fontWeight: FontWeight.normal),
-                            //   onChanged: (Gender? gender) {
-                            //     updateGender(gender);
-                            //   },
-                            //   equallyAligned: true,
-                            //   animationDuration:
-                            //       const Duration(milliseconds: 300),
-                            //   isCircular: true,
-                            //   // default : true,
-                            //   opacityOfGradient: 0.4,
-                            //   padding: const EdgeInsets.all(3),
-                            //   size: 50, //default : 40
-                            // ),
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 30),

@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/match_model.dart';
-import 'package:fitxkonnect/models/user_model.dart';
 import 'package:uuid/uuid.dart';
 
 class FirestoreMethods {

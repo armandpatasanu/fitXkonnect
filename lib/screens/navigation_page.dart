@@ -4,8 +4,6 @@ import 'package:fitxkonnect/screens/add_match_page.dart';
 import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
 import 'package:fitxkonnect/screens/search_page.dart';
-import 'package:fitxkonnect/utils/constants.dart';
-import 'package:fitxkonnect/utils/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -45,8 +43,6 @@ class _NavigationPageState extends State<NavigationPage> {
         return AddMatchPage();
       case 3:
         return ProfilePage();
-      // case 4:
-      // return MyMatches() ???
       default:
         return HomePage();
     }

@@ -3,9 +3,8 @@ import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/services/firestore_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
-import 'package:fitxkonnect/utils/widgets/text_field_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+
 import 'package:fitxkonnect/utils/colors.dart';
 import 'package:provider/provider.dart';
 
@@ -81,33 +80,6 @@ class _AddMatchPageState extends State<AddMatchPage> {
       ),
     );
   }
-
-  // TextButton buildTextButton(
-  //     IconData icon, String title, Color backgroundColor) {
-  //   return TextButton(
-  //     onPressed: () {},
-  //     style: TextButton.styleFrom(
-  //         side: BorderSide(width: 1, color: Colors.grey),
-  //         minimumSize: Size(145, 40),
-  //         shape:
-  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-  //         primary: Colors.white,
-  //         backgroundColor: backgroundColor),
-  //     child: Row(
-  //       children: [
-  //         Icon(
-  //           icon,
-  //         ),
-  //         SizedBox(
-  //           width: 5,
-  //         ),
-  //         Text(
-  //           title,
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget buildBottomHalfContainer(bool showShadow, UserModel user) {
     return AnimatedPositioned(

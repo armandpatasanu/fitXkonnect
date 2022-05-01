@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fitxkonnect/models/user_model.dart';
 
 class MatchModel {
   final String matchId;
@@ -32,7 +31,7 @@ class MatchModel {
         player2: snapshot["player2"],
         startingTime: snapshot["startingTime"],
         datePublished: snapshot["username"],
-        sport: snapshot['postUrl'],
+        sport: snapshot['sport'],
         difficulty: snapshot['difficulty']);
   }
 

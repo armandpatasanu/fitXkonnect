@@ -1,4 +1,5 @@
 import 'package:fitxkonnect/blocs/app_bloc.dart';
+import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,7 @@ class _SearchPageState extends State<SearchPage> {
       create: ((context) => AppBloc()),
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: kPrimaryLightColor,
           leading: Icon(Icons.menu),
           title: Text('Page title'),
           actions: [
@@ -27,7 +29,6 @@ class _SearchPageState extends State<SearchPage> {
             ),
             Icon(Icons.more_vert),
           ],
-          // backgroundColor: Colors.purple,
         ),
         body: MapScreen(),
       ),

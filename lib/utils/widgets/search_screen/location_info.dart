@@ -3,10 +3,13 @@ import 'dart:ffi';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fitxkonnect/models/location_model.dart';
+import 'package:fitxkonnect/screens/show_details_page.dart';
+import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/colors.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
+import 'package:fitxkonnect/utils/widgets/custom_details_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,21 +33,11 @@ class _LocationInfoState extends State<LocationInfo> {
       'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Brad_Pitt_2019_by_Glenn_Francis.jpg/1200px-Brad_Pitt_2019_by_Glenn_Francis.jpg';
   var locationData = {};
   bool isLoading = false;
+  String _locationSports = "a";
 
   @override
   void initState() {
-    // TODO: implement initState
-    print("I AM HERE");
-    // if (widget.selectedLocation != null) {
-    //   print("I cant GET HERE!");
-    //   var ref = FirebaseStorage.instance.ref().child(
-    //       "locationPics/backgroundPics/${widget.selectedLocation!.locationId}.jpg");
-    //   ref.getDownloadURL().then((value) => setState(() => _imageUrl = value));
-    // }
-    // print("LOLOLOLOLOLOLOLOLOLOLOL@@@@@@@@@@ LOL " + photo);
     super.initState();
-    print("FIRST INIT: ${widget.selectedLocation.locationId}");
-    // getData();
   }
 
   getData() async {
@@ -55,7 +48,7 @@ class _LocationInfoState extends State<LocationInfo> {
       var ref = FirebaseStorage.instance.ref().child(
           "locationPics/backgroundPics/${widget.selectedLocation.locationId}.jpg");
 
-      ref.getDownloadURL().then((value) => setState(() => _imageUrl = value));
+      ref.getDownloadURL().then((value) => _imageUrl = value);
 
       setState(() {});
     } catch (e) {
@@ -67,6 +60,11 @@ class _LocationInfoState extends State<LocationInfo> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  Future<String> getLocationSports() async {
+    return await LocationServices()
+        .getLocationSports(widget.selectedLocation.locationId);
   }
 
   Widget build(BuildContext context) {
@@ -100,14 +98,6 @@ class _LocationInfoState extends State<LocationInfo> {
                           child: Image.network(_imageUrl,
                               width: 60, height: 60, fit: BoxFit.cover),
                         ),
-                        // Positioned(
-                        //   bottom: -10,
-                        //   right: 0,
-                        //   child: Icon(
-                        //     Icons.directions,
-                        //     color: kPrimaryColor,
-                        //   ),
-                        // )
                       ],
                     ),
                     SizedBox(width: 20),
@@ -159,20 +149,39 @@ class _LocationInfoState extends State<LocationInfo> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Tenis, Fotbal, Squash',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: kPrimaryLightColor,
-                              fontWeight: FontWeight.bold),
+                        FutureBuilder(
+                          future: LocationServices().getLocationSports(
+                              widget.selectedLocation.locationId),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<String> text) {
+                            return Text(
+                              text.data ?? '',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: kPrimaryColor,
+                                  fontWeight: FontWeight.bold),
+                            );
+                          },
                         ),
                         SizedBox(
                           height: 5,
                         ),
-                        Text(
-                          'Available matches: 4',
-                          style: TextStyle(color: kPrimaryColor),
-                        ),
+                        FutureBuilder(
+                          future: LocationServices().getLocationActiveMatches(
+                              widget.selectedLocation.locationId),
+                          builder:
+                              (BuildContext context, AsyncSnapshot<int> text) {
+                            return Text(
+                              text.data != 0
+                                  ? 'Available matches: ${text.data.toString()}'
+                                  : 'No availabe matches ',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: kPrimaryColor,
+                                  fontWeight: FontWeight.normal),
+                            );
+                          },
+                        )
                       ],
                     ),
                   ],
@@ -182,35 +191,43 @@ class _LocationInfoState extends State<LocationInfo> {
           ),
         ),
         Positioned(
-          top: 76,
+          top: 90,
           left: 280,
           child: Container(
             decoration: BoxDecoration(
-                color: kPrimaryLightColor,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: kPrimaryColor.withOpacity(0.2),
-                    blurRadius: 15,
-                    spreadRadius: 5,
-                    offset: Offset(0, 4),
-                  ),
-                ]),
-            child: TextButton(
-              child: Text(
-                'See Details',
-                style: TextStyle(
-                    fontFamily: 'OpenSans', fontWeight: FontWeight.bold),
-              ),
-              onPressed: () => {},
-              style: TextButton.styleFrom(
-                primary: kPrimaryColor,
-                padding: EdgeInsets.all(15),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25)),
-                backgroundColor: kPrimaryLightColor,
-              ),
+              color: kPrimaryLightColor,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: kPrimaryColor.withOpacity(0.2),
+                  blurRadius: 8,
+                  spreadRadius: 3,
+                  offset: Offset(0, 8),
+                ),
+              ],
             ),
+            child: CustomDetailsButton(
+                selectedLocation: widget.selectedLocation.locationId),
+            // child: TextButton(
+            //   child: Text(
+            //     'See Details',
+            //     style: TextStyle(
+            //         fontFamily: 'OpenSans', fontWeight: FontWeight.bold),
+            //   ),
+            //   onPressed: () => {
+            //     Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //             builder: (context) => const ShowDetails())),
+            //   },
+            //   style: TextButton.styleFrom(
+            //     primary: kPrimaryColor,
+            //     padding: EdgeInsets.all(15),
+            //     shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(25)),
+            //     backgroundColor: kPrimaryLightColor,
+            //   ),
+            // ),
           ),
         )
       ],
