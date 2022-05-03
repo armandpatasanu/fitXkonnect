@@ -9,9 +9,11 @@ class FirestoreMethods {
     String matchId,
     String location,
     String player1,
+    String matchDate,
     String startingTime,
     String sport,
     String difficulty,
+    String status,
   ) async {
     String result = "whatever";
 
@@ -22,10 +24,12 @@ class FirestoreMethods {
         location: location,
         player1: player1,
         player2: "",
+        matchDate: matchDate,
         startingTime: startingTime,
         datePublished: DateTime.now(),
         sport: sport,
         difficulty: difficulty,
+        status: status,
       );
 
       _firestore.collection('matches').doc(matchId).set(

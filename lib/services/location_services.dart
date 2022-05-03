@@ -3,6 +3,7 @@ import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
+import 'package:flutter/material.dart';
 
 class LocationServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -64,5 +65,20 @@ class LocationServices {
     print("LMAO IS ${myRes}");
 
     return myRes;
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> getMatches() async {
+    return await FirebaseFirestore.instance
+        .collection("matches")
+        .orderBy('datePublished', descending: true)
+        .get();
+  }
+
+  Future<void> cancelMatch(String matchId) async {
+    try {
+      await _firestore.collection('matches').doc(matchId).delete();
+    } catch (error) {
+      print(error.toString());
+    }
   }
 }

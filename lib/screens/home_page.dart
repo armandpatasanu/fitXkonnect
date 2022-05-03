@@ -1,7 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/screens/navigation_page.dart';
+import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/personal_match_card.dart';
 import 'package:fitxkonnect/utils/widgets/match_card.dart';
+import 'package:fitxkonnect/utils/widgets/special_match_card.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,45 +21,48 @@ class _HomePageState extends State<HomePage> {
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Column(children: [
         Container(
-          height: 230,
+          height: 120,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               bottomRight: Radius.circular(50),
             ),
-            color: kPrimaryColor,
+            color: Color.fromARGB(47, 143, 116, 36),
           ),
           child: Stack(children: [
             Positioned(
-              top: 80,
+              top: 40,
               left: 0,
               child: Container(
-                height: 100,
+                height: 60,
                 width: 300,
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(50),
                     bottomRight: Radius.circular(50),
                   ),
-                  color: Colors.white,
+                  color: kPrimaryLightColor,
                 ),
               ),
             ),
             Positioned(
-              top: 115,
-              left: 20,
+              top: 40,
+              left: 4,
               child: TextButton.icon(
                 label: Text(
-                  "Matches",
+                  "Available Matches",
                   style: TextStyle(
-                    fontSize: 30,
-                    color: Colors.black,
+                    fontSize: 24,
+                    color: Color.fromARGB(180, 69, 36, 255),
                     fontFamily: 'OpenSans',
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                icon: Icon(Icons.arrow_circle_left),
+                icon: Icon(
+                  Icons.arrow_circle_left,
+                  color: Color.fromARGB(180, 112, 91, 232),
+                ),
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -67,8 +74,9 @@ class _HomePageState extends State<HomePage> {
         Expanded(
           child: SizedBox(
             height: 10,
-            child: FutureBuilder(
-              future: FirebaseFirestore.instance.collection("matches").get(),
+            child: StreamBuilder(
+              stream:
+                  FirebaseFirestore.instance.collection('matches').snapshots(),
               builder: (context,
                   AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -78,9 +86,14 @@ class _HomePageState extends State<HomePage> {
                 }
                 return ListView.builder(
                   itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) => MatchCard(
-                    snap: snapshot.data!.docs[index].data(),
-                  ),
+                  itemBuilder: (context, index) =>
+                      FirebaseAuth.instance.currentUser!.uid !=
+                              snapshot.data!.docs[index].data()['player1']
+                          ? MatchCard(
+                              snap: snapshot.data!.docs[index].data(),
+                            )
+                          : SpecialMatchCard(
+                              snap: snapshot.data!.docs[index].data()),
                 );
               },
             ),

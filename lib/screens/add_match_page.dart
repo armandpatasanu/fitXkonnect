@@ -3,9 +3,12 @@ import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/services/firestore_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
+import 'package:fitxkonnect/utils/widgets/date_time_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 
 import 'package:fitxkonnect/utils/colors.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class AddMatchPage extends StatefulWidget {
@@ -15,7 +18,7 @@ class AddMatchPage extends StatefulWidget {
 
 class _AddMatchPageState extends State<AddMatchPage> {
   final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _sportController = TextEditingController();
   final TextEditingController _difficultyController = TextEditingController();
   bool _isLoading = false;
@@ -75,7 +78,56 @@ class _AddMatchPageState extends State<AddMatchPage> {
           buildTextField(Icons.place, "Location", _locationController),
           buildTextField(Icons.sports_kabaddi, "Sport", _sportController),
           buildTextField(Icons.quiz, "Difficulty", _difficultyController),
-          buildTextField(Icons.date_range, "Date", _dateController),
+          SizedBox(
+            height: 8,
+          ),
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              children: [
+                WidgetSpan(
+                  child: Icon(
+                    Icons.calendar_month,
+                    size: 17,
+                    color: textColor1,
+                  ),
+                ),
+                TextSpan(
+                    text: "Select Match Date",
+                    style: TextStyle(fontSize: 17, color: textColor1)),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 8,
+          ),
+          DateTimeField(
+            textAlign: TextAlign.center,
+            controller: _dateTimeController,
+            style: TextStyle(fontSize: 14, color: textColor1),
+            decoration: InputDecoration(
+              hintText: 'Choose match starting date&time',
+              hintStyle: TextStyle(fontSize: 14, color: textColor1),
+            ),
+            format: DateFormat('MM/dd/yyyy HH:mm'),
+            onShowPicker: (context, currentValue) async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: currentValue ?? DateTime.now(),
+                firstDate: DateTime(1900),
+                lastDate: DateTime(2100),
+              );
+              if (date != null) {
+                final time = await showTimePicker(
+                    context: context,
+                    initialTime:
+                        TimeOfDay.fromDateTime(currentValue ?? DateTime.now()));
+                return DateTimeField.combine(date, time);
+              } else {
+                return currentValue;
+              }
+            },
+          )
         ],
       ),
     );
@@ -165,7 +217,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
   }
 
   void clearTextFields() {
-    _dateController.clear();
+    _dateTimeController.clear();
     _locationController.clear();
     _difficultyController.clear();
     _sportController.clear();
@@ -174,7 +226,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
   @override
   void dispose() {
     // TODO: implement dispose
-    _dateController.dispose();
+    _dateTimeController.dispose();
     _locationController.dispose();
     _difficultyController.dispose();
     _sportController.dispose();
@@ -188,13 +240,17 @@ class _AddMatchPageState extends State<AddMatchPage> {
 
     try {
       String result = await FirestoreMethods().createMatch(
-          user.uid,
-          _locationController.text,
-          user.uid,
-          _dateController.text,
-          _sportController.text,
-          _difficultyController.text);
+        user.uid,
+        _locationController.text,
+        user.uid,
+        _dateTimeController.text.substring(11, 16),
+        _dateTimeController.text.substring(0, 10),
+        _sportController.text,
+        _difficultyController.text,
+        'open',
+      );
 
+      print(DatetimePickerWidget());
       if (result == 'success') {
         setState(() {
           _isLoading = false;
