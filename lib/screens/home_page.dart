@@ -7,9 +7,14 @@ import 'package:fitxkonnect/utils/personal_match_card.dart';
 import 'package:fitxkonnect/utils/widgets/match_card.dart';
 import 'package:fitxkonnect/utils/widgets/special_match_card.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_stream_builder/multi_stream_builder.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final snapshot;
+  const HomePage({
+    Key? key,
+    this.snapshot,
+  }) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -74,28 +79,32 @@ class _HomePageState extends State<HomePage> {
         Expanded(
           child: SizedBox(
             height: 10,
-            child: StreamBuilder(
-              stream:
-                  FirebaseFirestore.instance.collection('matches').snapshots(),
-              builder: (context,
-                  AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) =>
-                      FirebaseAuth.instance.currentUser!.uid !=
-                              snapshot.data!.docs[index].data()['player1']
-                          ? MatchCard(
-                              snap: snapshot.data!.docs[index].data(),
-                            )
-                          : SpecialMatchCard(
-                              snap: snapshot.data!.docs[index].data()),
-                );
-              },
+            child: ListView.builder(
+              itemCount: widget.snapshot.data!.docs.length,
+              itemBuilder: (context, index) => FutureBuilder(
+                  future: Future.wait([
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(widget.snapshot.data.docs[index]['player1'])
+                        .get(),
+                    FirebaseFirestore.instance
+                        .collection('locations')
+                        .doc(widget.snapshot.data.docs[index]['location'])
+                        .get(),
+                  ]),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<dynamic>> snep) {
+                    if (snep.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    return SpecialMatchCard(
+                      snap: widget.snapshot.data!.docs[index].data(),
+                      userSnap: snep.data![0],
+                      locationSnap: snep.data![1],
+                    );
+                  }),
             ),
           ),
         ),

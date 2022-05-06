@@ -1,9 +1,13 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fitxkonnect/models/location_model.dart';
+import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/screens/add_match_page.dart';
 import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
 import 'package:fitxkonnect/screens/search_page.dart';
+import 'package:fitxkonnect/services/location_services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -44,7 +48,17 @@ class _NavigationPageState extends State<NavigationPage> {
       case 3:
         return ProfilePage();
       default:
-        return HomePage();
+        return FutureBuilder(
+            future: LocationServices().getMatches(),
+            builder: (BuildContext context,
+                AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return HomePage(snapshot: snapshot);
+            });
     }
   }
 

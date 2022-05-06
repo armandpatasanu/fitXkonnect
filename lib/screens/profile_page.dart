@@ -1,10 +1,12 @@
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
+import 'package:fitxkonnect/screens/my_matches.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/utils/components/profile_page/profile_menu.dart';
 import 'package:fitxkonnect/utils/components/profile_page/profile_pic.dart';
 import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/widgets/profile_sport_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -71,7 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Row(
                   children: [
                     Text(
-                      '${user.fullName}, 22',
+                      '${user.fullName}, ${user.age}',
                       style: TextStyle(
                         fontSize: 21,
                         color: kPrimaryLightColor,
@@ -129,22 +131,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(
                     width: 15,
                   ),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.sports_tennis,
-                        color: Colors.red,
-                      ),
-                      Icon(
-                        Icons.sports_soccer,
-                        color: Colors.yellow,
-                      ),
-                      Icon(
-                        Icons.sports_volleyball,
-                        color: Colors.green,
-                      ),
-                    ],
-                  ),
+                  // Flexible(
+                  //   child: ListView.builder(
+                  //     itemCount: user.sports.length,
+                  //     itemBuilder: (context, index) => SportIcon(
+                  //       difficulty: user.sports[index]["difficulty"],
+                  //       sport: user.sports[index]["sport"],
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -183,7 +178,10 @@ class _ProfilePageState extends State<ProfilePage> {
             ProfileMenu(
               text: "My Matches",
               icon: Icon(Icons.question_mark),
-              press: () {},
+              press: () {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => MyMatches()));
+              },
             ),
           ],
         ),

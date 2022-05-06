@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
   UserModel _user = const UserModel(
-    username: '',
+    age: '',
     uid: '',
     profilePhoto: '',
     email: '',
     fullName: '',
     country: '',
+    matches: [],
+    sports: [],
   );
   final AuthMethods _authMethods = AuthMethods();
 

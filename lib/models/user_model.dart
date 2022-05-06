@@ -4,17 +4,21 @@ class UserModel {
   final String email;
   final String uid;
   final String profilePhoto;
-  final String username;
+  final String age;
   final String fullName;
   final String country;
+  final List matches;
+  final List sports;
 
   const UserModel({
-    required this.username,
+    required this.age,
     required this.uid,
     required this.profilePhoto,
     required this.email,
     required this.fullName,
     required this.country,
+    required this.matches,
+    required this.sports,
   });
 
   static UserModel fromSnap(DocumentSnapshot snap) {
@@ -22,20 +26,24 @@ class UserModel {
 
     return UserModel(
       uid: snapshot["uid"],
-      username: snapshot["username"],
+      age: snapshot["age"],
       fullName: snapshot["fullName"],
       email: snapshot["email"],
       profilePhoto: snapshot["profilePhoto"],
       country: snapshot["country"],
+      matches: snapshot["matches"],
+      sports: snapshot["sports"],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "username": username,
+        "age": age,
         "uid": uid,
         "email": email,
         "profilePhoto": profilePhoto,
         "fullName": fullName,
         "country": country,
+        "matches": matches,
+        "sports": sports,
       };
 }

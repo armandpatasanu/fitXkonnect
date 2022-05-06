@@ -26,7 +26,10 @@ class IconAndTextWidget extends StatelessWidget {
         ),
         Text(
           text,
-          style: TextStyle(color: color),
+          style: TextStyle(
+            color: color,
+            fontSize: 14,
+          ),
         ),
       ],
     );

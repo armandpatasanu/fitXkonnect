@@ -43,6 +43,35 @@ class LocationServices {
     return wantedMatches;
   }
 
+  Future<List<LocationModel>> getLocationsList() async {
+    var ref = await FirebaseFirestore.instance
+        .collection('locations')
+        .orderBy('name', descending: false)
+        .get();
+    List<DocumentSnapshot> locationList = ref.docs;
+    List<LocationModel> locations = [];
+
+    locationList.forEach((DocumentSnapshot snap) {
+      locations.add(LocationModel.fromSnap(snap));
+    });
+
+    return locations;
+  }
+
+  Future<List<LocationModel>> getMatchesList() async {
+    var ref = await FirebaseFirestore.instance
+        .collection('matches')
+        .orderBy('name', descending: false)
+        .get();
+    List<DocumentSnapshot> matchesList = ref.docs;
+    List<LocationModel> matches = [];
+
+    matchesList.forEach((DocumentSnapshot snap) {
+      matches.add(LocationModel.fromSnap(snap));
+    });
+    return matches;
+  }
+
   Future<UserModel> getSpecificUser(String player1Id) async {
     var result = await _firestore
         .collection('users')
@@ -65,6 +94,13 @@ class LocationServices {
     print("LMAO IS ${myRes}");
 
     return myRes;
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> getLocations() async {
+    return await FirebaseFirestore.instance
+        .collection("matches")
+        .orderBy('datePublished', descending: true)
+        .get();
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> getMatches() async {

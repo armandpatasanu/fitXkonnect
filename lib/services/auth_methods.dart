@@ -22,10 +22,12 @@ class AuthMethods {
   Future<String> registerValidation({
     required String email,
     required String password,
-    required String username,
+    required String? age,
     required Uint8List? file,
     required String fullName,
     required String? country,
+    required List matches,
+    required List sports,
   }) async {
     String result = 'success';
     try {
@@ -39,6 +41,8 @@ class AuthMethods {
         result = 'Password length too short!';
       } else if (country == null) {
         result = 'Please select your country!';
+      } else if (age == null) {
+        result = 'Please select your datebirth!';
       } else if (file == null) {
         result = 'Please select a picture!';
       } else {
@@ -51,12 +55,14 @@ class AuthMethods {
             .uploadImageToStorage('profilePics', file, false);
 
         UserModel user = UserModel(
-          username: username,
+          age: age,
           fullName: fullName,
           uid: credential.user!.uid,
           profilePhoto: photoUrl,
           email: email,
           country: country,
+          matches: matches,
+          sports: sports,
         );
 
         _firestore.collection('users').doc(credential.user!.uid).set(

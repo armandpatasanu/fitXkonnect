@@ -42,12 +42,14 @@ class StorageMethods {
 
   UserModel getEmptyUser() {
     return UserModel(
-      username: "",
+      age: "",
       uid: "",
       profilePhoto: "",
       email: "",
       fullName: "",
       country: "",
+      matches: [],
+      sports: [],
     );
   }
 }

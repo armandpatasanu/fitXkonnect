@@ -372,7 +372,7 @@ class _DetailPageState extends State<DetailPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     Text(
-                                      snapshot.data!.username,
+                                      snapshot.data!.age,
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontFamily: 'Avenir',

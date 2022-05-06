@@ -1,4 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitxkonnect/models/location_model.dart';
+import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/icon_text_widget.dart';
@@ -7,9 +12,13 @@ import 'package:geolocator/geolocator.dart';
 
 class SpecialMatchCard extends StatefulWidget {
   final snap;
+  final userSnap;
+  final locationSnap;
   const SpecialMatchCard({
     Key? key,
     this.snap,
+    this.userSnap,
+    this.locationSnap,
   }) : super(key: key);
 
   @override
@@ -17,32 +26,25 @@ class SpecialMatchCard extends StatefulWidget {
 }
 
 class _SpecialMatchCardState extends State<SpecialMatchCard> {
-  var userData = {};
+  UserModel userData = StorageMethods().getEmptyUser();
+  LocationModel locationData = StorageMethods().getEmptyLocation();
   bool isLoading = false;
   void initState() {
     super.initState();
-    getData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getData();
+    });
+    // getData();
   }
 
-  getData() async {
+  getData() {
     setState(() {
       isLoading = true;
     });
-    try {
-      var userSnap = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.snap['player1'])
-          .get();
 
-      userData = userSnap.data()!;
-
-      setState(() {});
-    } catch (e) {
-      showSnackBar(
-        e.toString(),
-        context,
-      );
-    }
+    userData = UserModel.fromSnap(widget.userSnap);
+    locationData = LocationModel.fromSnap(widget.locationSnap);
+    setState(() {});
     setState(() {
       isLoading = false;
     });
@@ -50,6 +52,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
 
   @override
   Widget build(BuildContext context) {
+    print("WHY?");
     return Container(
       decoration: BoxDecoration(color: Colors.white),
       height: 250,
@@ -72,15 +75,109 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   fit: BoxFit.cover),
             ),
           ),
+          Positioned(
+            left: 100,
+            child: Container(
+              padding: EdgeInsets.only(left: 40, top: 30),
+              child: Column(
+                children: [
+                  IconAndTextWidget(
+                    icon: Icons.location_on,
+                    text: locationData.name,
+                    iconColor: kPrimaryColor,
+                    color: kPrimaryColor,
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  IconAndTextWidget(
+                    icon: Icons.calendar_month,
+                    text: widget.snap['startingTime'],
+                    iconColor: kPrimaryColor,
+                    color: kPrimaryColor,
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  IconAndTextWidget(
+                    icon: Icons.access_alarm,
+                    text: widget.snap['matchDate'],
+                    iconColor: kPrimaryColor,
+                    color: kPrimaryColor,
+                  ),
+                ],
+                crossAxisAlignment: CrossAxisAlignment.center,
+              ),
+              height: 200,
+              width: 200,
+              margin: EdgeInsets.only(left: 40, right: 40),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: kPrimaryLightColor,
+              ),
+            ),
+          ),
+          userData.uid == FirebaseAuth.instance.currentUser!.uid
+              ? Positioned(
+                  left: 250,
+                  top: 180,
+                  child: Container(
+                    width: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        colors: <Color>[Colors.red, Colors.black],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 1.5),
+                          blurRadius: 1.5,
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.cancel),
+                      onPressed: () {
+                        LocationServices().cancelMatch(widget.snap['matchId']);
+                      },
+                    ),
+                  ),
+                )
+              : Positioned(
+                  left: 250,
+                  top: 180,
+                  child: Container(
+                    width: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        colors: <Color>[Colors.green, Colors.black],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 1.5),
+                          blurRadius: 1.5,
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.play_circle),
+                      onPressed: () {},
+                    ),
+                  ),
+                ),
           Stack(
             children: [
               Container(
                 height: 250,
               ),
               Positioned(
-                top: 150,
+                top: 140,
                 child: Container(
                   height: 100,
+                  width: 220,
                   margin: EdgeInsets.only(left: 15, right: 20, bottom: 15),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
@@ -91,14 +188,14 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     child: Column(
                       children: [
                         Text(
-                          (userData['fullName'] ?? 'Testing') + ", 21",
+                          userData.fullName + ', 21',
                           style: TextStyle(fontSize: 18, color: kPrimaryColor),
                         ),
                         SizedBox(
                           height: 0,
                         ),
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Row(
                               children: [
@@ -111,7 +208,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                                 ),
                                 IconAndTextWidget(
                                   icon: Icons.sports_tennis,
-                                  text: "Tenis",
+                                  text: widget.snap['sport'],
                                   color: Colors.white,
                                   iconColor: Colors.yellow,
                                 ),
@@ -122,13 +219,22 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                             ),
                             Row(
                               children: [
-                                Text(
-                                  'Difficulty: ',
-                                  style: TextStyle(color: kPrimaryColor),
+                                // Text(
+                                //   locationData.contact.length > 0
+                                //       ? locationData.contact[0]
+                                //       : 'xxx',
+                                //   style: TextStyle(color: kPrimaryColor),
+                                // ),
+                                FittedBox(
+                                  child: Text('Difficulty:'),
+                                  fit: BoxFit.fitWidth,
+                                ),
+                                SizedBox(
+                                  width: 10,
                                 ),
                                 IconAndTextWidget(
                                   icon: Icons.question_answer,
-                                  text: "Hard",
+                                  text: widget.snap['difficulty'],
                                   color: Colors.white,
                                   iconColor: Colors.yellow,
                                 ),
@@ -151,16 +257,16 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                 ),
               ),
               Positioned(
-                top: 10,
-                left: 40,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(60),
-                  child: Image.network(
-                      'https://images.mubicdn.net/images/cast_member/2552/cache-207-1524922850/image-w856.jpg?size=800x',
-                      width: 150,
-                      height: 150,
-                      fit: BoxFit.scaleDown),
-                ),
+                top: 30,
+                left: 50,
+                child: Container(
+                    width: 120.0,
+                    height: 120.0,
+                    decoration: new BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: new DecorationImage(
+                            fit: BoxFit.cover,
+                            image: new NetworkImage(userData.profilePhoto)))),
               ),
             ],
           ),

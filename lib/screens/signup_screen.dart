@@ -1,15 +1,19 @@
 import 'dart:typed_data';
 
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
+import 'package:fitxkonnect/utils/colors.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/user_greeting/page_title_bar.dart';
 import 'package:fitxkonnect/utils/user_greeting/under_part.dart';
+import 'package:fitxkonnect/utils/widgets/age_widget.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_input_field.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_password_field.dart';
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import '../utils/utils.dart';
 import '../utils/widgets/rounded_button.dart';
 
@@ -23,12 +27,13 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
   Uint8List? _image;
   bool _isLoading = false;
   String? _country;
+  String? _age;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -45,13 +50,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _isLoading = true;
     });
 
+    print("AMBER ${_dateTimeController.text}");
     String result = await AuthMethods().registerValidation(
-        email: _emailController.text,
-        password: _passwordController.text,
-        username: _usernameController.text,
-        fullName: _fullNameController.text,
-        country: _country,
-        file: _image);
+      email: _emailController.text,
+      password: _passwordController.text,
+      age: (DateTime.now().year -
+              int.parse(_dateTimeController.text.substring(6, 10)))
+          .toString(),
+      fullName: _fullNameController.text,
+      country: _country,
+      file: _image,
+      matches: [],
+      sports: [],
+    );
 
     print(result);
 
@@ -144,15 +155,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               icon: Icons.email,
                               controller: _emailController,
                             ),
-                            RoundedInputField(
-                              hintText: "Username",
-                              icon: Icons.person,
-                              controller: _usernameController,
-                            ),
+                            // RoundedInputField(
+                            //   hintText: "Username",
+                            //   icon: Icons.person,
+                            //   controller: _usernameController,
+                            // ),
                             RoundedInputField(
                               hintText: "Full Name",
                               icon: Icons.person,
                               controller: _fullNameController,
+                            ),
+                            DateOfBirthField(
+                              hintText: "Email",
+                              icon: Icons.email,
+                              controller: _dateTimeController,
                             ),
                             RoundedPasswordField(
                               controller: _passwordController,
