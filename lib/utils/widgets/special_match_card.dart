@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
@@ -12,13 +13,10 @@ import 'package:geolocator/geolocator.dart';
 
 class SpecialMatchCard extends StatefulWidget {
   final snap;
-  final userSnap;
-  final locationSnap;
+
   const SpecialMatchCard({
     Key? key,
     this.snap,
-    this.userSnap,
-    this.locationSnap,
   }) : super(key: key);
 
   @override
@@ -31,23 +29,6 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
   bool isLoading = false;
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getData();
-    });
-    // getData();
-  }
-
-  getData() {
-    setState(() {
-      isLoading = true;
-    });
-
-    userData = UserModel.fromSnap(widget.userSnap);
-    locationData = LocationModel.fromSnap(widget.locationSnap);
-    setState(() {});
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
@@ -83,7 +64,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                 children: [
                   IconAndTextWidget(
                     icon: Icons.location_on,
-                    text: locationData.name,
+                    text: widget.snap.locationName,
                     iconColor: kPrimaryColor,
                     color: kPrimaryColor,
                   ),
@@ -92,7 +73,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   ),
                   IconAndTextWidget(
                     icon: Icons.calendar_month,
-                    text: widget.snap['startingTime'],
+                    text: widget.snap.startingTime,
                     iconColor: kPrimaryColor,
                     color: kPrimaryColor,
                   ),
@@ -101,7 +82,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   ),
                   IconAndTextWidget(
                     icon: Icons.access_alarm,
-                    text: widget.snap['matchDate'],
+                    text: widget.snap.matchDate,
                     iconColor: kPrimaryColor,
                     color: kPrimaryColor,
                   ),
@@ -139,7 +120,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     child: IconButton(
                       icon: Icon(Icons.cancel),
                       onPressed: () {
-                        LocationServices().cancelMatch(widget.snap['matchId']);
+                        MatchServices().cancelMatch(widget.snap.matchId);
                       },
                     ),
                   ),
@@ -188,7 +169,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     child: Column(
                       children: [
                         Text(
-                          userData.fullName + ', 21',
+                          widget.snap.p1Name + widget.snap.p1Age,
                           style: TextStyle(fontSize: 18, color: kPrimaryColor),
                         ),
                         SizedBox(
@@ -208,7 +189,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                                 ),
                                 IconAndTextWidget(
                                   icon: Icons.sports_tennis,
-                                  text: widget.snap['sport'],
+                                  text: widget.snap.sport,
                                   color: Colors.white,
                                   iconColor: Colors.yellow,
                                 ),
@@ -234,19 +215,10 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                                 ),
                                 IconAndTextWidget(
                                   icon: Icons.question_answer,
-                                  text: widget.snap['difficulty'],
+                                  text: widget.snap.difficulty,
                                   color: Colors.white,
                                   iconColor: Colors.yellow,
                                 ),
-                                // SizedBox(
-                                //   width: 10,
-                                // ),
-                                // IconAndTextWidget(
-                                //   icon: Icons.location_city,
-                                //   text: "Medium",
-                                //   color: Colors.grey,
-                                //   iconColor: Colors.green,
-                                // ),
                               ],
                             ),
                           ],
@@ -266,7 +238,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                         shape: BoxShape.circle,
                         image: new DecorationImage(
                             fit: BoxFit.cover,
-                            image: new NetworkImage(userData.profilePhoto)))),
+                            image: new NetworkImage(widget.snap.p1Profile)))),
               ),
             ],
           ),

@@ -22,29 +22,6 @@ class ProfilePic extends StatelessWidget {
               profilePhoto,
             ),
           ),
-          Positioned(
-            right: -8,
-            bottom: 2,
-            child: SizedBox(
-              height: 35,
-              width: 35,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50),
-                    side: BorderSide(color: Colors.white),
-                  ),
-                  primary: Colors.white,
-                  backgroundColor: Color(0xFFF5F6F9),
-                ),
-                onPressed: () {},
-                child: Icon(
-                  Icons.edit,
-                  color: kPrimaryColor,
-                ),
-              ),
-            ),
-          )
         ],
       ),
     );

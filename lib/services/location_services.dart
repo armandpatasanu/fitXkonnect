@@ -30,20 +30,7 @@ class LocationServices {
     return location;
   }
 
-  Future<List<MatchModel>> getCertainMatches(String locationId) async {
-    var ref = await FirebaseFirestore.instance.collection('matches').get();
-    List<DocumentSnapshot> documentList = ref.docs;
-    List<MatchModel> wantedMatches = [];
-
-    documentList.forEach((DocumentSnapshot snap) {
-      if (snap['location'] == locationId) {
-        wantedMatches.add(MatchModel.fromSnap(snap));
-      }
-    });
-    return wantedMatches;
-  }
-
-  Future<List<LocationModel>> getLocationsList() async {
+  Future<List<LocationModel>> getListOfLocations() async {
     var ref = await FirebaseFirestore.instance
         .collection('locations')
         .orderBy('name', descending: false)
@@ -58,63 +45,10 @@ class LocationServices {
     return locations;
   }
 
-  Future<List<LocationModel>> getMatchesList() async {
-    var ref = await FirebaseFirestore.instance
-        .collection('matches')
-        .orderBy('name', descending: false)
-        .get();
-    List<DocumentSnapshot> matchesList = ref.docs;
-    List<LocationModel> matches = [];
-
-    matchesList.forEach((DocumentSnapshot snap) {
-      matches.add(LocationModel.fromSnap(snap));
-    });
-    return matches;
-  }
-
-  Future<UserModel> getSpecificUser(String player1Id) async {
-    var result = await _firestore
-        .collection('users')
-        .where('uid', isEqualTo: player1Id)
-        .get();
-
-    UserModel searchedUser = UserModel.fromSnap(result.docs[0]);
-    return searchedUser;
-  }
-
-  Future<int> getLocationActiveMatches(String s) async {
-    print("LAMO 2 is ${s}");
-    int myRes;
-    var result = await _firestore
-        .collection('matches')
-        .where('location', isEqualTo: s)
-        .get();
-
-    myRes = result.docs.length;
-    print("LMAO IS ${myRes}");
-
-    return myRes;
-  }
-
   Future<QuerySnapshot<Map<String, dynamic>>> getLocations() async {
     return await FirebaseFirestore.instance
         .collection("matches")
         .orderBy('datePublished', descending: true)
         .get();
-  }
-
-  Future<QuerySnapshot<Map<String, dynamic>>> getMatches() async {
-    return await FirebaseFirestore.instance
-        .collection("matches")
-        .orderBy('datePublished', descending: true)
-        .get();
-  }
-
-  Future<void> cancelMatch(String matchId) async {
-    try {
-      await _firestore.collection('matches').doc(matchId).delete();
-    } catch (error) {
-      print(error.toString());
-    }
   }
 }

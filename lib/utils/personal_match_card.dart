@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -237,7 +238,7 @@ class _PersonalMatchCardState extends State<PersonalMatchCard> {
                                     .map(
                                       (e) => InkWell(
                                         onTap: () async {
-                                          LocationServices().cancelMatch(
+                                          MatchServices().cancelMatch(
                                               widget.snap['matchId']);
                                           Navigator.of(context).pop();
                                         },

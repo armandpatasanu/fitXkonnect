@@ -21,7 +21,7 @@ class LocationModel {
     var snapshot = snap.data() as Map<String, dynamic>;
 
     return LocationModel(
-      schedule: snapshot["schedule"],
+      schedule: snapshot["schedule"] ?? '',
       contact: snapshot["contact"],
       sports: snapshot["sports"],
       locationId: snapshot["locationId"],

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
 import 'package:fitxkonnect/utils/colors.dart';
@@ -62,6 +63,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       file: _image,
       matches: [],
       sports: [],
+      notifications: [],
+      token: '',
     );
 
     print(result);

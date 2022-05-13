@@ -14,6 +14,8 @@ class UserProvider extends ChangeNotifier {
     country: '',
     matches: [],
     sports: [],
+    notifications: [],
+    token: '',
   );
   final AuthMethods _authMethods = AuthMethods();
 

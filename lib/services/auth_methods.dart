@@ -28,6 +28,8 @@ class AuthMethods {
     required String? country,
     required List matches,
     required List sports,
+    required List notifications,
+    required String token,
   }) async {
     String result = 'success';
     try {
@@ -51,8 +53,8 @@ class AuthMethods {
           password: password,
         );
 
-        String photoUrl = await StorageMethods()
-            .uploadImageToStorage('profilePics', file, false);
+        String photoUrl =
+            await StorageMethods().uploadImageToStorage('profilePics', file);
 
         UserModel user = UserModel(
           age: age,
@@ -63,6 +65,8 @@ class AuthMethods {
           country: country,
           matches: matches,
           sports: sports,
+          notifications: notifications,
+          token: token,
         );
 
         _firestore.collection('users').doc(credential.user!.uid).set(

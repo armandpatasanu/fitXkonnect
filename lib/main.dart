@@ -1,15 +1,23 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
+import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
 import 'package:fitxkonnect/screens/navigation_page.dart';
+import 'package:fitxkonnect/services/local_push_notif.dart';
 import 'package:fitxkonnect/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// Future<void> _firebaseMessagingBkgHandler(RemoteMessage msg) async {}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  LocalNotificationService.initialize();
+
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBkgHandler);
   runApp(const MyApp());
 }
 
@@ -36,7 +44,7 @@ class MyApp extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.active) {
               if (snapshot.hasData) {
-                return const NavigationPage();
+                return const HomePage();
               } else if (snapshot.hasError) {
                 return Center(
                   child: Text('${snapshot.error}'),

@@ -2,7 +2,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
+import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/rating_bar.dart';
 import 'package:flutter/material.dart';
@@ -255,29 +257,12 @@ class _DetailPageState extends State<DetailPage> {
                         SizedBox(
                           height: 200,
                           child: FutureBuilder(
-                              future: LocationServices()
-                                  .getCertainMatches(widget.locationId),
+                              future: MatchServices()
+                                  .getMatchesBasedOnLocation(widget.locationId),
                               initialData: [],
                               builder: (context, snapshot) {
                                 return createMatchesListView(context, snapshot);
                               }),
-                          // child: ListView.builder(
-                          //   physics: ClampingScrollPhysics(),
-                          //   scrollDirection: Axis.horizontal,
-                          //   shrinkWrap: true,
-                          //   itemCount: 8,
-                          //   itemBuilder: (BuildContext context, int index) {
-                          //     return LimitedBox(
-                          //         maxWidth: 320,
-                          //         child: PageView(
-                          //           children: [
-                          //             Card(
-                          //               child: Icon(Icons.add_box),
-                          //             ),
-                          //           ],
-                          //         ));
-                          //   },
-                          // ),
                         ),
                       ],
                     ),
@@ -296,7 +281,7 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Future<UserModel> getUser() async {
-    _userData = await LocationServices().getSpecificUser(_searchedPlayer1Id);
+    _userData = await UserServices().getSpecificUser(_searchedPlayer1Id);
     // setState(() {});
     return _userData;
   }
@@ -372,7 +357,7 @@ class _DetailPageState extends State<DetailPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     Text(
-                                      snapshot.data!.age,
+                                      snapshot.data!.fullName,
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontFamily: 'Avenir',
@@ -412,7 +397,7 @@ class _DetailPageState extends State<DetailPage> {
                                       children: [
                                         Flexible(
                                           child: Text(
-                                            '21,',
+                                            snapshot.data!.age,
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Avenir',

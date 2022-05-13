@@ -9,6 +9,8 @@ class UserModel {
   final String country;
   final List matches;
   final List sports;
+  final List notifications;
+  final String token;
 
   const UserModel({
     required this.age,
@@ -19,6 +21,8 @@ class UserModel {
     required this.country,
     required this.matches,
     required this.sports,
+    required this.notifications,
+    required this.token,
   });
 
   static UserModel fromSnap(DocumentSnapshot snap) {
@@ -33,6 +37,8 @@ class UserModel {
       country: snapshot["country"],
       matches: snapshot["matches"],
       sports: snapshot["sports"],
+      notifications: snapshot["notifications"],
+      token: snapshot["token"],
     );
   }
 
@@ -45,5 +51,7 @@ class UserModel {
         "country": country,
         "matches": matches,
         "sports": sports,
+        "notifications": notifications,
+        "token": token,
       };
 }

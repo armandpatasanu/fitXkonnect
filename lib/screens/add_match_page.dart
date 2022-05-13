@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
-import 'package:fitxkonnect/providers/string_provider.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/services/firestore_methods.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/date_time_picker.dart';
+import 'package:fitxkonnect/utils/widgets/locations_dropdown.dart';
+import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:fitxkonnect/utils/widgets/toggle_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -42,6 +43,9 @@ class _AddMatchPageState extends State<AddMatchPage> {
     final UserModel user = Provider.of<UserProvider>(context).getUser();
 
     return Scaffold(
+      bottomNavigationBar: NaviBar(
+        index: 2,
+      ),
       backgroundColor: Colors.grey[300],
       body: Stack(
         children: [
@@ -119,8 +123,8 @@ class _AddMatchPageState extends State<AddMatchPage> {
             height: 12,
           ),
           buildSportsDropwDownList(),
-          buildLocatonsDropDown(),
-          // buildTextField(Icons.quiz, "Difficulty", _difficultyController),
+          buildLocationsDropDown(),
+          // LocationsDropDownList(),
           SizedBox(
             height: 8,
           ),
@@ -261,21 +265,15 @@ class _AddMatchPageState extends State<AddMatchPage> {
 
   var setDefaultMake = true, setDefaultMakeModel = true;
   Widget buildSportsDropwDownList() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('sports')
-          .orderBy('name')
-          .snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        // Safety check to ensure that snapshot contains data
-        // without this safety check, StreamBuilder dirty state warnings will be thrown
-        if (!snapshot.hasData)
+    return FutureBuilder<QuerySnapshot>(
+      future:
+          FirebaseFirestore.instance.collection('sports').orderBy('name').get(),
+      builder: (BuildContext context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
             child: CircularProgressIndicator(),
           );
-        // Set this value for default,
-        // setDefault will change if an item was selected
-        // First item from the List will be displayed
+        }
         return DropdownButton(
           // hint: Text(
           //   "Choose a sport",
@@ -442,7 +440,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
   ];
 
   @override
-  Widget buildLocatonsDropDown() {
+  Widget buildLocationsDropDown() {
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('locations')

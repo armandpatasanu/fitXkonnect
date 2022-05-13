@@ -1,3 +1,4 @@
+import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/screens/signup_screen.dart';
 import 'package:fitxkonnect/screens/navigation_page.dart';
@@ -41,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       showSnackBar(result, context);
     } else {
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const NavigationPage()));
+          MaterialPageRoute(builder: (context) => const HomePage()));
     }
     setState(() {
       _isLoading = false;

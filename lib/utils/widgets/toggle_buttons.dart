@@ -1,4 +1,3 @@
-import 'package:fitxkonnect/providers/string_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
