@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/models/match_model.dart';
+import 'package:fitxkonnect/services/location_services.dart';
 import 'package:uuid/uuid.dart';
 
 class FirestoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String> createMatch(
-    String matchId,
-    String location,
     String player1,
+    String locationName,
     String matchDate,
     String startingTime,
     String sport,
@@ -21,7 +21,7 @@ class FirestoreMethods {
       String matchId = const Uuid().v1();
       MatchModel match = MatchModel(
         matchId: matchId,
-        location: location,
+        location: await LocationServices().getLocationId(locationName),
         player1: player1,
         player2: "",
         matchDate: matchDate,

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fitxkonnect/models/dp_match_model.dart';
 import 'package:fitxkonnect/models/hp_match_model.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
@@ -49,9 +50,12 @@ class MatchServices {
     for (var match in allMatches) {
       print("Entering with ${match.sport}");
       UserModel user = await UserServices().getSpecificUser(match.player1);
+      print("DEBUG 1");
       LocationModel location =
           await LocationServices().getCertainLocation(match.location);
+      print('DEBUG 2');
       neededMatches.add(HomePageMatch(
+          p1uid: user.uid,
           p1Name: user.fullName,
           p1Age: user.age,
           p1Profile: user.profilePhoto,
@@ -60,6 +64,33 @@ class MatchServices {
           matchDate: match.startingTime,
           startingTime: match.matchDate,
           locationName: location.name,
+          matchId: match.matchId));
+      print("Adding");
+    }
+    return neededMatches;
+  }
+
+  Future<List<DetailsPageMatch>> getActualDetailsPageMatches(
+      String locationId) async {
+    List<MatchModel> allMatches =
+        await MatchServices().getMatchesBasedOnLocation(locationId);
+    print(' details matches: ${allMatches.length}');
+    List<DetailsPageMatch> neededMatches = [];
+
+    for (var match in allMatches) {
+      print("Entering with ${match.sport}");
+      UserModel user = await UserServices().getSpecificUser(match.player1);
+      LocationModel location =
+          await LocationServices().getCertainLocation(match.location);
+      neededMatches.add(DetailsPageMatch(
+          p1Name: user.fullName,
+          p1Age: user.age,
+          p1Profile: user.profilePhoto,
+          p1Country: user.country,
+          sport: match.sport,
+          difficulty: match.difficulty,
+          matchDate: match.startingTime,
+          startingTime: match.matchDate,
           matchId: match.matchId));
       print("Adding");
     }
@@ -77,45 +108,41 @@ class MatchServices {
     return wantedMatches;
   }
 
-  Future<List<String>> getUsersActiveMatches(String userId) async {
-    print("WTF?");
-    List<String> meMatches = [];
-    UserModel me = await UserServices().getSpecificUser(userId);
+  // Future<List<String>> getUsersActiveMatches(String userId) async {
+  //   print("WTF?");
+  //   List<String> meMatches = [];
+  //   UserModel me = await UserServices().getSpecificUser(userId);
 
-    me.sports.forEach((element) {
-      print("Element: ${element}");
-      meMatches.add(element);
-    });
-    return meMatches;
-  }
+  //   me.sports.forEach((element) {
+  //     print("Element: ${element}");
+  //     meMatches.add(element);
+  //   });
+  //   return meMatches;
+  // }
 
-  Future<List<MatchModel>> getUsersEndedMatches(List<String> s) async {
+  Future<List<MatchModel>> getUserEndedMatches(String userId) async {
+    print(userId);
+    // List<String> usersUIDS = await UserServices().getListOfUsersUIDS();
+    List<MatchModel> generalMatches = await MatchServices().getListOfMatches();
     List<MatchModel> endedMatches = [];
-    s.forEach((element) async {
-      MatchModel usersMatch = MatchModel.fromSnap((await _firestore
-              .collection('matches')
-              .where('matchId', isEqualTo: element)
-              .get())
-          .docs[0]);
-      if (usersMatch.status == 'decided' || usersMatch.status == 'abandoned') {
-        print("lmax : ${usersMatch.location}");
-        endedMatches.add(usersMatch);
+    generalMatches.forEach((element) async {
+      if ((element.status == 'decided') &&
+          (element.player1 == userId || element.player2 == userId)) {
+        endedMatches.add(element);
       }
     });
     return endedMatches;
   }
 
-  Future<List<MatchModel>> getUserToComeMatches(List<String> s) async {
+  Future<List<MatchModel>> getUserToComeMatches(String userId) async {
+    print(userId);
+    // List<String> usersUIDS = await UserServices().getListOfUsersUIDS();
+    List<MatchModel> generalMatches = await MatchServices().getListOfMatches();
     List<MatchModel> endedMatches = [];
-    s.forEach((element) async {
-      MatchModel usersMatch = MatchModel.fromSnap((await _firestore
-              .collection('matches')
-              .where('matchId', isEqualTo: element)
-              .get())
-          .docs[0]);
-      if (usersMatch.status == 'open') {
-        print("lmax : ${usersMatch.location}");
-        endedMatches.add(usersMatch);
+    generalMatches.forEach((element) async {
+      if ((element.status == 'open' || element.status == 'matched') &&
+          (element.player1 == userId || element.player2 == userId)) {
+        endedMatches.add(element);
       }
     });
     return endedMatches;
@@ -131,6 +158,15 @@ class MatchServices {
 
     myRes = result.docs.length;
     return myRes;
+  }
+
+  Future<void> matchPlayers(String matchId, String player2Id) async {
+    var collection = FirebaseFirestore.instance.collection('matches');
+    collection.doc(matchId) // <-- Doc ID where data should be updated.
+        .update({
+      'player2': player2Id,
+      'status': 'matched',
+    });
   }
 
   Future<void> cancelMatch(String matchId) async {

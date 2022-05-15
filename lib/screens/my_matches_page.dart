@@ -27,7 +27,6 @@ class MyMatchesPage extends StatefulWidget {
 
 class _MyMatchesPageState extends State<MyMatchesPage> {
   UserModel _userData = StorageMethods().getEmptyUser();
-  List<MatchModel> _endedGames = [];
   String _searchedPlayer1Id = "";
   @override
   Widget build(BuildContext context) => FutureBuilder(
@@ -74,19 +73,15 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
               body: TabBarView(
                 children: [
                   FutureBuilder(
-                      future: MatchServices().getUserToComeMatches([
-                        '7643da00-cd87-11ec-b475-13d8c54a7b7b',
-                        'f4b23470-cd75-11ec-8b4e-d769d2d0816d'
-                      ]),
+                      future: MatchServices().getUserToComeMatches(
+                          FirebaseAuth.instance.currentUser!.uid),
                       initialData: [],
                       builder: (context, snapshot) {
                         return createMatchesListView(context, snapshot);
                       }),
                   FutureBuilder(
-                      future: MatchServices().getUsersEndedMatches([
-                        '7643da00-cd87-11ec-b475-13d8c54a7b7b',
-                        'f4b23470-cd75-11ec-8b4e-d769d2d0816d'
-                      ]),
+                      future: MatchServices().getUserEndedMatches(
+                          FirebaseAuth.instance.currentUser!.uid),
                       initialData: [],
                       builder: (context, snapshot) {
                         return createMatchesListView(context, snapshot);
@@ -190,20 +185,21 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                                 bottom: 0,
                                 top: 0,
                                 child: CustomPaint(
-                                  size: Size(150, 250),
+                                  size: Size(120, 250),
                                   painter: CustomCardShapePainter(
                                       20, Color(0xff6DC8F3), Color(0xff73A1F9)),
                                 ),
                               ),
                               Positioned.fill(
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     Expanded(
                                       child: Image.network(
-                                        snapshot.data!.profilePhoto,
-                                        height: 88,
-                                        width: 88,
-                                      ),
+                                          snapshot.data!.profilePhoto,
+                                          height: 68,
+                                          width: 68,
+                                          fit: BoxFit.cover),
                                       flex: 2,
                                     ),
                                     SizedBox(
@@ -300,6 +296,29 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                                   ],
                                 ),
                               ),
+                              Positioned(
+                                top: 10,
+                                right: 20,
+                                child: Center(
+                                  child: Ink(
+                                    decoration: const ShapeDecoration(
+                                      color: Colors.lightBlue,
+                                      shape: CircleBorder(),
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(Icons.home),
+                                      color: Colors.white,
+                                      onPressed: () => {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const ProfilePage())),
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         );
@@ -307,205 +326,6 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                   : CircularProgressIndicator();
             },
           );
-  }
-
-  Future<List<MatchModel>> getEndedGames(List<String> s) async {
-    _endedGames = await MatchServices().getUsersEndedMatches(s);
-    // setState(() {});
-    return _endedGames;
-  }
-
-  Widget createFinishedMatchesListView() {
-    return FutureBuilder(
-        future: MatchServices()
-            .getUsersActiveMatches(FirebaseAuth.instance.currentUser!.uid),
-        builder: (BuildContext context, AsyncSnapshot<List<String>> strings) {
-          if (strings.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          return FutureBuilder<List<MatchModel>>(
-              future: getEndedGames(strings.data!),
-              initialData: [],
-              builder: (context, AsyncSnapshot<List<MatchModel>> matches) {
-                if (matches.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                return ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  itemCount: matches.data!.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    _searchedPlayer1Id = matches.data![index].player1;
-                    return matches.data!.isNotEmpty
-                        ? FutureBuilder(
-                            future: getUser(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<UserModel> snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              return Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      padding: EdgeInsets.all(16),
-                                      height: 180,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(24),
-                                        gradient: LinearGradient(
-                                            colors: [
-                                              Color(0xff6DC8F3),
-                                              Color(0xff73A1F9)
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Color.fromARGB(
-                                                255, 208, 85, 112),
-                                            blurRadius: 12,
-                                            offset: Offset(0, 6),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      bottom: 0,
-                                      top: 0,
-                                      child: CustomPaint(
-                                        size: Size(150, 250),
-                                        painter: CustomCardShapePainter(
-                                            20,
-                                            Color(0xff6DC8F3),
-                                            Color(0xff73A1F9)),
-                                      ),
-                                    ),
-                                    Positioned.fill(
-                                      child: Row(
-                                        children: <Widget>[
-                                          Expanded(
-                                            child: Image.network(
-                                              snapshot.data!.profilePhoto,
-                                              height: 88,
-                                              width: 88,
-                                            ),
-                                            flex: 2,
-                                          ),
-                                          SizedBox(
-                                            width: 3,
-                                          ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Text(
-                                                  snapshot.data!.fullName,
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontFamily: 'Avenir',
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      fontSize: 18),
-                                                ),
-                                                Text(
-                                                  '${matches.data![index].sport} · Casual ·',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'Avenir',
-                                                  ),
-                                                ),
-                                                SizedBox(height: 16),
-                                                Row(
-                                                  children: <Widget>[
-                                                    Icon(
-                                                      Icons.lock_clock,
-                                                      color: Colors.white,
-                                                      size: 16,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 8,
-                                                    ),
-                                                    Flexible(
-                                                      child: Text(
-                                                        matches.data![index]
-                                                            .startingTime,
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontFamily: 'Avenir',
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Flexible(
-                                                      child: Text(
-                                                        snapshot.data!.age,
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontFamily: 'Avenir',
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(width: 5),
-                                                    Flexible(
-                                                      child: Text(
-                                                        snapshot.data!.country
-                                                            .substring(2),
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontFamily: 'Avenir',
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: <Widget>[
-                                                Text(
-                                                  matches
-                                                      .data![index].difficulty,
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontFamily: 'Avenir',
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w700),
-                                                ),
-                                                RatingBar(rating: 3),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            })
-                        : CircularProgressIndicator();
-                  },
-                );
-              });
-        });
   }
 }
 

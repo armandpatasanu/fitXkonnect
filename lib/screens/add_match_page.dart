@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/location_model.dart';
+import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/services/firestore_methods.dart';
 import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/date_time_picker.dart';
@@ -28,20 +31,18 @@ class _AddMatchPageState extends State<AddMatchPage> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _sportController = TextEditingController();
-  final TextEditingController _difficultyController = TextEditingController();
+
   bool _isLoading = false;
   List<bool> _isSelected = [false, false, false];
-  late String difficulty;
+  String? selectedValue;
 
   bool isSignupScreen = true;
   bool isMale = true;
   bool isRememberMe = false;
-  String sportName = "Tenis";
+  String sportName = "Choose Sport";
 
   @override
   Widget build(BuildContext context) {
-    final UserModel user = Provider.of<UserProvider>(context).getUser();
-
     return Scaffold(
       bottomNavigationBar: NaviBar(
         index: 2,
@@ -78,7 +79,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
               ),
             ),
           ),
-          buildBottomHalfContainer(false, user),
+          buildBottomHalfContainer(false),
         ],
       ),
     );
@@ -92,7 +93,6 @@ class _AddMatchPageState extends State<AddMatchPage> {
         children: [
           //buildTextField(Icons.place, "Location", _locationController),
           // buildTextField(Icons.sports_kabaddi, "Sport", _sportController),
-          //buildSpec(),
           SizedBox(
             height: 12,
           ),
@@ -104,25 +104,27 @@ class _AddMatchPageState extends State<AddMatchPage> {
                   children: [
                     WidgetSpan(
                       child: Icon(
-                        Icons.calendar_month,
+                        Icons.local_activity,
                         size: 18,
                         color: textColor1,
                       ),
                     ),
                     TextSpan(
-                        text: "Pick a Difficulty",
-                        style: TextStyle(fontSize: 15, color: textColor1)),
+                        text: "Pick a sport",
+                        style: TextStyle(fontSize: 18, color: textColor1)),
                   ],
                 ),
               ),
-              SizedBox(width: 10),
-              buildToggle(),
+              SizedBox(
+                width: 10,
+              ),
+              buildSportsDropwDownList(),
             ],
           ),
           SizedBox(
             height: 12,
           ),
-          buildSportsDropwDownList(),
+
           buildLocationsDropDown(),
           // LocationsDropDownList(),
           SizedBox(
@@ -180,7 +182,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
     );
   }
 
-  Widget buildBottomHalfContainer(bool showShadow, UserModel user) {
+  Widget buildBottomHalfContainer(bool showShadow) {
     return AnimatedPositioned(
       duration: Duration(milliseconds: 700),
       curve: Curves.bounceInOut,
@@ -220,9 +222,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
                     ],
                   ),
                   child: InkWell(
-                    onTap: () => createMatch(
-                      user,
-                    ),
+                    onTap: () => createMatch(),
                     child: Icon(
                       Icons.arrow_forward,
                       color: Colors.white,
@@ -265,21 +265,19 @@ class _AddMatchPageState extends State<AddMatchPage> {
 
   var setDefaultMake = true, setDefaultMakeModel = true;
   Widget buildSportsDropwDownList() {
-    return FutureBuilder<QuerySnapshot>(
-      future:
-          FirebaseFirestore.instance.collection('sports').orderBy('name').get(),
+    return FutureBuilder<List<dynamic>>(
+      future: SportServices()
+          .getUsersSportsPlayed(FirebaseAuth.instance.currentUser!.uid),
       builder: (BuildContext context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            !snapshot.hasData) {
+          return Container();
         }
         return DropdownButton(
-          // hint: Text(
-          //   "Choose a sport",
-          //   style: TextStyle(color: textColor1),
-          // ),
-          value: sportName,
+          hint: Text(
+            sportName,
+            style: TextStyle(color: textColor1),
+          ),
           icon: Icon(
             Icons.arrow_downward,
             size: 17,
@@ -290,21 +288,19 @@ class _AddMatchPageState extends State<AddMatchPage> {
             color: Colors.deepPurpleAccent,
           ),
           isExpanded: false,
-          items: snapshot.data!.docs.map((value) {
+          items: snapshot.data!.map((whatdeactual) {
             return DropdownMenuItem(
-              value: value.get('name'),
-              child: Text('${value.get('name')}'),
+              value: whatdeactual['sport'],
+              child: Text(
+                  '${whatdeactual['sport']} - ${whatdeactual['difficulty']}'),
             );
           }).toList(),
           onChanged: (value) {
+            this.sportName = value.toString();
             debugPrint('selected onchange: $value');
             setState(
               () {
-                // Selected value will be stored
-                debugPrint('BEFORE: $sportName');
                 sportName = value.toString();
-                debugPrint('AFTER: $sportName');
-                // Default dropdown value won't be displayed anymore
               },
             );
           },
@@ -312,132 +308,6 @@ class _AddMatchPageState extends State<AddMatchPage> {
       },
     );
   }
-
-  String dropdownValue = 'Newest First';
-  Widget buildSpec() {
-    return DropdownButton(
-      value: dropdownValue,
-      onChanged: (String? value) {
-        setState(() {
-          dropdownValue = value!;
-        });
-      },
-      style: TextStyle(fontSize: 18, color: Colors.white),
-      isExpanded: true,
-      items:
-          ['Newest First', 'Oldest First', 'Value High-Low', 'Value Low-High']
-              .map((e) => DropdownMenuItem(
-                    child: Text(e),
-                    value: e,
-                  ))
-              .toList(),
-      underline: Container(
-        height: 3,
-        color: Colors.teal,
-      ),
-    );
-  }
-
-  void updateString(String val) {
-    difficulty = val;
-  }
-
-  Widget buildToggle() {
-    return Flexible(
-      child: ToggleButtons(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.density_medium,
-                color: Colors.green,
-                size: 20,
-              ),
-              Text('Easy'),
-            ],
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.thumb_down,
-                color: Colors.yellow[800],
-                size: 20,
-              ),
-              Text('Medium'),
-            ],
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.close,
-                color: Colors.red[600],
-                size: 20,
-              ),
-              Text('Hard'),
-            ],
-          ),
-        ],
-        textStyle: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-        ),
-        onPressed: (int index) {
-          setState(() {
-            switch (index) {
-              case 0:
-                updateString('Easy');
-                print('Easy');
-                break;
-              case 1:
-                updateString('Medium');
-                print('Medium');
-                break;
-              case 2:
-                updateString('Hard');
-                print('Hard');
-                break;
-            }
-            for (int buttonIndex = 0;
-                buttonIndex < _isSelected.length;
-                buttonIndex++) {
-              if (buttonIndex == index) {
-                if (!_isSelected[index]) _isSelected[buttonIndex] = true;
-              } else {
-                _isSelected[buttonIndex] = false;
-              }
-            }
-          });
-        },
-        isSelected: _isSelected,
-        borderRadius: BorderRadius.circular(30),
-        selectedColor: Colors.white,
-        fillColor: Colors.teal,
-        borderColor: Colors.teal,
-        selectedBorderColor: Colors.teal,
-        borderWidth: 2,
-        splashColor: Colors.teal[100],
-        constraints: BoxConstraints.expand(
-            width:
-                MediaQuery.of(context).size.width / (2.3 * _isSelected.length),
-            height: 45),
-      ),
-    );
-  }
-
-  String? selectedValue;
-  List<String> items = [
-    'Item1',
-    'Item2',
-    'Item3',
-    'Item4',
-    'Item5',
-    'Item6',
-    'Item7',
-    'Item8',
-  ];
 
   @override
   Widget buildLocationsDropDown() {
@@ -449,10 +319,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           // Safety check to ensure that snapshot contains data
           // without this safety check, StreamBuilder dirty state warnings will be thrown
-          if (!snapshot.hasData)
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+          if (!snapshot.hasData) return Container();
           return DropdownButtonHideUnderline(
             child: DropdownButton2(
               isExpanded: true,
@@ -543,7 +410,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
   void clearTextFields() {
     _dateTimeController.clear();
     _locationController.clear();
-    _difficultyController.clear();
+
     _sportController.clear();
   }
 
@@ -552,32 +419,31 @@ class _AddMatchPageState extends State<AddMatchPage> {
     // TODO: implement dispose
     _dateTimeController.dispose();
     _locationController.dispose();
-    _difficultyController.dispose();
+
     _sportController.dispose();
     super.dispose();
   }
 
-  createMatch(UserModel user) async {
+  createMatch() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
       String result = await FirestoreMethods().createMatch(
-        user.uid,
+        FirebaseAuth.instance.currentUser!.uid,
         selectedValue!,
-        user.uid,
         _dateTimeController.text.substring(11, 16),
         _dateTimeController.text.substring(0, 10),
         sportName,
-        difficulty,
+        'Idk how?',
         'open',
       );
       print("LOCATION: ${selectedValue}");
       // print(DatetimePickerWidget());
       print("SPORT: ${sportName}");
       print(_dateTimeController.text);
-      print("EMPTY RIGHT?: ${difficulty}");
+
       if (result == 'success') {
         setState(() {
           _isLoading = false;

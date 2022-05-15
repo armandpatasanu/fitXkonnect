@@ -30,6 +30,16 @@ class LocationServices {
     return location;
   }
 
+  Future<String> getLocationId(String locationName) async {
+    var result = await _firestore
+        .collection('locations')
+        .where('name', isEqualTo: locationName)
+        .get();
+
+    LocationModel location = LocationModel.fromSnap(result.docs[0]);
+    return location.locationId;
+  }
+
   Future<List<LocationModel>> getListOfLocations() async {
     var ref = await FirebaseFirestore.instance
         .collection('locations')

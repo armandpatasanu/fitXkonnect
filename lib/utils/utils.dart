@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:network_image_to_byte/network_image_to_byte.dart';

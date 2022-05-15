@@ -3,8 +3,10 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
+import 'package:fitxkonnect/screens/profile_page.dart';
 import 'package:fitxkonnect/services/firestore_methods.dart';
 import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
@@ -40,6 +42,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Uint8List? _image;
 
   void initState() {
+    addData();
     _country = widget.snap.country;
   }
 
@@ -58,7 +61,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final UserModel user = Provider.of<UserProvider>(context).getUser();
+    final UserModel user = widget.snap;
 
     return Scaffold(
       backgroundColor: Colors.grey[300],
@@ -88,7 +91,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    buildSignupSection(),
+                    buildSignupSection(user),
                   ],
                 ),
               ),
@@ -102,7 +105,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Container buildSignupSection() {
+  Container buildSignupSection(UserModel user) {
     return Container(
       child: Column(
         children: [
@@ -132,7 +135,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     : CircleAvatar(
                         radius: 64,
                         backgroundImage: NetworkImage(
-                          widget.snap.profilePhoto,
+                          user.profilePhoto,
                         ),
                       ),
               ),
@@ -161,10 +164,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ],
           ),
           SizedBox(height: 10),
-          Text(
+          const Text(
             'Edit your profile',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
                 fontFamily: 'OpenSans',
                 fontSize: 20,
                 letterSpacing: 1,
@@ -172,12 +175,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 color: Color(0xfff575861)),
           ),
           SizedBox(height: 25),
-          buildTextField(
-              Icons.person, widget.snap.fullName, _fullNameController),
+          buildTextField(Icons.person, user.fullName, _fullNameController),
           SizedBox(height: 10),
-          buildTextField(Icons.email, widget.snap.email, _emailController),
+          buildTextField(Icons.email, user.email, _emailController),
           SizedBox(height: 10),
-          // buildLocationsDropDown(),
           SizedBox(
             height: 8,
           ),
@@ -222,7 +223,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
                 _country != null
-                    ? Text('$_country',
+                    ? Text(_country!,
                         style: TextStyle(
                             color: Colors.black,
                             fontFamily: 'OpenSans',
@@ -235,115 +236,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ],
       ),
     );
-  }
-
-  Widget buildGoBackButton() {
-    return AnimatedPositioned(
-      duration: Duration(milliseconds: 700),
-      curve: Curves.bounceInOut,
-      top: 140,
-      right: 280,
-      left: 0,
-      child: Center(
-        child: InkWell(
-          child: Icon(Icons.arrow_back_ios, color: Colors.green),
-          onTap: () => Navigator.pop(context),
-        ),
-      ),
-    );
-  }
-
-  Widget buildLocationsDropDown() {
-    return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('locations')
-            .orderBy('name', descending: false)
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          // Safety check to ensure that snapshot contains data
-          // without this safety check, StreamBuilder dirty state warnings will be thrown
-          if (!snapshot.hasData)
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          return DropdownButtonHideUnderline(
-            child: DropdownButton2(
-              isExpanded: true,
-              hint: Row(
-                children: const [
-                  SizedBox(
-                    width: 4,
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Add a sport',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.yellow,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              items: snapshot.data!.docs
-                  .map((item) => DropdownMenuItem<String>(
-                        value: item.get('name'),
-                        child: RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: [
-                              WidgetSpan(
-                                child: Icon(
-                                  Icons.sports_tennis,
-                                  size: 18,
-                                  color: textColor1,
-                                ),
-                              ),
-                              TextSpan(
-                                  text: item.get('name'),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: textColor1,
-                                    fontWeight: FontWeight.bold,
-                                  )),
-                            ],
-                          ),
-                        ),
-                      ))
-                  .toList(),
-              value: selectedValue,
-              onChanged: (value) {
-                setState(() {
-                  selectedValue = value as String;
-                });
-              },
-              icon: const Icon(Icons.add_box),
-              iconSize: 25,
-              iconEnabledColor: Colors.green,
-              buttonHeight: 50,
-              buttonWidth: 160,
-              buttonPadding: const EdgeInsets.only(left: 14, right: 14),
-              buttonDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(
-                  color: Colors.black26,
-                ),
-                color: Colors.white,
-              ).copyWith(
-                boxShadow: kElevationToShadow[2],
-              ),
-              itemHeight: 40,
-              itemPadding: const EdgeInsets.only(left: 14, right: 14),
-              dropdownMaxHeight: 200,
-              dropdownPadding: null,
-              scrollbarRadius: const Radius.circular(40),
-              scrollbarThickness: 6,
-              scrollbarAlwaysShow: true,
-            ),
-          );
-        });
   }
 
   Widget buildSaveButton(bool showShadow, UserModel user) {
@@ -400,6 +292,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
+  Widget buildGoBackButton() {
+    return AnimatedPositioned(
+      duration: Duration(milliseconds: 700),
+      curve: Curves.bounceInOut,
+      top: 140,
+      right: 280,
+      left: 0,
+      child: Center(
+        child: InkWell(
+          child: Icon(Icons.arrow_back_ios, color: Colors.green),
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const ProfilePage())),
+        ),
+      ),
+    );
+  }
+
   Widget buildCancelButton(bool showShadow, UserModel user) {
     return AnimatedPositioned(
       duration: Duration(milliseconds: 700),
@@ -439,7 +348,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ],
                   ),
                   child: InkWell(
-                    onTap: () => resetFields(),
+                    onTap: () => resetFields(user),
                     child: Icon(
                       Icons.cancel_outlined,
                       color: Colors.white,
@@ -480,16 +389,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
+  addData() async {
+    UserProvider _userProvider = Provider.of(context, listen: false);
+    await _userProvider.refreshUser();
+  }
+
   void clearTextFields() {
     _fullNameController.clear();
     _emailController.clear();
   }
 
-  void resetFields() {
+  void resetFields(UserModel user) {
     _fullNameController.clear();
     _emailController.clear();
-    _country = widget.snap.country;
-    _image = Uint8List.fromList(widget.snap.profilePhoto.codeUnits);
+    _country = user.country;
+    _image = null;
     setState(() {});
   }
 
@@ -501,25 +415,53 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.dispose();
   }
 
-  updateUserData(UserModel user) async {
+  Future<void> updateUserData(UserModel user) async {
     setState(() {
       _isLoading = true;
     });
-
+    // print('user: ${FirebaseAuth.instance.currentUser!.uid}');
+    // print(
+    //     'fullname: ${_fullNameController.text != '' ? _fullNameController.text : widget.snap.fullName}');
+    // print(
+    //     'email: ${_emailController.text != '' ? _emailController.text : widget.snap.email}');
+    // print('country: ${_country}');
     try {
-      String result = await UserServices().updateUser(
-        user.uid,
-        _fullNameController.text,
-        _emailController.text,
-        _country!,
-      );
+      String result = "";
+      _image != null
+          ? result = await UserServices().updateUser(
+              user.uid,
+              _fullNameController.text != ''
+                  ? _fullNameController.text
+                  : user.fullName,
+              _emailController.text != '' ? _emailController.text : user.email,
+              _country!,
+              _image!,
+              true,
+            )
+          : result = result = await UserServices().updateUser(
+              user.uid,
+              _fullNameController.text != ''
+                  ? _fullNameController.text
+                  : user.fullName,
+              _emailController.text != '' ? _emailController.text : user.email,
+              _country!,
+              _image!,
+              false,
+            );
 
       if (result == 'success') {
         setState(() {
           _isLoading = false;
         });
         showSnackBar('succesfully edited !', context);
-        clearTextFields();
+        UserModel user2 = await UserServices()
+            .getSpecificUser(FirebaseAuth.instance.currentUser!.uid);
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => EditProfilePage(
+                  snap: user2,
+                )));
+        // clearTextFields();
+        setState(() {});
       } else {
         setState(() {
           _isLoading = false;

@@ -98,7 +98,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
               ),
             ),
           ),
-          userData.uid == FirebaseAuth.instance.currentUser!.uid
+          widget.snap.p1uid == FirebaseAuth.instance.currentUser!.uid
               ? Positioned(
                   left: 250,
                   top: 180,
@@ -121,6 +121,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                       icon: Icon(Icons.cancel),
                       onPressed: () {
                         MatchServices().cancelMatch(widget.snap.matchId);
+                        setState(() {});
                       },
                     ),
                   ),
@@ -145,7 +146,11 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     ),
                     child: IconButton(
                       icon: Icon(Icons.play_circle),
-                      onPressed: () {},
+                      onPressed: () {
+                        MatchServices().matchPlayers(widget.snap.matchId,
+                            FirebaseAuth.instance.currentUser!.uid);
+                        print("IT's HAWWT");
+                      },
                     ),
                   ),
                 ),
@@ -169,7 +174,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     child: Column(
                       children: [
                         Text(
-                          widget.snap.p1Name + widget.snap.p1Age,
+                          widget.snap.p1Name + ', ' + widget.snap.p1Age,
                           style: TextStyle(fontSize: 18, color: kPrimaryColor),
                         ),
                         SizedBox(
