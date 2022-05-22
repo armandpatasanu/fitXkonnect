@@ -1,18 +1,19 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
+import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/utils.dart';
 
 class UserServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<UserModel> getSpecificUser(String userId) async {
-    print('ALOHA BOI1');
     var result = await _firestore.collection('users').doc(userId).get();
-    print('ALOHA BOI2');
     UserModel searchedUser = UserModel.fromSnap(result);
-    print('ALOHA BOI3');
     return searchedUser;
   }
 
@@ -36,26 +37,56 @@ class UserServices {
     return my_list;
   }
 
-  Future<String> updateUser(String userId, String fullName, String email,
-      String country, Uint8List file, bool modifyPicture) async {
+  Future<String> updateUser(
+      String userId,
+      User user,
+      String fullName,
+      String email,
+      String actualEmail,
+      String pass,
+      String country,
+      Uint8List file,
+      bool modifyPicture) async {
+    int counter = 0;
     String result = "success";
-    // print("UHM?: $fullName");
-    // print(email);
-    // print(country);
+
+    print("GOT HERE BABY!");
+    print("COUNTER : $counter");
+    print("EMAIL : $email");
+    print("ACTUAL EMAIL: $actualEmail");
     try {
-      await _firestore.collection('users').doc(userId).update({
-        'fullName': fullName,
-        'email': email,
-        'country': country,
-      });
+      if (pass.isEmpty) {
+        result = "Please enter your password!";
+      } else if (email != actualEmail && pass.isEmpty) {
+        result = "Please enter your password in order to change the email";
+      } else if (!regExp.hasMatch(email)) {
+        result = 'Email format is not valid!';
+      } else {
+        await _firestore.collection('users').doc(userId).update({
+          'fullName': fullName,
+          'email': email,
+          'country': country,
+        });
+
+        if (modifyPicture == true) {
+          await StorageMethods().uploadImageToStorage('profilePics', file);
+        }
+
+        if (counter % 2 == 0 && email != actualEmail) {
+          counter++;
+          await user.updateEmail(email);
+          UserCredential result = await user
+              .reauthenticateWithCredential(EmailAuthProvider.credential(
+            email: email,
+            password: pass,
+          ));
+        } else {
+          result = "Log in again in order to change the email!";
+        }
+      }
     } catch (error) {
       result = error.toString();
     }
-
-    if (modifyPicture == true) {
-      await StorageMethods().uploadImageToStorage('profilePics', file);
-    }
-
     return result;
   }
 }

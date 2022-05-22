@@ -33,7 +33,6 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
 
   @override
   Widget build(BuildContext context) {
-    print("WHY?");
     return Container(
       decoration: BoxDecoration(color: Colors.white),
       height: 250,

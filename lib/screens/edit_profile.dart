@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36,6 +37,7 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   String sportName = "Tenis";
   String? _country;
@@ -62,6 +64,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     final UserModel user = widget.snap;
+    //_image = Uint8List.fromList(widget.snap.profilePhoto.codeUnits);
 
     return Scaffold(
       backgroundColor: Colors.grey[300],
@@ -179,6 +182,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           SizedBox(height: 10),
           buildTextField(Icons.email, user.email, _emailController),
           SizedBox(height: 10),
+          buildTextField(Icons.lock, 'enter password', _passwordController),
           SizedBox(
             height: 8,
           ),
@@ -397,11 +401,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void clearTextFields() {
     _fullNameController.clear();
     _emailController.clear();
+    _passwordController.clear();
   }
 
   void resetFields(UserModel user) {
-    _fullNameController.clear();
-    _emailController.clear();
+    clearTextFields();
     _country = user.country;
     _image = null;
     setState(() {});
@@ -412,6 +416,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     // TODO: implement dispose
     _fullNameController.dispose();
     _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -419,6 +424,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() {
       _isLoading = true;
     });
+    print("ENTERED FUNCTION");
     // print('user: ${FirebaseAuth.instance.currentUser!.uid}');
     // print(
     //     'fullname: ${_fullNameController.text != '' ? _fullNameController.text : widget.snap.fullName}');
@@ -427,23 +433,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
     // print('country: ${_country}');
     try {
       String result = "";
+      User uzer = FirebaseAuth.instance.currentUser!;
+      print(_image);
       _image != null
           ? result = await UserServices().updateUser(
               user.uid,
+              uzer,
               _fullNameController.text != ''
                   ? _fullNameController.text
                   : user.fullName,
-              _emailController.text != '' ? _emailController.text : user.email,
+              _emailController.text != ''
+                  ? _emailController.text
+                  : ' user.email',
+              user.email,
+              _passwordController.text,
               _country!,
               _image!,
               true,
             )
           : result = result = await UserServices().updateUser(
               user.uid,
+              uzer,
               _fullNameController.text != ''
                   ? _fullNameController.text
                   : user.fullName,
               _emailController.text != '' ? _emailController.text : user.email,
+              user.email,
+              _passwordController.text,
               _country!,
               _image!,
               false,

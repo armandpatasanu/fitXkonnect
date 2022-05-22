@@ -6,21 +6,6 @@ import 'package:fitxkonnect/services/user_services.dart';
 class SportServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<List<SportModel>> getListOfSports() async {
-    var ref = await FirebaseFirestore.instance
-        .collection('sports')
-        .orderBy('name', descending: false)
-        .get();
-    List<DocumentSnapshot> locationList = ref.docs;
-    List<SportModel> locations = [];
-
-    locationList.forEach((DocumentSnapshot snap) {
-      locations.add(SportModel.fromSnap(snap));
-    });
-
-    return locations;
-  }
-
   Future<SportModel> getSpecificSportFromId(String sportId) async {
     var result = await _firestore.collection('sports').doc(sportId).get();
 
@@ -56,6 +41,60 @@ class SportServices {
       print(map['sport']);
     }
     return users_sports;
+  }
+
+  Future<List<SportModel>> getListOfSports() async {
+    var ref = await FirebaseFirestore.instance
+        .collection('sports')
+        .orderBy('name', descending: false)
+        .get();
+    List<DocumentSnapshot> sportsList = ref.docs;
+    List<SportModel> sports = [];
+
+    sportsList.forEach((DocumentSnapshot snap) {
+      sports.add(SportModel.fromSnap(snap));
+    });
+
+    return sports;
+  }
+
+  Future<String> getSportIdBasedOfName(String name) async {
+    var ref = await FirebaseFirestore.instance.collection('sports').get();
+    List<DocumentSnapshot> documentList = ref.docs;
+    String wantedId = "";
+    documentList.forEach((DocumentSnapshot snap) {
+      if (snap['name'] == name) {
+        wantedId = snap['id'];
+        print("AM GASIT BOI: $wantedId");
+      }
+    });
+    return wantedId;
+  }
+
+  Future<List<String>> getDifferentSports(uid) async {
+    List<dynamic> playedSports = await getUsersSportsPlayed(uid);
+    List<String> playedSports_strings = [];
+    List<SportModel> allSports = await getListOfSports();
+    List<String> allSports_strings = [];
+    List<String> wantedSports = [];
+
+    for (var map in playedSports) {
+      playedSports_strings.add(map['sport']);
+      print("sport care e configurat: ${playedSports_strings}");
+    }
+
+    for (var sport in allSports) {
+      allSports_strings.add(sport.name);
+      print("sport care e configurat: ${allSports_strings}");
+    }
+
+    for (var name in allSports_strings) {
+      if (!playedSports_strings.contains(name)) {
+        print("Sport care nu e: $name");
+        wantedSports.add(name);
+      }
+    }
+    return wantedSports;
   }
 
   Future<void> addSport(String uid, String dif, String sport) async {

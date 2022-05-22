@@ -21,20 +21,11 @@ class _SearchPageState extends State<SearchPage> {
         bottomNavigationBar: NaviBar(
           index: 1,
         ),
-        appBar: AppBar(
-          backgroundColor: kPrimaryLightColor,
-          leading: Icon(Icons.menu),
-          title: Text('Page title'),
-          actions: [
-            Icon(Icons.favorite),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Icon(Icons.search),
-            ),
-            Icon(Icons.more_vert),
-          ],
-        ),
-        body: MapScreen(),
+        // appBar: AppBar(
+        //   backgroundColor: Colors.transparent,
+        //   elevation: 0,
+        // ),
+        body: Container(padding: EdgeInsets.only(top: 24), child: MapScreen()),
       ),
     );
   }

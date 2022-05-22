@@ -5,6 +5,7 @@ import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/services/user_services.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,25 @@ class MatchServices {
     documentList.forEach((DocumentSnapshot snap) {
       if (snap['location'] == locationId) {
         wantedMatches.add(MatchModel.fromSnap(snap));
+      }
+    });
+    return wantedMatches;
+  }
+
+  Future<List<MatchModel>> getMatchesBasedOnSport(String sportName) async {
+    List<MatchModel> wantedMatches = [];
+    // String sportId = await SportServices().getSportIdBasedOfName(sportName);
+    var ref = await FirebaseFirestore.instance
+        .collection('matches')
+        .where('sport', isEqualTo: sportName)
+        .get();
+
+    List<DocumentSnapshot> documentList = ref.docs;
+
+    documentList.forEach((DocumentSnapshot snap) {
+      MatchModel m = MatchModel.fromSnap((snap));
+      if (m.status == 'open') {
+        wantedMatches.add(m);
       }
     });
     return wantedMatches;
@@ -42,18 +62,19 @@ class MatchServices {
     return wantedMatches;
   }
 
-  Future<List<HomePageMatch>> getActualHomePageMatches() async {
-    List<MatchModel> allMatches = await MatchServices().getAllHomePageMatches();
-    print(' ok : ${allMatches.length}');
+  Future<List<HomePageMatch>> getActualHomePageMatches(String filter) async {
+    List<MatchModel> allMatches = [];
+    if (filter == "all") {
+      allMatches = await MatchServices().getAllHomePageMatches();
+    } else {
+      allMatches = await MatchServices().getMatchesBasedOnSport(filter);
+    }
     List<HomePageMatch> neededMatches = [];
 
     for (var match in allMatches) {
-      print("Entering with ${match.sport}");
       UserModel user = await UserServices().getSpecificUser(match.player1);
-      print("DEBUG 1");
       LocationModel location =
           await LocationServices().getCertainLocation(match.location);
-      print('DEBUG 2');
       neededMatches.add(HomePageMatch(
           p1uid: user.uid,
           p1Name: user.fullName,
@@ -65,7 +86,6 @@ class MatchServices {
           startingTime: match.matchDate,
           locationName: location.name,
           matchId: match.matchId));
-      print("Adding");
     }
     return neededMatches;
   }
@@ -92,7 +112,6 @@ class MatchServices {
           matchDate: match.startingTime,
           startingTime: match.matchDate,
           matchId: match.matchId));
-      print("Adding");
     }
     return neededMatches;
   }

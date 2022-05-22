@@ -5,10 +5,12 @@ import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/blocs/app_bloc.dart';
 import 'package:fitxkonnect/models/location_model.dart';
+import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/location_info.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/map_user_container.dart';
+import 'package:fitxkonnect/utils/widgets/text_field_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -37,6 +39,7 @@ class _MapScreenState extends State<MapScreen> {
   late BitmapDescriptor destinationIcon;
   late LatLng destinationLocation;
   late double pinPillPosition = PIN_INVISIBLE_POSITION;
+  final TextEditingController _locationController = TextEditingController();
   var locationData = {};
   LocationModel _selectedLocation = StorageMethods().getEmptyLocation();
 
@@ -85,14 +88,26 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final applicationBloc = Provider.of<AppBloc>(context);
-
     return Scaffold(
       body: (applicationBloc.currentLocation == null)
-          ? Center(
-              child: CircularProgressIndicator(
-                color: kPrimaryColor,
+          ? Stack(children: [
+              Container(
+                decoration: new BoxDecoration(
+                  image: new DecorationImage(
+                    image: new ExactAssetImage('assets/images/wtf.jpg'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: new BackdropFilter(
+                  filter: new ui.ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
+                  child: new Container(
+                    decoration:
+                        new BoxDecoration(color: Colors.white.withOpacity(0.3)),
+                  ),
+                ),
               ),
-            )
+              Center(child: CircularProgressIndicator(color: Colors.red)),
+            ])
           : Stack(
               children: [
                 GoogleMap(
@@ -130,6 +145,123 @@ class _MapScreenState extends State<MapScreen> {
                 //     label: Text('Only this'),
                 //   ),
                 // ),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.only(left: 5, right: 5),
+                      margin: EdgeInsets.only(top: 13, left: 15),
+                      height: 40,
+                      width: 210,
+                      decoration: BoxDecoration(
+                          // gradient: LinearGradient(
+                          //   colors: [
+                          //     Colors.white,
+                          //     Color.fromRGBO(255, 188, 143, 1),
+                          //   ],
+                          //   begin: Alignment.centerLeft,
+                          //   end: Alignment.centerRight,
+                          // ),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(10.0),
+                          ),
+                          border: Border.all(color: Colors.grey.shade300),
+                          color: Colors.white.withOpacity(0.85),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 7,
+                              offset: Offset(0, 1),
+                            )
+                          ]),
+                      child: Container(
+                        height: 30,
+                        width: 50,
+                        child: Row(
+                          children: [
+                            Icon(Icons.search, color: kPrimaryLightColor),
+                            Flexible(
+                              child: TextFormField(
+                                controller: _locationController,
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.black),
+                                cursorColor: kPrimaryColor,
+                                decoration: InputDecoration(
+                                    hintText: 'Search in Timișoara',
+                                    hintStyle: const TextStyle(
+                                      fontFamily: "Netflix",
+                                      fontSize: 15,
+                                      letterSpacing: 0.0,
+                                      color: Colors.grey,
+                                    ),
+                                    border: InputBorder.none),
+                              ),
+                            ),
+                            Icon(Icons.filter_list,
+                                color: kPrimaryLightColor, size: 25)
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 10, left: 10),
+                      height: 40,
+                      width: 100,
+                      decoration: BoxDecoration(
+                          // gradient: LinearGradient(
+                          //   colors: [
+                          //     Colors.white,
+                          //     Color.fromRGBO(255, 188, 143, 1),
+                          //   ],
+                          //   begin: Alignment.centerLeft,
+                          //   end: Alignment.centerRight,
+                          // ),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(10.0),
+                          ),
+                          border: Border.all(color: Colors.grey.shade300),
+                          color: Colors.white.withOpacity(0.85),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 7,
+                              offset: Offset(0, 1),
+                            )
+                          ]),
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.format_list_bulleted,
+                                size: 25,
+                                color: Colors.grey,
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                'LIST',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontFamily: "Netflix",
+                                  // fontWeight: FontWeight.w600,
+                                  fontWeight: ui.FontWeight.bold,
+                                  fontSize: 15,
+                                  letterSpacing: 0.0,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,

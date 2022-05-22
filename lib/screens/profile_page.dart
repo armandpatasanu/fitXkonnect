@@ -58,7 +58,8 @@ class _ProfilePageState extends State<ProfilePage> {
         future: UserServices()
             .getSpecificUser(FirebaseAuth.instance.currentUser!.uid),
         builder: (BuildContext context, AsyncSnapshot<UserModel> user) {
-          if (user.connectionState == ConnectionState.waiting) {
+          if (user.connectionState == ConnectionState.waiting ||
+              !user.hasData) {
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -273,10 +274,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                             _difficulty = 'easy';
                                             break;
                                           case 1:
-                                            _difficulty = 'easy';
+                                            _difficulty = 'medium';
                                             break;
                                           case 2:
-                                            _difficulty = 'easy';
+                                            _difficulty = 'hard';
                                             break;
                                           default:
                                         }
@@ -329,12 +330,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget buildSportsDropDown() {
-    return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('sports')
-            .orderBy('name', descending: false)
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    return FutureBuilder<List<String>>(
+        future: SportServices()
+            .getDifferentSports(FirebaseAuth.instance.currentUser!.uid),
+        builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
           if (!snapshot.hasData) return Container();
           return DropdownButtonHideUnderline(
             child: DropdownButton2(
@@ -357,9 +356,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               ),
-              items: snapshot.data!.docs
+              items: snapshot.data!
                   .map((item) => DropdownMenuItem<String>(
-                        value: item.get('name'),
+                        value: item,
                         child: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
@@ -372,7 +371,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                               TextSpan(
-                                  text: item.get('name'),
+                                  text: item,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: kPrimaryColor,
