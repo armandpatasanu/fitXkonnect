@@ -58,6 +58,22 @@ class SportServices {
     return sports;
   }
 
+  Future<List<Map<String, bool>>> getButtonsSports() async {
+    List<SportModel> sports = await getListOfSports();
+    List<Map<String, bool>> myList = [];
+
+    sports.forEach((SportModel snap) {
+      Map<String, bool> map = {
+        '${snap.name}': false,
+      };
+      myList.add(map);
+    });
+
+    print("My list items: ${myList.length}");
+    print("VALOARE: ${myList[0].values.first}");
+    return myList;
+  }
+
   Future<String> getSportIdBasedOfName(String name) async {
     var ref = await FirebaseFirestore.instance.collection('sports').get();
     List<DocumentSnapshot> documentList = ref.docs;

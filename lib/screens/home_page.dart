@@ -19,16 +19,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<SportModel> sports = [];
-  List<bool> pressedAttentions = [];
+  List<Map<String, bool>> _sportsButtons = [];
+  Future<List<Map<String, bool>>>? _getTaskAsync;
   int _counter = 0;
   String _filter = "all";
   @override
   void initState() {
     // TODO: implement initState
+    _getTaskAsync = SportServices().getButtonsSports();
     super.initState();
     print("Mihaitz");
-    getSports();
   }
 
   List<Color> _color = [
@@ -42,12 +42,11 @@ class _HomePageState extends State<HomePage> {
     Colors.transparent,
   ];
   @override
-  void getSports() async {
-    sports = await SportServices().getListOfSports();
-    pressedAttentions = sports.map((e) => false).toList();
-  }
-
   Widget build(BuildContext context) {
+    print("IN BUILD:#################");
+    for (var s in _sportsButtons) {
+      print("{ ${s.keys.first} , ${s.values.first} }");
+    }
     print("BUILDING");
     // getSports();
     return Scaffold(
@@ -68,109 +67,158 @@ class _HomePageState extends State<HomePage> {
                   right: 20,
                 ),
                 child: Center(
+                    // fac map<SportModel, bool> ????????? Futurebuilder
                     child: Row(
                   children: [
-                    Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              for (int i = 0;
-                                  i < pressedAttentions.length;
-                                  i++) {
-                                pressedAttentions[i] = false;
-                              }
-                              _filter = "all";
-                            });
-                          },
-                          style: ButtonStyle(
-                            overlayColor:
-                                MaterialStateProperty.resolveWith<Color?>(
-                              (Set<MaterialState> states) {
-                                if (states.contains(MaterialState.pressed))
-                                  return Colors.redAccent; //<-- SEE HERE
-                                return null; // Defer to the widget's default.
-                              },
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.restart_alt,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     ElevatedButton(
+                    //       onPressed: () {
+                    //         setState(() {
+                    //           for (int i = 0;
+                    //               i < pressedAttentions.length;
+                    //               i++) {
+                    //             pressedAttentions[i] = false;
+                    //           }
+                    //           _filter = "all";
+                    //         });
+                    //       },
+                    //       style: ButtonStyle(
+                    //         overlayColor:
+                    //             MaterialStateProperty.resolveWith<Color?>(
+                    //           (Set<MaterialState> states) {
+                    //             if (states.contains(MaterialState.pressed))
+                    //               return Colors.redAccent; //<-- SEE HERE
+                    //             return null; // Defer to the widget's default.
+                    //           },
+                    //         ),
+                    //       ),
+                    //       child: Icon(
+                    //         Icons.restart_alt,
+                    //         color: Colors.white,
+                    //       ),
+                    //     ),
+                    //     SizedBox(
+                    //       width: 20,
+                    //     ),
+                    //   ],
+                    // ),
                     Flexible(
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: sports.length,
-                        itemBuilder: (context, index) {
-                          return Row(
-                            children: [
-                              ElevatedButton(
-                                style: ButtonStyle(
-                                  backgroundColor: pressedAttentions[index] ==
-                                          true
-                                      ? MaterialStateProperty.all(Colors.red)
-                                      : MaterialStateProperty.all(Colors.amber),
-                                  overlayColor:
-                                      MaterialStateProperty.resolveWith<Color?>(
-                                    (Set<MaterialState> states) {
-                                      if (states
-                                          .contains(MaterialState.selected))
-                                        return Colors.redAccent; //<-- SEE HERE
-                                      return null; // Defer to the widget's default.
-                                    },
-                                  ),
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    print(
-                                        " QUADUS: ${pressedAttentions[index]}");
-                                    int found = 99;
-                                    _counter = 0;
-                                    for (int i = 0;
-                                        i < pressedAttentions.length;
-                                        i++) {
-                                      if (pressedAttentions[i] == true) {
-                                        _counter++;
-                                        found = i;
-                                      }
-                                    }
-                                    print("FOUNDER IS: $found");
-                                    print("COUNTER IS: $_counter");
-                                    if (_counter == 0) {
-                                      pressedAttentions[index] = true;
-                                      _filter = sports[index].name;
-                                    } else if (_counter == 1 &&
-                                        found == index) {
-                                      pressedAttentions[found] = false;
-                                      _filter = "all";
-                                    } else if (_counter == 1 &&
-                                        found != index) {
-                                      pressedAttentions[found] = false;
-                                      pressedAttentions[index] = true;
-                                      _filter = sports[index].name;
-                                    }
+                      child: FutureBuilder<List<Map<String, bool>>>(
+                          future: _getTaskAsync,
+                          builder: (BuildContext context, snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.waiting ||
+                                !snapshot.hasData) {
+                              return Container();
+                            }
+                            _sportsButtons = snapshot.data!;
+                            print("AFTER FUTUREBUILDER:#################");
+                            for (var s in _sportsButtons) {
+                              print("{ ${s.keys.first} , ${s.values.first} }");
+                            }
+                            return ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                return Row(
+                                  children: [
+                                    ElevatedButton(
+                                      style: ButtonStyle(
+                                        backgroundColor: _sportsButtons[index]
+                                                    .values
+                                                    .first ==
+                                                true
+                                            ? MaterialStateProperty.all(
+                                                Colors.red)
+                                            : MaterialStateProperty.all(
+                                                Colors.amber),
+                                        overlayColor: MaterialStateProperty
+                                            .resolveWith<Color?>(
+                                          (Set<MaterialState> states) {
+                                            if (states.contains(
+                                                MaterialState.selected))
+                                              return Colors
+                                                  .redAccent; //<-- SEE HERE
+                                            return null; // Defer to the widget's default.
+                                          },
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          // print(
+                                          //     " QUADUS: ${pressedAttentions[index]}");
+                                          int found = 99;
+                                          _counter = 0;
+                                          for (int i = 0;
+                                              i < _sportsButtons.length;
+                                              i++) {
+                                            if (_sportsButtons[i]
+                                                    .values
+                                                    .first ==
+                                                true) {
+                                              _counter++;
+                                              found = i;
+                                            }
+                                          }
+                                          print("FOUNDER IS: $found");
+                                          print("COUNTER IS: $_counter");
+                                          if (_counter == 0) {
+                                            _sportsButtons[index].update(
+                                                _sportsButtons[index]
+                                                    .keys
+                                                    .first,
+                                                (value) => value = true);
 
-                                    print(
-                                        " QUADUS: ${pressedAttentions[index]}");
-                                    print("HMMMM: ${sports[index].name}");
-                                    // _filter = sports[index].name;
-                                  });
-                                },
-                                child: Text(sports[index].name),
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                                            _filter = _sportsButtons[index]
+                                                .keys
+                                                .first;
+                                          } else if (_counter == 1 &&
+                                              found == index) {
+                                            _sportsButtons[found].update(
+                                                _sportsButtons[found]
+                                                    .keys
+                                                    .first,
+                                                (value) => value = false);
+                                            _filter = "all";
+                                          } else if (_counter == 1 &&
+                                              found != index) {
+                                            _sportsButtons[found].update(
+                                                _sportsButtons[found]
+                                                    .keys
+                                                    .first,
+                                                (value) => value = false);
+                                            _sportsButtons[index].update(
+                                                _sportsButtons[index]
+                                                    .keys
+                                                    .first,
+                                                (value) => value = true);
+                                            _filter = _sportsButtons[index]
+                                                .keys
+                                                .first;
+                                          }
+                                          for (var s in _sportsButtons) {
+                                            print(
+                                                "{ ${s.keys.first} , ${s.values.first} }");
+                                          }
+
+                                          // print(
+                                          //     " QUADUS: ${pressedAttentions[index]}");
+                                          // print("HMMMM: ${sports[index].name}");
+                                          // _filter = sports[index].name;
+                                        });
+                                      },
+                                      child: Text(
+                                          snapshot.data![index].keys.first),
+                                    ),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }),
                     ),
                   ],
                 ))),

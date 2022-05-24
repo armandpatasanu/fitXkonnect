@@ -5,7 +5,10 @@ import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/blocs/app_bloc.dart';
 import 'package:fitxkonnect/models/location_model.dart';
+import 'package:fitxkonnect/models/sport_model.dart';
+import 'package:fitxkonnect/screens/location_filter_screen.dart';
 import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/location_info.dart';
@@ -23,7 +26,7 @@ const double CAMERA_ZOOM = 16;
 const double CAMERA_TILT = 80;
 const double CAMERA_BEARING = 30;
 const double PIN_VISIBLE_POSITION = 20;
-const double PIN_INVISIBLE_POSITION = -220;
+const double PIN_INVISIBLE_POSITION = -920;
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -42,6 +45,8 @@ class _MapScreenState extends State<MapScreen> {
   final TextEditingController _locationController = TextEditingController();
   var locationData = {};
   LocationModel _selectedLocation = StorageMethods().getEmptyLocation();
+  List<LocationModel> _locationsToPass = [];
+  List<SportModel> _sportsToPass = [];
 
   Set<Marker> _markers = Set<Marker>();
 
@@ -182,6 +187,21 @@ class _MapScreenState extends State<MapScreen> {
                             Icon(Icons.search, color: kPrimaryLightColor),
                             Flexible(
                               child: TextFormField(
+                                onTap: () {
+                                  FocusScope.of(context)
+                                      .requestFocus(new FocusNode());
+                                  Navigator.of(context).pushReplacement(
+                                    PageRouteBuilder(
+                                      pageBuilder:
+                                          (context, animation1, animation2) =>
+                                              FilterLocationScreen(
+                                        locations: _locationsToPass,
+                                        sports: _sportsToPass,
+                                      ),
+                                      transitionDuration: Duration(),
+                                    ),
+                                  );
+                                },
                                 controller: _locationController,
                                 style: TextStyle(
                                     fontSize: 15, color: Colors.black),
@@ -197,14 +217,17 @@ class _MapScreenState extends State<MapScreen> {
                                     border: InputBorder.none),
                               ),
                             ),
-                            Icon(Icons.filter_list,
-                                color: kPrimaryLightColor, size: 25)
+                            InkWell(
+                              child: Icon(Icons.filter_list,
+                                  color: kPrimaryLightColor, size: 25),
+                              onTap: () {},
+                            )
                           ],
                         ),
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(top: 10, left: 10),
+                      margin: EdgeInsets.only(top: 13, left: 10),
                       height: 40,
                       width: 100,
                       decoration: BoxDecoration(
@@ -290,12 +313,14 @@ class _MapScreenState extends State<MapScreen> {
 
   startQuery() async {
     var ref = await FirebaseFirestore.instance.collection('locations').get();
+    _sportsToPass = await SportServices().getListOfSports();
     getMarkers(ref.docs);
   }
 
   void getMarkers(List<DocumentSnapshot> documentList) {
     documentList.forEach((DocumentSnapshot snap) {
       LocationModel location = LocationModel.fromSnap(snap);
+      _locationsToPass.add(location);
       GeoPoint geoPoint = location.geopoint;
       setState(() {
         _markers.add(
