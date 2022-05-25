@@ -78,12 +78,19 @@ class SportServices {
     var ref = await FirebaseFirestore.instance.collection('sports').get();
     List<DocumentSnapshot> documentList = ref.docs;
     String wantedId = "";
-    documentList.forEach((DocumentSnapshot snap) {
+    print("Y1");
+    for (var snap in documentList) {
+      print("Y2");
       if (snap['name'] == name) {
-        wantedId = snap['id'];
+        print(snap['name']);
+        print("Y3");
+        wantedId =
+            (await SportServices().getSpecificSportFromName(snap['name']))
+                .sportId;
         print("AM GASIT BOI: $wantedId");
       }
-    });
+    }
+    ;
     return wantedId;
   }
 

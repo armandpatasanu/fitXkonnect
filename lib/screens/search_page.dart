@@ -1,4 +1,6 @@
 import 'package:fitxkonnect/blocs/app_bloc.dart';
+import 'package:fitxkonnect/models/location_model.dart';
+import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/map_screen.dart';
@@ -18,14 +20,28 @@ class _SearchPageState extends State<SearchPage> {
     return ChangeNotifierProvider(
       create: ((context) => AppBloc()),
       child: Scaffold(
-        bottomNavigationBar: NaviBar(
-          index: 1,
-        ),
         // appBar: AppBar(
         //   backgroundColor: Colors.transparent,
         //   elevation: 0,
         // ),
-        body: Container(padding: EdgeInsets.only(top: 24), child: MapScreen()),
+        body: Container(
+            child: FutureBuilder(
+                future: LocationServices().getListOfLocations(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<List<LocationModel>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  return MapScreen(
+                    filteredSport: "LIST",
+                    locations: snapshot.data!,
+                  );
+                })),
+        // child: MapScreen(
+        //   locations: [],
+        // ),
       ),
     );
   }

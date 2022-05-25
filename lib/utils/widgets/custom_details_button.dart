@@ -15,10 +15,12 @@ class CustomDetailsButton extends StatelessWidget {
     return OpenContainer(
       transitionDuration: Duration(seconds: 2),
       openBuilder: (context, _) => DetailPage(
+        locations: [],
+        sports: [],
         locationId: selectedLocation,
       ),
       closedShape: CircleBorder(),
-      closedColor: Colors.white,
+      // closedColor: Colors.white,
       closedBuilder: (context, openContainer) => Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,

@@ -3,6 +3,7 @@ import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:flutter/material.dart';
 
 class LocationServices {
@@ -38,6 +39,57 @@ class LocationServices {
 
     LocationModel location = LocationModel.fromSnap(result.docs[0]);
     return location.locationId;
+  }
+
+  Future<List<LocationModel>> getListOfLocationsBasedOfSelectedSports(
+      List<SportModel> sports) async {
+    print("I AM HERE TO FILTER!");
+    List<LocationModel> locations =
+        await LocationServices().getListOfLocations();
+    String sportId = "";
+    List<LocationModel> my_locations = [];
+    for (var loc in locations) {
+      print("V1");
+      print("V1 LOCATION : ${loc.name}");
+      for (var sport in sports) {
+        print("V1.1");
+        print("V1.1 SPORT : ${sport.name}");
+        sportId = await SportServices().getSportIdBasedOfName(sport.name);
+        print("V2");
+        print("V2: $sportId");
+        if (loc.sports.contains(sportId) && !(my_locations.contains(loc))) {
+          print("V3");
+          my_locations.add(loc);
+          print("V4");
+        }
+        print("V5");
+      }
+    }
+    print("V6");
+    for (var l in my_locations) {
+      print("V7");
+      print("LOCATION FILTERED: ${l.name}");
+    }
+    return my_locations;
+  }
+
+  Future<List<LocationModel>> getListOfLocationsBasedOfASport(
+      String sport) async {
+    print("I AM HERE TO FILTER!");
+    List<LocationModel> locations =
+        await LocationServices().getListOfLocations();
+    String sportId = await SportServices().getSportIdBasedOfName(sport);
+    List<LocationModel> my_locations = [];
+    for (var loc in locations) {
+      if (loc.sports.contains(sportId)) {
+        my_locations.add(loc);
+      }
+    }
+    // for (var l in my_locations) {
+    //   print("V7");
+    //   print("LOCATION FILTERED: ${l.name}");
+    // }
+    return my_locations;
   }
 
   Future<List<LocationModel>> getListOfLocations() async {

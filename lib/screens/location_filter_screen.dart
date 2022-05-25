@@ -1,9 +1,13 @@
+import 'package:animations/animations.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/sport_model.dart';
+import 'package:fitxkonnect/screens/details_page.dart';
 import 'package:fitxkonnect/screens/filter_page.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
 import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/widgets/custom_details_button.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
+import 'package:fitxkonnect/utils/widgets/search_screen/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
@@ -139,7 +143,18 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                     ),
                     child: Center(
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).pushReplacement(
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation1, animation2) =>
+                                  MapScreen(
+                                locations: widget.locations,
+                                filteredSport: "LIST",
+                              ),
+                              transitionDuration: Duration(),
+                            ),
+                          );
+                        },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -185,6 +200,29 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                     itemCount: widget.locations.length,
                     itemBuilder: (context, index) {
                       return ListTile(
+                          trailing: SizedBox(
+                            width: 90,
+                            height: 20,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.sports_tennis,
+                                  size: 20,
+                                  color: kPrimaryColor,
+                                ),
+                                Icon(
+                                  Icons.sports_football,
+                                  size: 20,
+                                  color: kPrimaryColor,
+                                ),
+                                Icon(
+                                  Icons.sports_basketball,
+                                  size: 20,
+                                  color: kPrimaryColor,
+                                ),
+                              ],
+                            ),
+                          ),
                           leading: Column(
                             children: [
                               const Icon(
@@ -211,13 +249,26 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                               color: Colors.grey,
                             ),
                           ),
-                          onTap: () => print("ListTile"));
+                          onTap: () => {
+                                Navigator.of(context).pushReplacement(
+                                  PageRouteBuilder(
+                                    pageBuilder:
+                                        (context, animation1, animation2) =>
+                                            DetailPage(
+                                                locations: widget.locations,
+                                                sports: widget.sports,
+                                                locationId: widget
+                                                    .locations[index]
+                                                    .locationId),
+                                    transitionDuration: Duration(),
+                                  ),
+                                )
+                              });
                     },
                   ),
                   // Container(height: 600, child: EditPr()),
                   Container(
                     color: Colors.white,
-                    padding: EdgeInsets.only(top: 50),
                     child: FilterPage(
                         locations: widget.locations, sports: widget.sports),
                   ),

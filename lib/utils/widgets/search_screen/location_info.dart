@@ -170,16 +170,16 @@ class _LocationInfoState extends State<LocationInfo> {
                 left: 280,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: kPrimaryLightColor,
+                    // color: kPrimaryLightColor,
                     borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: kPrimaryColor.withOpacity(0.2),
-                        blurRadius: 8,
-                        spreadRadius: 3,
-                        offset: Offset(0, 8),
-                      ),
-                    ],
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: kPrimaryColor.withOpacity(0.2),
+                    //     blurRadius: 2,
+                    //     spreadRadius: 2,
+                    //     offset: Offset(0, 2),
+                    //   ),
+                    // ],
                   ),
                   child: CustomDetailsButton(
                       selectedLocation: widget.selectedLocation.locationId),

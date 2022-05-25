@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:fitxkonnect/blocs/app_bloc.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
@@ -31,6 +32,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => UserProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AppBloc(),
         )
       ],
       child: MaterialApp(

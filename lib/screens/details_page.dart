@@ -2,7 +2,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fitxkonnect/models/dp_match_model.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
+import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/screens/location_filter_screen.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
@@ -15,9 +17,13 @@ import 'dart:ui' as ui;
 
 class DetailPage extends StatefulWidget {
   final String locationId;
+  final List<SportModel> sports;
+  final List<LocationModel> locations;
   const DetailPage({
     Key? key,
     required this.locationId,
+    required this.sports,
+    required this.locations,
   }) : super(key: key);
 
   @override
@@ -30,6 +36,26 @@ class _DetailPageState extends State<DetailPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kPrimaryLightColor,
+        actions: [
+          InkWell(
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) =>
+                      FilterLocationScreen(
+                    locations: widget.locations,
+                    sports: widget.sports,
+                  ),
+                  transitionDuration: Duration(),
+                ),
+              );
+            },
+          )
+        ],
         elevation: 0,
       ),
       backgroundColor: Colors.white,
@@ -67,33 +93,6 @@ class _DetailPageState extends State<DetailPage> {
                     image: DecorationImage(
                         image: NetworkImage(snapshot.data![0]),
                         fit: BoxFit.cover),
-                  ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: SvgPicture.asset(
-                                  "assets/images/back_icon.svg")),
-                          Row(
-                            children: <Widget>[
-                              SvgPicture.asset("assets/images/heart_icon.svg"),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              SvgPicture.asset("assets/images/share_icon.svg"),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
                   ),
                 ),
                 Container(
