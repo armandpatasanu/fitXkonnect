@@ -150,6 +150,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                                   MapScreen(
                                 locations: widget.locations,
                                 filteredSport: "LIST",
+                                listOfSports: widget.sports,
                               ),
                               transitionDuration: Duration(),
                             ),

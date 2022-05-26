@@ -1,6 +1,7 @@
 import 'package:fitxkonnect/blocs/app_bloc.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/map_screen.dart';
@@ -26,9 +27,12 @@ class _SearchPageState extends State<SearchPage> {
         // ),
         body: Container(
             child: FutureBuilder(
-                future: LocationServices().getListOfLocations(),
+                future: Future.wait([
+                  LocationServices().getListOfLocations(),
+                  SportServices().getListOfSports(),
+                ]),
                 builder: (BuildContext context,
-                    AsyncSnapshot<List<LocationModel>> snapshot) {
+                    AsyncSnapshot<List<dynamic>> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(),
@@ -36,7 +40,8 @@ class _SearchPageState extends State<SearchPage> {
                   }
                   return MapScreen(
                     filteredSport: "LIST",
-                    locations: snapshot.data!,
+                    locations: snapshot.data![0],
+                    listOfSports: snapshot.data![1],
                   );
                 })),
         // child: MapScreen(

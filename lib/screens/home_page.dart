@@ -22,7 +22,13 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, bool>> _sportsButtons = [];
   Future<List<Map<String, bool>>>? _getTaskAsync;
   int _counter = 0;
-  String _filter = "all";
+  int _diffValue = 0;
+  String _diffFilter = "all";
+  String _dayFilter = "all";
+  int _dayValue = 0;
+  String _sportFilter = "all";
+  List<bool> _diffSelected = [false, false, false];
+  List<bool> _daySelected = [false, false, false];
   @override
   void initState() {
     // TODO: implement initState
@@ -53,8 +59,11 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NaviBar(
         index: 0,
       ),
-      appBar: AppBar(),
+      appBar: AppBar(
+        toolbarHeight: 0,
+      ),
       body: Container(
+        color: kPrimaryColor,
         padding: EdgeInsets.only(top: 20),
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -67,42 +76,8 @@ class _HomePageState extends State<HomePage> {
                   right: 20,
                 ),
                 child: Center(
-                    // fac map<SportModel, bool> ????????? Futurebuilder
                     child: Row(
                   children: [
-                    // Row(
-                    //   children: [
-                    //     ElevatedButton(
-                    //       onPressed: () {
-                    //         setState(() {
-                    //           for (int i = 0;
-                    //               i < pressedAttentions.length;
-                    //               i++) {
-                    //             pressedAttentions[i] = false;
-                    //           }
-                    //           _filter = "all";
-                    //         });
-                    //       },
-                    //       style: ButtonStyle(
-                    //         overlayColor:
-                    //             MaterialStateProperty.resolveWith<Color?>(
-                    //           (Set<MaterialState> states) {
-                    //             if (states.contains(MaterialState.pressed))
-                    //               return Colors.redAccent; //<-- SEE HERE
-                    //             return null; // Defer to the widget's default.
-                    //           },
-                    //         ),
-                    //       ),
-                    //       child: Icon(
-                    //         Icons.restart_alt,
-                    //         color: Colors.white,
-                    //       ),
-                    //     ),
-                    //     SizedBox(
-                    //       width: 20,
-                    //     ),
-                    //   ],
-                    // ),
                     Flexible(
                       child: FutureBuilder<List<Map<String, bool>>>(
                           future: _getTaskAsync,
@@ -170,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                                                     .first,
                                                 (value) => value = true);
 
-                                            _filter = _sportsButtons[index]
+                                            _sportFilter = _sportsButtons[index]
                                                 .keys
                                                 .first;
                                           } else if (_counter == 1 &&
@@ -180,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                                                     .keys
                                                     .first,
                                                 (value) => value = false);
-                                            _filter = "all";
+                                            _sportFilter = "all";
                                           } else if (_counter == 1 &&
                                               found != index) {
                                             _sportsButtons[found].update(
@@ -193,7 +168,7 @@ class _HomePageState extends State<HomePage> {
                                                     .keys
                                                     .first,
                                                 (value) => value = true);
-                                            _filter = _sportsButtons[index]
+                                            _sportFilter = _sportsButtons[index]
                                                 .keys
                                                 .first;
                                           }
@@ -223,10 +198,93 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ))),
             Container(
-              height: 561,
+                height: 50,
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      buildDifficultyRadioText(
+                          'assets/images/difficulty_icons/easy.png', 1, 'Easy'),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      buildDifficultyRadioText(
+                          'assets/images/difficulty_icons/medium.png',
+                          2,
+                          'Medium'),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      buildDifficultyRadioText(
+                          'assets/images/difficulty_icons/hard.png', 3, 'Hard'),
+                    ],
+                  ),
+                )),
+            Container(
+                height: 50,
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        'Time',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: kPrimaryColor,
+                          fontFamily: 'OpenSans',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      buildDayRadioText(
+                        'assets/images/time_icons/morning.png',
+                        1,
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      buildDayRadioText(
+                          'assets/images/time_icons/afternoon.png', 2),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      buildDayRadioText(
+                          'assets/images/time_icons/night.png', 3),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      InkWell(
+                        child: Icon(
+                          Icons.lock_reset,
+                          color: Colors.blue,
+                          size: 28,
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _dayValue = 0;
+                            _dayFilter = "all";
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                )),
+            Container(
+              height: 511,
               padding: EdgeInsets.only(top: 10),
               child: FutureBuilder(
-                  future: MatchServices().getActualHomePageMatches(_filter),
+                  future: MatchServices().getActualHomePageMatches(
+                      _sportFilter, _diffFilter, _dayFilter),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<HomePageMatch>> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -259,6 +317,123 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  String getDifFromValue(int v) {
+    switch (v) {
+      case 1:
+        return 'Easy';
+      case 2:
+        return 'Medium';
+      case 3:
+        return 'Hard';
+      default:
+        return 'all';
+    }
+  }
+
+  String getDayFromValue(int v) {
+    switch (v) {
+      case 1:
+        return 'Morning';
+      case 2:
+        return 'Afternoon';
+      case 3:
+        return 'Night';
+      default:
+        return 'all';
+    }
+  }
+
+  Widget buildDifficultyRadioText(String photo, int index, String diff) {
+    return Row(
+      children: [
+        ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: _diffSelected[index - 1] == true
+                  ? MaterialStateProperty.all(kPrimaryColor)
+                  : MaterialStateProperty.all(Colors.white),
+              overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected))
+                    return Colors.redAccent; //<-- SEE HERE
+                  return null; // Defer to the widget's default.
+                },
+              ),
+            ),
+            onPressed: () {
+              setState(() {
+                print("LADY $index");
+                if (index == _diffValue) {
+                  _diffSelected[index - 1] = !_diffSelected[index - 1];
+                  _diffFilter = "all";
+                  _diffValue = 0;
+                } else {
+                  for (int i = 0; i < _diffSelected.length; i++) {
+                    if (index - 1 != i) {
+                      _diffSelected[i] = false;
+                    }
+                  }
+                  _diffSelected[index - 1] = !_diffSelected[index - 1];
+                  _diffFilter = getDifFromValue(index);
+                  _diffValue = index;
+                }
+                print("FILTER: $_diffFilter");
+              });
+            },
+            child: Row(
+              children: [
+                Image.asset(
+                  photo,
+                  width: 25,
+                  height: 25,
+                  fit: BoxFit.cover,
+                  // color: Colors.grey,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(diff,
+                    style: TextStyle(
+                      color: _diffSelected[index - 1] == true
+                          ? Colors.white
+                          : kPrimaryColor,
+                    )),
+              ],
+            )),
+      ],
+    );
+  }
+
+  Widget buildDayRadioText(String photo, int index) {
+    return Row(
+      children: [
+        Image.asset(
+          photo,
+          width: 33,
+          height: 33,
+          fit: BoxFit.cover,
+          // color: Colors.grey,
+        ),
+        Theme(
+          data: Theme.of(context).copyWith(
+              unselectedWidgetColor: Colors.grey, disabledColor: Colors.blue),
+          child: Radio(
+            value: index,
+            groupValue: _dayValue,
+            onChanged: (value) {
+              setState(() {
+                setState(() {
+                  _dayFilter = getDayFromValue(index);
+                  print("OK $_dayFilter");
+                  _dayValue = index;
+                });
+              });
+            },
+          ),
+        ),
+      ],
     );
   }
 }

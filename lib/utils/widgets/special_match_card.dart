@@ -34,7 +34,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.white),
+      decoration: BoxDecoration(color: kPrimaryColor),
       height: 250,
       width: MediaQuery.of(context).size.width,
       margin: EdgeInsets.only(left: 10, right: 10),

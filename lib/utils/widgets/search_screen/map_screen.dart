@@ -35,7 +35,12 @@ const double PIN_INVISIBLE_POSITION = -920;
 class MapScreen extends StatefulWidget {
   final List<LocationModel> locations;
   final String filteredSport;
-  MapScreen({Key? key, required this.locations, required this.filteredSport})
+  final List<SportModel> listOfSports;
+  MapScreen(
+      {Key? key,
+      required this.locations,
+      required this.filteredSport,
+      required this.listOfSports})
       : super(key: key);
 
   @override
@@ -255,9 +260,10 @@ class _MapScreenState extends State<MapScreen> {
                                                           CircularProgressIndicator());
                                                 }
                                                 return MapScreen(
-                                                  locations: snapshot.data!,
-                                                  filteredSport: sportName,
-                                                );
+                                                    locations: snapshot.data!,
+                                                    filteredSport: sportName,
+                                                    listOfSports:
+                                                        widget.listOfSports);
                                               }),
                                       transitionDuration: Duration(),
                                     ),
@@ -295,100 +301,75 @@ class _MapScreenState extends State<MapScreen> {
                               )
                             ]),
                         child: Center(
-                          child: FutureBuilder<List<SportModel>>(
-                            future: SportServices().getListOfSports(),
-                            builder: (BuildContext context, snapshot) {
-                              if (snapshot.connectionState ==
-                                      ConnectionState.waiting ||
-                                  !snapshot.hasData) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              return PopupMenuButton<String>(
-                                itemBuilder: (context) {
-                                  return snapshot.data!.map((str) {
-                                    return PopupMenuItem(
-                                      value: str.name,
-                                      child: Text(str.name),
-                                    );
-                                  }).toList();
-                                },
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.format_list_bulleted,
-                                      size: 25,
-                                      color: Colors.grey,
+                          child: Container(
+                            child: PopupMenuButton<String>(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(15.0))),
+                              offset: Offset(48, 32),
+                              itemBuilder: (context) {
+                                return widget.listOfSports.map((str) {
+                                  return PopupMenuItem(
+                                    value: str.name,
+                                    child: Row(
+                                      // mainAxisAlignment:
+                                      //     MainAxisAlignment.center,
+                                      children: [
+                                        convertSportToIcon(str.name),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
+                                          str.name,
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      widget.filteredSport,
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                        fontFamily: "Netflix",
-                                        // fontWeight: FontWeight.w600,
-                                        fontWeight: ui.FontWeight.bold,
-                                        fontSize: 15,
-                                        letterSpacing: 0.0,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                onSelected: (v) {
-                                  setState(() {
-                                    print('!!!===== $v');
-                                    sportName = v;
-                                  });
-                                },
-                              );
-                            },
+                                  );
+                                }).toList();
+                              },
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.format_list_bulleted,
+                                    size: 25,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  convertSportToIcon(
+                                    // sportName != widget.filteredSport ? sportName : widget.filteredSport,
+                                    widget.filteredSport,
+                                  ),
+                                  // Text(
+                                  //   widget.filteredSport,
+                                  //   textAlign: TextAlign.left,
+                                  //   style: TextStyle(
+                                  //     fontFamily: "Netflix",
+                                  //     // fontWeight: FontWeight.w600,
+                                  //     fontWeight: ui.FontWeight.bold,
+                                  //     fontSize: 15,
+                                  //     letterSpacing: 0.0,
+                                  //     color: Colors.black,
+                                  //   ),
+                                  // ),
+                                ],
+                              ),
+                              onSelected: (v) {
+                                setState(() {
+                                  print('!!!===== $v');
+                                  sportName = v;
+                                });
+                              },
+                            ),
                           ),
                         ),
                       ),
-                      // FutureBuilder<List<SportModel>>(
-                      //   future: SportServices().getListOfSports(),
-                      //   builder: (BuildContext context, snapshot) {
-                      //     if (snapshot.connectionState ==
-                      //             ConnectionState.waiting ||
-
-                      //       return Center(child: CircularProgressIndicator());
-                      //     }
-                      //     return Container(
-                      //       width: 100,
-                      //       padding: EdgeInsets.symmetric(
-                      //           horizontal: 10, vertical: 5),
-                      //       decoration: BoxDecoration(
-                      //           color: Colors.white,
-                      //           borderRadius: BorderRadius.circular(10)),
-                      //       child: DropdownButton(
-                      //         hint: Text(
-                      //           sportName,
-                      //           style: TextStyle(color: textColor1),
-                      //         ),
-                      //         isExpanded: false,
-                      //         items: snapshot.data!.map((whatdeactual) {
-                      //           return DropdownMenuItem(
-                      //             value: whatdeactual.name,
-                      //             child: Text(whatdeactual.name),
-                      //           );
-                      //         }).toList(),
-                      //         onChanged: (value) {
-                      //           this.sportName = value.toString();
-                      //           debugPrint('selected onchange: $value');
-                      //           setState(
-                      //             () {
-                      //               sportName = value.toString();
-                      //             },
-                      //           );
-                      //         },
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
                     ],
                   ),
                   AnimatedPositioned(
@@ -407,16 +388,88 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // handleMarkers() {
-  //   _markers.forEach((element) async {
-  //     LocationModel location = LocationModel.fromSnap(await FirebaseFirestore
-  //         .instance
-  //         .collection('locations')
-  //         .where('')
-  //         .get());
-  //     if()
-  //   });
-  // }
+  Widget convertSportToIcon(String sport) {
+    switch (sport) {
+      case 'Badminton':
+        return Image.asset(
+          'assets/images/sport_icons/badminton.png',
+          width: 25,
+          height: 25,
+          fit: BoxFit.cover,
+          color: Colors.grey,
+        );
+
+      case 'Biliard':
+        return Image.asset(
+          'assets/images/sport_icons/biliard.jpg',
+          width: 25,
+          height: 25,
+          fit: BoxFit.cover,
+          color: Colors.grey,
+        );
+      case 'Darts':
+        return Image.asset(
+          'assets/images/sport_icons/darts.png',
+          width: 25,
+          height: 25,
+          fit: BoxFit.cover,
+          color: Colors.grey,
+        );
+      case 'Golf':
+        return Image.asset(
+          'assets/images/sport_icons/golf.png',
+          width: 25,
+          height: 25,
+          fit: BoxFit.cover,
+          color: Colors.grey,
+        );
+      case 'PadBol':
+        return Image.asset(
+          'assets/images/sport_icons/padbol.png',
+          width: 25,
+          height: 25,
+          fit: BoxFit.cover,
+          color: Colors.grey,
+        );
+      case 'Squash':
+        return Image.asset(
+          'assets/images/sport_icons/squash.png',
+          width: 25,
+          height: 25,
+          fit: BoxFit.cover,
+          color: Colors.grey,
+        );
+      case 'Tenis':
+        return Image.asset(
+          'assets/images/sport_icons/tenis.png',
+          width: 25,
+          height: 25,
+          fit: BoxFit.cover,
+          color: Colors.grey,
+        );
+      case 'Tenis de masa':
+        return Image.asset(
+          'assets/images/sport_icons/tenis_de_masa.png',
+          width: 25,
+          height: 25,
+          fit: BoxFit.cover,
+          color: Colors.grey,
+        );
+      default:
+        return Text(
+          widget.filteredSport,
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontFamily: "Netflix",
+            // fontWeight: FontWeight.w600,
+            fontWeight: ui.FontWeight.bold,
+            fontSize: 15,
+            letterSpacing: 0.0,
+            color: Colors.black,
+          ),
+        );
+    }
+  }
 
   startQuery() async {
     _sportsToPass = await SportServices().getListOfSports();

@@ -19,8 +19,6 @@ class FilterPage extends StatefulWidget {
 }
 
 class _FilterPageState extends State<FilterPage> {
-  int _diffValue = 0;
-  int _dayValue = 0;
   List<bool> _isChecked = [];
   List<LocationModel> _locations = [];
   List<SportModel> _sports = [];
@@ -144,12 +142,6 @@ class _FilterPageState extends State<FilterPage> {
                       for (var s in _sports) {
                         print("SPORTZ: ${s.name}");
                       }
-                      String diffToPass = getDifFromValue(_diffValue);
-                      String dayToPass = getDayFromValue(_dayValue);
-                      // print(_diffValue + _dayValue);
-                      // print(_dayValue);
-                      print(diffToPass);
-                      print(dayToPass);
 
                       Navigator.of(context).pushReplacement(
                         PageRouteBuilder(
@@ -204,8 +196,6 @@ class _FilterPageState extends State<FilterPage> {
                       setState(() {
                         _isChecked =
                             List<bool>.filled(widget.sports.length, false);
-                        _diffValue = 0;
-                        _dayValue = 0;
                       });
                     },
                     child: Text("CLEAR"),
@@ -217,89 +207,5 @@ class _FilterPageState extends State<FilterPage> {
         ],
       ),
     );
-  }
-
-  Widget buildDifficultyRadioText(String diff, int index) {
-    return Row(
-      children: [
-        Text(
-          diff,
-          style: TextStyle(color: kPrimaryColor),
-        ),
-        SizedBox(
-          width: 5,
-        ),
-        Theme(
-          data: Theme.of(context).copyWith(
-              unselectedWidgetColor: Colors.grey, disabledColor: Colors.blue),
-          child: Radio(
-            value: index,
-            groupValue: _diffValue,
-            onChanged: (value) {
-              setState(() {
-                setState(() {
-                  _diffValue = index;
-                });
-              });
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildDayRadioText(String day, int index) {
-    return Row(
-      children: [
-        Text(
-          day,
-          style: TextStyle(color: kPrimaryColor),
-        ),
-        SizedBox(
-          width: 5,
-        ),
-        Theme(
-          data: Theme.of(context).copyWith(
-              unselectedWidgetColor: Colors.grey, disabledColor: Colors.blue),
-          child: Radio(
-            value: index,
-            groupValue: _dayValue,
-            onChanged: (value) {
-              setState(() {
-                setState(() {
-                  _dayValue = index;
-                });
-              });
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  String getDifFromValue(int v) {
-    switch (v) {
-      case 1:
-        return 'Easy';
-      case 2:
-        return 'Medium';
-      case 3:
-        return 'Hard';
-      default:
-        return 'default';
-    }
-  }
-
-  String getDayFromValue(int v) {
-    switch (v) {
-      case 1:
-        return 'Morning';
-      case 2:
-        return 'Afternoon';
-      case 3:
-        return 'Night';
-      default:
-        return 'default';
-    }
   }
 }

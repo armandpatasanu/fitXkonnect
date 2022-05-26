@@ -44,6 +44,49 @@ class MatchServices {
     return wantedMatches;
   }
 
+  List<MatchModel> getMatchesBasedOnDifficulty(
+      String diff, List<MatchModel> list) {
+    List<MatchModel> wantedMatches = [];
+    list.forEach((element) {
+      if (element.difficulty == diff) {
+        wantedMatches.add(element);
+      }
+    });
+    return wantedMatches;
+  }
+
+  List<MatchModel> getMatchesBasedOnDay(String diff, List<MatchModel> list) {
+    print("AJUNG AICI#########");
+    List<MatchModel> wantedMatches = [];
+    int startingHour = 99;
+    int finishHour = 99;
+    int hour = 0;
+    switch (diff) {
+      case 'Morning':
+        startingHour = 8;
+        finishHour = 13;
+        break;
+      case 'Afternoon':
+        startingHour = 13;
+        finishHour = 19;
+        break;
+      case 'Night':
+        startingHour = 19;
+        finishHour = 24;
+        break;
+    }
+    print("NU CRAP DUPA SWITCH#########");
+    list.forEach((element) {
+      print("SUNT IN LISTA!##");
+      hour = int.parse(element.matchDate.substring(0, 2));
+      print("LOLX $hour");
+      if (hour <= finishHour && hour >= startingHour) {
+        wantedMatches.add(element);
+      }
+    });
+    return wantedMatches;
+  }
+
   Future<List<MatchModel>> getAllHomePageMatches() async {
     var ref = await FirebaseFirestore.instance
         .collection('matches')
@@ -62,16 +105,31 @@ class MatchServices {
     return wantedMatches;
   }
 
-  Future<List<HomePageMatch>> getActualHomePageMatches(String filter) async {
-    List<MatchModel> allMatches = [];
-    if (filter == "all") {
-      allMatches = await MatchServices().getAllHomePageMatches();
+  Future<List<HomePageMatch>> getActualHomePageMatches(
+      String sportFilter, String diffFilter, String dayFilter) async {
+    List<MatchModel> filteredOnce = [];
+    if (sportFilter == "all") {
+      filteredOnce = await MatchServices().getAllHomePageMatches();
     } else {
-      allMatches = await MatchServices().getMatchesBasedOnSport(filter);
+      filteredOnce = await MatchServices().getMatchesBasedOnSport(sportFilter);
+    }
+    List<MatchModel> filteredTwice = [];
+    if (diffFilter == "all") {
+      filteredTwice = filteredOnce;
+    } else {
+      filteredTwice =
+          MatchServices().getMatchesBasedOnDifficulty(diffFilter, filteredOnce);
+    }
+    List<MatchModel> filteredThird = [];
+    if (dayFilter == "all") {
+      filteredThird = filteredTwice;
+    } else {
+      filteredThird =
+          MatchServices().getMatchesBasedOnDay(dayFilter, filteredTwice);
     }
     List<HomePageMatch> neededMatches = [];
 
-    for (var match in allMatches) {
+    for (var match in filteredThird) {
       UserModel user = await UserServices().getSpecificUser(match.player1);
       LocationModel location =
           await LocationServices().getCertainLocation(match.location);
@@ -87,6 +145,7 @@ class MatchServices {
           locationName: location.name,
           matchId: match.matchId));
     }
+    if (diffFilter != "all") {}
     return neededMatches;
   }
 
@@ -126,18 +185,6 @@ class MatchServices {
     });
     return wantedMatches;
   }
-
-  // Future<List<String>> getUsersActiveMatches(String userId) async {
-  //   print("WTF?");
-  //   List<String> meMatches = [];
-  //   UserModel me = await UserServices().getSpecificUser(userId);
-
-  //   me.sports.forEach((element) {
-  //     print("Element: ${element}");
-  //     meMatches.add(element);
-  //   });
-  //   return meMatches;
-  // }
 
   Future<List<MatchModel>> getUserEndedMatches(String userId) async {
     print(userId);

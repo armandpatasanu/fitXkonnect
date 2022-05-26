@@ -73,6 +73,9 @@ dev_dependencies:
 flutter:
   assets:
     - assets/images/
+    - assets/images/sport_icons/
+    - assets/images/time_icons/
+    - assets/images/difficulty_icons/
     - assets/light.json
 
   # The following line ensures that the Material Icons font is
