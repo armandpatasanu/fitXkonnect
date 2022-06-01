@@ -48,6 +48,7 @@ class MatchServices {
       String diff, List<MatchModel> list) {
     List<MatchModel> wantedMatches = [];
     list.forEach((element) {
+      print("WHAT DA HELL! ${element.difficulty}");
       if (element.difficulty == diff) {
         wantedMatches.add(element);
       }
@@ -78,7 +79,7 @@ class MatchServices {
     print("NU CRAP DUPA SWITCH#########");
     list.forEach((element) {
       print("SUNT IN LISTA!##");
-      hour = int.parse(element.matchDate.substring(0, 2));
+      hour = int.parse(element.startingTime.substring(0, 2));
       print("LOLX $hour");
       if (hour <= finishHour && hour >= startingHour) {
         wantedMatches.add(element);
@@ -94,22 +95,28 @@ class MatchServices {
         .get();
 
     List<DocumentSnapshot> documentList = ref.docs;
+
     List<MatchModel> wantedMatches = [];
 
     documentList.forEach((DocumentSnapshot snap) {
       MatchModel m = MatchModel.fromSnap((snap));
+
       if (m.status == 'open') {
         wantedMatches.add(m);
       }
     });
+
     return wantedMatches;
   }
 
   Future<List<HomePageMatch>> getActualHomePageMatches(
       String sportFilter, String diffFilter, String dayFilter) async {
+    print("THIS WAS CALLED@@@@@");
     List<MatchModel> filteredOnce = [];
     if (sportFilter == "all") {
+      print("I SHOULD BE HERE");
       filteredOnce = await MatchServices().getAllHomePageMatches();
+      print("WAS I STUCK?");
     } else {
       filteredOnce = await MatchServices().getMatchesBasedOnSport(sportFilter);
     }
@@ -140,8 +147,8 @@ class MatchServices {
           p1Profile: user.profilePhoto,
           sport: match.sport,
           difficulty: match.difficulty,
-          matchDate: match.startingTime,
-          startingTime: match.matchDate,
+          matchDate: match.matchDate,
+          startingTime: match.startingTime,
           locationName: location.name,
           matchId: match.matchId));
     }
@@ -168,8 +175,8 @@ class MatchServices {
           p1Country: user.country,
           sport: match.sport,
           difficulty: match.difficulty,
-          matchDate: match.startingTime,
-          startingTime: match.matchDate,
+          matchDate: match.matchDate,
+          startingTime: match.startingTime,
           matchId: match.matchId));
     }
     return neededMatches;

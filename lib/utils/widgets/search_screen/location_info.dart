@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fitxkonnect/models/location_model.dart';
-import 'package:fitxkonnect/screens/show_details_page.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
@@ -131,8 +130,11 @@ class _LocationInfoState extends State<LocationInfo> {
                       child: Row(
                         children: [
                           ClipRect(
-                            child: Image.asset('assets/images/sportsGuys.jpg',
-                                width: 60, height: 60, fit: BoxFit.cover),
+                            child: Image.asset(
+                                'assets/images/map_screen/sportsGuys.jpg',
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover),
                           ),
                           SizedBox(width: 20),
                           Column(

@@ -5,7 +5,6 @@ import 'package:fitxkonnect/blocs/app_bloc.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
-import 'package:fitxkonnect/screens/navigation_page.dart';
 import 'package:fitxkonnect/services/local_push_notif.dart';
 import 'package:fitxkonnect/utils/colors.dart';
 import 'package:flutter/material.dart';

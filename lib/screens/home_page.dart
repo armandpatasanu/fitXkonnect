@@ -177,6 +177,10 @@ class _HomePageState extends State<HomePage> {
                                                 "{ ${s.keys.first} , ${s.values.first} }");
                                           }
 
+                                          print("FILTER IS ${_sportFilter}");
+                                          print("THRID FILTER IS $_diffFilter");
+                                          print("SECOND FILTER IS $_dayFilter");
+
                                           // print(
                                           //     " QUADUS: ${pressedAttentions[index]}");
                                           // print("HMMMM: ${sports[index].name}");
@@ -238,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                         'Time',
                         style: TextStyle(
                           fontSize: 14,
-                          color: kPrimaryColor,
+                          color: Colors.white,
                           fontFamily: 'OpenSans',
                           fontWeight: FontWeight.w600,
                         ),

@@ -1,7 +1,6 @@
 import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/screens/signup_screen.dart';
-import 'package:fitxkonnect/screens/navigation_page.dart';
 import 'package:fitxkonnect/utils/user_greeting/page_title_bar.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/user_greeting/under_part.dart';
@@ -69,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Stack(
               children: [
                 const Upside(
-                  imgUrl: "assets/images/login.png",
+                  imgUrl: "assets/images/reg_log/login.png",
                 ),
                 const PageTitleBar(
                   title: 'Login to your account',
@@ -178,22 +177,5 @@ switchListTile() {
       activeColor: kPrimaryColor,
       onChanged: (val) {},
     ),
-  );
-}
-
-iconButton(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: const [
-      RoundedIcon(imageUrl: "assets/images/facebook.png"),
-      SizedBox(
-        width: 20,
-      ),
-      RoundedIcon(imageUrl: "assets/images/twitter.png"),
-      SizedBox(
-        width: 20,
-      ),
-      RoundedIcon(imageUrl: "assets/images/google.jpg"),
-    ],
   );
 }

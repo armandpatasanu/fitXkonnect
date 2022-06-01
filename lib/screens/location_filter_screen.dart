@@ -4,7 +4,10 @@ import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/screens/details_page.dart';
 import 'package:fitxkonnect/screens/filter_page.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
+import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/custom_details_button.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/map_screen.dart';
@@ -12,12 +15,12 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
 class FilterLocationScreen extends StatefulWidget {
-  final List<LocationModel> locations;
+  final List<Map<LocationModel, List<String>>> map_loc;
   final List<SportModel> sports;
   FilterLocationScreen({
     Key? key,
-    required this.locations,
     required this.sports,
+    required this.map_loc,
   }) : super(key: key);
 
   @override
@@ -27,11 +30,33 @@ class FilterLocationScreen extends StatefulWidget {
 class _FilterLocationScreenState extends State<FilterLocationScreen>
     with TickerProviderStateMixin {
   final TextEditingController _locationController = TextEditingController();
+  List<Map<LocationModel, List<String>>> _locations = [];
+  List<Map<LocationModel, List<String>>> initialList = [];
+  List<String> _sportsAtLocation = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    List<LocationModel> oof = [];
+
+    _locations = widget.map_loc;
+    initialList = widget.map_loc;
+  }
+
+  void searchLocations(String v) {
+    if (v == "") {
+      _locations = widget.map_loc;
+    }
+    final searchQuery = v.toLowerCase();
+    final List<Map<LocationModel, List<String>>> filteredLocations = [];
+    initialList.forEach((element) {
+      if (element.keys.first.name.toLowerCase().contains(searchQuery)) {
+        filteredLocations.add(element);
+      }
+    });
+    _locations = filteredLocations;
+    setState(() {});
   }
 
   @override
@@ -94,7 +119,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                           Icon(Icons.search, color: kPrimaryLightColor),
                           Flexible(
                             child: TextFormField(
-                              onTap: () {},
+                              onChanged: (value) => searchLocations(value),
                               controller: _locationController,
                               style:
                                   TextStyle(fontSize: 15, color: Colors.black),
@@ -148,7 +173,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                             PageRouteBuilder(
                               pageBuilder: (context, animation1, animation2) =>
                                   MapScreen(
-                                locations: widget.locations,
+                                loc_maps: widget.map_loc,
                                 filteredSport: "LIST",
                                 listOfSports: widget.sports,
                               ),
@@ -191,38 +216,32 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
               height: 34,
             ),
             Positioned(
-              top: 110,
+              top: 120,
               child: Container(
                 height: 604,
                 color: Colors.white,
                 width: MediaQuery.of(context).size.width,
                 child: TabBarView(controller: _tabController, children: [
                   ListView.builder(
-                    itemCount: widget.locations.length,
+                    itemCount: _locations.length,
                     itemBuilder: (context, index) {
                       return ListTile(
                           trailing: SizedBox(
                             width: 90,
-                            height: 20,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.sports_tennis,
-                                  size: 20,
-                                  color: kPrimaryColor,
-                                ),
-                                Icon(
-                                  Icons.sports_football,
-                                  size: 20,
-                                  color: kPrimaryColor,
-                                ),
-                                Icon(
-                                  Icons.sports_basketball,
-                                  size: 20,
-                                  color: kPrimaryColor,
-                                ),
-                              ],
-                            ),
+                            height: 25,
+                            child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                itemCount:
+                                    _locations[index].values.first.length,
+                                itemBuilder: (context, indecs) {
+                                  print(
+                                      "NU ANTELEG ${widget.map_loc[index].values.first[indecs]}");
+                                  return convertSportToIcon(
+                                      _locations[index].values.first[indecs],
+                                      '',
+                                      Colors.grey);
+                                }),
                           ),
                           leading: Column(
                             children: [
@@ -231,7 +250,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                                 color: Colors.grey,
                               ),
                               Text(
-                                '3.4 km',
+                                _locations[index].keys.first.distance + " km",
                                 style: TextStyle(
                                   color: Colors.grey,
                                 ),
@@ -239,13 +258,13 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                             ],
                           ),
                           title: Text(
-                            widget.locations[index].name,
+                            _locations[index].keys.first.name,
                             style: TextStyle(
                               color: Colors.black,
                             ),
                           ),
                           subtitle: Text(
-                            widget.locations[index].contact[0],
+                            _locations[index].keys.first.contact[0],
                             style: TextStyle(
                               color: Colors.grey,
                             ),
@@ -256,10 +275,11 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                                     pageBuilder:
                                         (context, animation1, animation2) =>
                                             DetailPage(
-                                                locations: widget.locations,
+                                                map_loc: widget.map_loc,
                                                 sports: widget.sports,
-                                                locationId: widget
-                                                    .locations[index]
+                                                locationId: _locations[index]
+                                                    .keys
+                                                    .first
                                                     .locationId),
                                     transitionDuration: Duration(),
                                   ),
@@ -271,7 +291,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                   Container(
                     color: Colors.white,
                     child: FilterPage(
-                        locations: widget.locations, sports: widget.sports),
+                        map_loc: widget.map_loc, sports: widget.sports),
                   ),
                 ]),
               ),

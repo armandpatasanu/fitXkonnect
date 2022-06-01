@@ -24,6 +24,22 @@ class LocationServices {
     return result;
   }
 
+  Future<List<String>> getListOfLocationSports(String loc) async {
+    List<String> result = [];
+    LocationModel location = LocationModel.fromSnap(
+        await _firestore.collection('locations').doc(loc).get());
+
+    List locationSports = location.sports;
+    for (int i = 0; i < locationSports.length; i++) {
+      SportModel sport = SportModel.fromSnap(
+          await _firestore.collection('sports').doc(locationSports[i]).get());
+
+      result.add(sport.name);
+    }
+
+    return result;
+  }
+
   Future<LocationModel> getCertainLocation(String locationId) async {
     LocationModel location = LocationModel.fromSnap(
         await _firestore.collection('locations').doc(locationId).get());
@@ -41,54 +57,76 @@ class LocationServices {
     return location.locationId;
   }
 
-  Future<List<LocationModel>> getListOfLocationsBasedOfSelectedSports(
-      List<SportModel> sports) async {
-    print("I AM HERE TO FILTER!");
+  Future<List<Map<LocationModel, List<String>>>>
+      getListOfLocationsBasedOfSelectedSports(List<SportModel> sports) async {
+    bool contains = false;
     List<LocationModel> locations =
         await LocationServices().getListOfLocations();
+    sports.forEach((element) {
+      print("SELECTED SPORT IS: ${element.name}");
+    });
     String sportId = "";
-    List<LocationModel> my_locations = [];
-    for (var loc in locations) {
-      print("V1");
-      print("V1 LOCATION : ${loc.name}");
+    List<Map<LocationModel, List<String>>> map = await getMapOfLocations();
+    List<String> sportz = [];
+    List<Map<LocationModel, List<String>>> my_locations = [];
+    for (var m in map) {
+      print(" VINE LOCATIA: ${m.keys.first.name}");
+      m.values.first.forEach((element) {
+        print("VINE LOCATIA CU SPORTUL: ${element}");
+      });
       for (var sport in sports) {
-        print("V1.1");
-        print("V1.1 SPORT : ${sport.name}");
-        sportId = await SportServices().getSportIdBasedOfName(sport.name);
-        print("V2");
-        print("V2: $sportId");
-        if (loc.sports.contains(sportId) && !(my_locations.contains(loc))) {
-          print("V3");
-          my_locations.add(loc);
-          print("V4");
+        print(" VINE SPORTU: ${sport.name}");
+        if (m.values.last.contains(sport.name)) {
+          print(" VINE INTRU");
+          sportz.add(sport.name);
         }
-        print("V5");
       }
+      LocationModel lm = m.keys.first;
+      for (m in my_locations) {
+        if ((m.containsKey(lm))) {
+          contains = true;
+        }
+      }
+      if (contains == false && sportz.length > 0) {
+        Map<LocationModel, List<String>> map = {
+          lm: sportz,
+        };
+        my_locations.add(map);
+        print("VINE 1");
+      }
+      sportz = [];
     }
-    print("V6");
-    for (var l in my_locations) {
-      print("V7");
-      print("LOCATION FILTERED: ${l.name}");
-    }
+
     return my_locations;
   }
 
-  Future<List<LocationModel>> getListOfLocationsBasedOfASport(
+  Future<List<Map<LocationModel, List<String>>>> getMapOfLocationsBasedOfASport(
       String sport) async {
-    print("I AM HERE TO FILTER!");
     List<LocationModel> locations =
         await LocationServices().getListOfLocations();
+    List<String> sportz = [];
+
     String sportId = await SportServices().getSportIdBasedOfName(sport);
-    List<LocationModel> my_locations = [];
-    for (var loc in locations) {
-      if (loc.sports.contains(sportId)) {
-        my_locations.add(loc);
+
+    List<Map<LocationModel, List<String>>> my_locations = [];
+
+    if (sport == "LIST") {
+      my_locations = await getMapOfLocations();
+    } else {
+      for (var loc in locations) {
+        if (loc.sports.contains(sportId)) {
+          for (var sp in loc.sports) {
+            sp = await SportServices().getSportNameBasedOfId(sp);
+            sportz.add(sp);
+          }
+          Map<LocationModel, List<String>> map = {
+            loc: sportz,
+          };
+          sportz = [];
+          my_locations.add(map);
+        }
       }
     }
-    // for (var l in my_locations) {
-    //   print("V7");
-    //   print("LOCATION FILTERED: ${l.name}");
-    // }
     return my_locations;
   }
 
@@ -105,6 +143,38 @@ class LocationServices {
     });
 
     return locations;
+  }
+
+  Future<List<Map<LocationModel, List<String>>>> getMapOfLocations() async {
+    List<Map<LocationModel, List<String>>> myWanted = [];
+    List<LocationModel> locations = await getListOfLocations();
+
+    List<String> sports = [];
+    String sp = "";
+
+    for (var loc in locations) {
+      print("MAPPING THIS LOCATION: ${loc.name}");
+      for (var sp in loc.sports) {
+        print("MAPPING THIS SPORT FOR ${loc.name} ");
+        sp = await SportServices().getSportNameBasedOfId(sp);
+        print("ZPORT: $sp");
+        sports.add(sp);
+      }
+
+      Map<LocationModel, List<String>> map = {
+        loc: sports,
+      };
+      myWanted.add(map);
+      sports = [];
+    }
+    return myWanted;
+  }
+
+  void updateDistance(String locationId, String distance) {
+    FirebaseFirestore.instance
+        .collection('locations')
+        .doc(locationId)
+        .update({"distance": distance});
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> getLocations() async {

@@ -1,6 +1,5 @@
 import 'package:animations/animations.dart';
 import 'package:fitxkonnect/screens/details_page.dart';
-import 'package:fitxkonnect/screens/show_details_page.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +14,7 @@ class CustomDetailsButton extends StatelessWidget {
     return OpenContainer(
       transitionDuration: Duration(seconds: 2),
       openBuilder: (context, _) => DetailPage(
-        locations: [],
+        map_loc: [],
         sports: [],
         locationId: selectedLocation,
       ),

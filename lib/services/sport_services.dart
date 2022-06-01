@@ -32,13 +32,9 @@ class SportServices {
   Future<List<dynamic>> getUsersSportsPlayed(String userId) async {
     print("HELLO?");
     UserModel user = await UserServices().getSpecificUser(userId);
-    List users_sports = user.sports;
+    List users_sports = user.sports_configured;
     for (var map in users_sports) {
-      print(map['sport']);
-      print(map['difficulty']);
-      map['sport'] =
-          (await SportServices().getSpecificSportFromId(map['sport']!)).name;
-      print(map['sport']);
+      print("OLA: ${map['sport']}, ${map['difficulty']} ");
     }
     return users_sports;
   }
@@ -74,6 +70,12 @@ class SportServices {
     return myList;
   }
 
+  Future<String> getSportNameBasedOfId(String sportId) async {
+    SportModel sport = SportModel.fromSnap(
+        await _firestore.collection('sports').doc(sportId).get());
+    return sport.name;
+  }
+
   Future<String> getSportIdBasedOfName(String name) async {
     var ref = await FirebaseFirestore.instance.collection('sports').get();
     List<DocumentSnapshot> documentList = ref.docs;
@@ -84,9 +86,11 @@ class SportServices {
       if (snap['name'] == name) {
         print(snap['name']);
         print("Y3");
+        print("URMEAZA SA TE BLOCHEZI?");
         wantedId =
             (await SportServices().getSpecificSportFromName(snap['name']))
                 .sportId;
+        print("HELLO?");
         print("AM GASIT BOI: $wantedId");
       }
     }
@@ -94,7 +98,7 @@ class SportServices {
     return wantedId;
   }
 
-  Future<List<String>> getDifferentSports(uid) async {
+  Future<List<String>> getNotConfiguredSports(uid) async {
     List<dynamic> playedSports = await getUsersSportsPlayed(uid);
     List<String> playedSports_strings = [];
     List<SportModel> allSports = await getListOfSports();
@@ -103,36 +107,88 @@ class SportServices {
 
     for (var map in playedSports) {
       playedSports_strings.add(map['sport']);
-      print("sport care e configurat: ${playedSports_strings}");
+      // print("sport care e configurat: ${playedSports_strings}");
     }
 
     for (var sport in allSports) {
       allSports_strings.add(sport.name);
-      print("sport care e configurat: ${allSports_strings}");
+      // print("sport care e configurat: ${allSports_strings}");
     }
 
     for (var name in allSports_strings) {
       if (!playedSports_strings.contains(name)) {
-        print("Sport care nu e: $name");
+        // print("Sport care nu e: $name");
         wantedSports.add(name);
       }
     }
     return wantedSports;
   }
 
+  Future<List<String>> getListOfSportsId() async {
+    List<SportModel> sports = await getListOfSports();
+    List<String> wantedList = [];
+    sports.forEach((element) {
+      wantedList.add(element.sportId);
+    });
+
+    return wantedList;
+  }
+
+  Future<List<String>> getListOfSportsName() async {
+    List<SportModel> sports = await getListOfSports();
+    List<String> wantedList = [];
+    sports.forEach((element) {
+      wantedList.add(element.name);
+    });
+
+    return wantedList;
+  }
+
   Future<void> addSport(String uid, String dif, String sport) async {
     UserModel user = await UserServices().getSpecificUser(uid);
-    List users_sports = user.sports;
-    String sportId =
-        (await SportServices().getSpecificSportFromName(sport)).sportId;
+    List<dynamic> users_sports = [];
+    // String sportId =
+    //     (await SportServices().getSpecificSportFromName(sport)).sportId;
     Map<String, String> map = {
       'difficulty': dif,
-      'sport': sportId,
+      'sport': sport,
     };
     users_sports.add(map);
     _firestore
         .collection('users')
         .doc(uid)
-        .update({'sports': FieldValue.arrayUnion(users_sports)});
+        .update({'sports_configured': FieldValue.arrayUnion(users_sports)});
+
+    _firestore.collection('users').doc(uid).update({
+      'sports_not_configured': FieldValue.arrayRemove([sport])
+    });
+  }
+
+  Future<void> deleteSport(String uid, String sport) async {
+    UserModel user = await UserServices().getSpecificUser(uid);
+    List<String> users_sports = await getNotConfiguredSports(uid);
+    List<dynamic> sports_to_be_upd = await getUsersSportsPlayed(uid);
+    List<dynamic> to_be_added = [];
+    // String sportId =
+    //     (await SportServices().getSpecificSportFromName(sport)).sportId;
+    for (var map in sports_to_be_upd) {
+      if (map['sport'] != sport) {
+        to_be_added.add(map);
+      }
+    }
+    sports_to_be_upd.sort(
+        (a, b) => a['sport'].toLowerCase().compareTo(b['sport'].toLowerCase()));
+
+    users_sports.add(sport);
+    users_sports.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    _firestore
+        .collection('users')
+        .doc(uid)
+        .update({'sports_not_configured': users_sports});
+
+    _firestore
+        .collection('users')
+        .doc(uid)
+        .update({'sports_configured': to_be_added});
   }
 }

@@ -28,7 +28,7 @@ class _SearchPageState extends State<SearchPage> {
         body: Container(
             child: FutureBuilder(
                 future: Future.wait([
-                  LocationServices().getListOfLocations(),
+                  LocationServices().getMapOfLocations(),
                   SportServices().getListOfSports(),
                 ]),
                 builder: (BuildContext context,
@@ -40,7 +40,7 @@ class _SearchPageState extends State<SearchPage> {
                   }
                   return MapScreen(
                     filteredSport: "LIST",
-                    locations: snapshot.data![0],
+                    loc_maps: snapshot.data![0],
                     listOfSports: snapshot.data![1],
                   );
                 })),

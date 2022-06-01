@@ -9,6 +9,8 @@ class UserModel {
   final String country;
   final List matches;
   final List sports;
+  final List sports_configured;
+  final List sports_not_configured;
   final List notifications;
   final String token;
 
@@ -21,6 +23,8 @@ class UserModel {
     required this.country,
     required this.matches,
     required this.sports,
+    required this.sports_configured,
+    required this.sports_not_configured,
     required this.notifications,
     required this.token,
   });
@@ -37,6 +41,8 @@ class UserModel {
       country: snapshot["country"],
       matches: snapshot["matches"],
       sports: snapshot["sports"],
+      sports_configured: snapshot["sports_configured"],
+      sports_not_configured: snapshot["sports_not_configured"],
       notifications: snapshot["notifications"],
       token: snapshot["token"],
     );
@@ -51,6 +57,8 @@ class UserModel {
         "country": country,
         "matches": matches,
         "sports": sports,
+        "sports_configured": sports_configured,
+        "sports_not_configured": sports_not_configured,
         "notifications": notifications,
         "token": token,
       };

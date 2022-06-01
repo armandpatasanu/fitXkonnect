@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/main.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
-import 'package:fitxkonnect/screens/navigation_page.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/match_services.dart';

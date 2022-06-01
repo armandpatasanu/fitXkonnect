@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 
@@ -56,6 +57,9 @@ class AuthMethods {
         String photoUrl =
             await StorageMethods().uploadImageToStorage('profilePics', file);
 
+        List<String> notConfiguredSports =
+            await SportServices().getListOfSportsName();
+
         UserModel user = UserModel(
           age: age,
           fullName: fullName,
@@ -65,6 +69,8 @@ class AuthMethods {
           country: country,
           matches: matches,
           sports: sports,
+          sports_configured: [],
+          sports_not_configured: notConfiguredSports,
           notifications: notifications,
           token: token,
         );

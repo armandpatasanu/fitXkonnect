@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:uuid/uuid.dart';
 
 class FirestoreMethods {
@@ -19,9 +20,11 @@ class FirestoreMethods {
 
     try {
       String matchId = const Uuid().v1();
+      String locationId = await LocationServices().getLocationId(locationName);
+      String sportId = await SportServices().getSportIdBasedOfName(sport);
       MatchModel match = MatchModel(
         matchId: matchId,
-        location: await LocationServices().getLocationId(locationName),
+        location: locationId,
         player1: player1,
         player2: "",
         matchDate: matchDate,
@@ -31,6 +34,13 @@ class FirestoreMethods {
         difficulty: difficulty,
         status: status,
       );
+
+      List<String> sports = [];
+      sports.add(sportId);
+      _firestore
+          .collection('locations')
+          .doc(locationId)
+          .update({'sports': FieldValue.arrayUnion(sports)});
 
       _firestore.collection('matches').doc(matchId).set(
             match.toJson(),

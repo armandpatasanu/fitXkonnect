@@ -18,12 +18,12 @@ import 'dart:ui' as ui;
 class DetailPage extends StatefulWidget {
   final String locationId;
   final List<SportModel> sports;
-  final List<LocationModel> locations;
+  final List<Map<LocationModel, List<String>>> map_loc;
   const DetailPage({
     Key? key,
     required this.locationId,
     required this.sports,
-    required this.locations,
+    required this.map_loc,
   }) : super(key: key);
 
   @override
@@ -47,7 +47,7 @@ class _DetailPageState extends State<DetailPage> {
                 PageRouteBuilder(
                   pageBuilder: (context, animation1, animation2) =>
                       FilterLocationScreen(
-                    locations: widget.locations,
+                    map_loc: widget.map_loc,
                     sports: widget.sports,
                   ),
                   transitionDuration: Duration(),

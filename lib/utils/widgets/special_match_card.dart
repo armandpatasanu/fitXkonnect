@@ -72,7 +72,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   ),
                   IconAndTextWidget(
                     icon: Icons.calendar_month,
-                    text: widget.snap.startingTime,
+                    text: widget.snap.matchDate,
                     iconColor: kPrimaryColor,
                     color: kPrimaryColor,
                   ),
@@ -81,7 +81,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   ),
                   IconAndTextWidget(
                     icon: Icons.access_alarm,
-                    text: widget.snap.matchDate,
+                    text: widget.snap.startingTime,
                     iconColor: kPrimaryColor,
                     color: kPrimaryColor,
                   ),

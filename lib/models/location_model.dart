@@ -7,6 +7,7 @@ class LocationModel {
   final GeoPoint geopoint;
   final List contact;
   final List sports;
+  final String distance;
 
   const LocationModel({
     required this.locationId,
@@ -15,6 +16,7 @@ class LocationModel {
     required this.sports,
     required this.name,
     required this.geopoint,
+    required this.distance,
   });
 
   static LocationModel fromSnap(DocumentSnapshot snap) {
@@ -27,6 +29,7 @@ class LocationModel {
       locationId: snapshot["locationId"],
       name: snapshot["name"],
       geopoint: snapshot["geopoint"],
+      distance: snapshot["distance"],
     );
   }
 
@@ -37,5 +40,6 @@ class LocationModel {
         "contact": contact,
         "name": name,
         "geopoint": geopoint,
+        "distance": distance,
       };
 }

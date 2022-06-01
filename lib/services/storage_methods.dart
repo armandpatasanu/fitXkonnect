@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:uuid/uuid.dart';
 
 class StorageMethods {
@@ -31,6 +32,7 @@ class StorageMethods {
       locationId: "",
       name: "",
       geopoint: GeoPoint(0, 0),
+      distance: "",
     );
   }
 
@@ -44,6 +46,8 @@ class StorageMethods {
       country: "",
       matches: [],
       sports: [],
+      sports_configured: [],
+      sports_not_configured: [],
       notifications: [],
       token: '',
     );

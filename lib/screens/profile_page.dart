@@ -3,6 +3,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
+import 'package:fitxkonnect/screens/configure_sport_page.dart';
 import 'package:fitxkonnect/screens/edit_profile.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
 import 'package:fitxkonnect/screens/my_matches_page.dart';
@@ -36,17 +37,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late double pinPillPosition = PIN_INVISIBLE_POSITION;
   bool isEditVisible = false;
-  String? _sport;
-  String? _difficulty;
-  List<bool> _isSelected = List.generate(3, (index) => false);
-  @override
-  void addSport(String uid, String dif, String sport) {
-    String result = "success";
-
-    SportServices().addSport(uid, dif, sport);
-    print("@@@@@@@@GOT HERE");
-    showSnackBar("The sport has been added!", context);
-  }
+  Color? _sportsColor;
 
   Widget build(BuildContext context) {
     @override
@@ -55,9 +46,16 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return FutureBuilder(
-        future: UserServices()
-            .getSpecificUser(FirebaseAuth.instance.currentUser!.uid),
-        builder: (BuildContext context, AsyncSnapshot<UserModel> user) {
+        future: Future.wait([
+          UserServices()
+              .getSpecificUser(FirebaseAuth.instance.currentUser!.uid),
+          SportServices().getNotConfiguredSports(
+              FirebaseAuth.instance.currentUser!.uid), //REDESIGN NEEDED!
+          SportServices().getUsersSportsPlayed(FirebaseAuth
+              .instance.currentUser!.uid) // REDESIGN NEEDED, no more
+          // "sports" field used for UserModel
+        ]),
+        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> user) {
           if (user.connectionState == ConnectionState.waiting ||
               !user.hasData) {
             return const Center(
@@ -94,16 +92,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ],
-                // title: Text(
-                //   user.fullName,
-                //   style: TextStyle(fontFamily: 'OpenSans', color: kPrimaryLightColor),
-                // ),
               ),
               body: SingleChildScrollView(
                 padding: EdgeInsets.only(top: 30),
                 child: Column(
+                  // mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ProfilePic(profilePhoto: user.data!.profilePhoto),
+                    ProfilePic(profilePhoto: user.data![0].profilePhoto),
                     SizedBox(
                       height: 10,
                     ),
@@ -113,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Row(
                           children: [
                             Text(
-                              '${user.data!.fullName}, ${user.data!.age}',
+                              '${user.data![0].fullName}, ${user.data![0].age}',
                               style: TextStyle(
                                 fontSize: 21,
                                 color: kPrimaryLightColor,
@@ -132,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       height: 2,
                     ),
                     Text(
-                      user.data!.country,
+                      user.data![0].country,
                       style: TextStyle(
                         fontSize: 21,
                         color: Colors.white,
@@ -143,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(
                       height: 6,
                     ),
-                    Text(user.data!.email,
+                    Text(user.data![0].email,
                         style: TextStyle(
                           color: kPrimaryLightColor,
                           fontSize: 14,
@@ -152,12 +147,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         )),
                     SizedBox(height: 2),
                     Container(
-                      margin: EdgeInsets.symmetric(vertical: 2, horizontal: 40),
-                      // alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width,
+                      height: 40,
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
-                        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
                             'Sports Played:',
@@ -169,24 +162,59 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           SizedBox(
-                            width: 15,
+                            width: 10,
+                          ),
+                          ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            itemCount: user.data![2].length,
+                            itemBuilder: (context, index) {
+                              print(
+                                  "ALO LENGTHUUUU ${user.data![2][index]['difficulty']}");
+                              switch (user.data![2][index]['difficulty']) {
+                                case 'Easy':
+                                  _sportsColor = Colors.green;
+                                  break;
+                                case 'Medium':
+                                  _sportsColor = Colors.amber;
+                                  break;
+                                case 'Hard':
+                                  _sportsColor = Colors.red;
+                                  break;
+                              }
+                              return Row(
+                                children: [
+                                  convertSportToIcon(
+                                    user.data![2][index]['sport'],
+                                    '',
+                                    _sportsColor!,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),
                     ),
                     SizedBox(
-                      height: 25,
+                      height: 15,
                     ),
                     ProfileMenu(
-                      text: "Configure a sport",
+                      text: "Sports configuration",
                       icon: Icon(Icons.add),
                       press: () {
-                        setState(() {
-                          if (pinPillPosition == PIN_VISIBLE_POSITION)
-                            pinPillPosition = PIN_INVISIBLE_POSITION;
-                          else
-                            pinPillPosition = PIN_VISIBLE_POSITION;
-                        });
+                        Navigator.of(context).pushReplacement(PageRouteBuilder(
+                          pageBuilder: (context, animation1, animation2) =>
+                              ConfigureSportPage(
+                            user: user.data![0],
+                            not_conf_sports: user.data![1],
+                            conf_sports: [],
+                          ),
+                          transitionDuration: Duration(),
+                        ));
                       },
                     ),
                     ProfileMenu(
@@ -196,6 +224,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (context) => FutureBuilder(
                                 future: UserServices().getSpecificUser(
+                                    //add another future builder for
+                                    //configured sports, so the button won't reload in the page
+                                    // pass the list as parameters, another example in map page already done
                                     FirebaseAuth.instance.currentUser!.uid),
                                 builder: (BuildContext context,
                                     AsyncSnapshot<UserModel> snapshot) {
@@ -215,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       press: () {
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (context) => MyMatchesPage(
-                                  user: user.data!,
+                                  user: user.data![0],
                                 )));
                       },
                     ),
@@ -226,194 +257,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 index: 3,
               ),
             ),
-            AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                left: 0,
-                right: 0,
-                bottom: pinPillPosition,
-                child: Stack(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.all(20),
-                      padding: EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 10,
-                                offset: Offset.zero)
-                          ]),
-                      child: Column(
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            child: Material(
-                                color: Colors.white,
-                                child: Row(
-                                  children: [
-                                    buildSportsDropDown(),
-                                    ToggleButtons(
-                                      selectedColor: kPrimaryLightColor,
-                                      selectedBorderColor: kPrimaryColor,
-                                      children: <Widget>[
-                                        Icon(Icons.ac_unit,
-                                            color: kPrimaryColor),
-                                        Icon(
-                                          Icons.call,
-                                          color: kPrimaryColor,
-                                        ),
-                                        Icon(Icons.cake, color: kPrimaryColor),
-                                      ],
-                                      onPressed: (int index) {
-                                        print('HELOO $index');
-                                        switch (index) {
-                                          case 0:
-                                            _difficulty = 'easy';
-                                            break;
-                                          case 1:
-                                            _difficulty = 'medium';
-                                            break;
-                                          case 2:
-                                            _difficulty = 'hard';
-                                            break;
-                                          default:
-                                        }
-                                        setState(() {
-                                          for (int buttonIndex = 0;
-                                              buttonIndex < _isSelected.length;
-                                              buttonIndex++) {
-                                            if (buttonIndex == index) {
-                                              _isSelected[buttonIndex] = true;
-                                            } else {
-                                              _isSelected[buttonIndex] = false;
-                                            }
-                                          }
-                                        });
-                                      },
-                                      isSelected: _isSelected,
-                                    ),
-                                  ],
-                                )),
-                          ),
-                          Divider(
-                            color: Colors.black,
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextButton.icon(
-                                  label: Text('Add'),
-                                  icon: Icon(Icons.add_box),
-                                  onPressed: () {
-                                    addSport(
-                                        FirebaseAuth.instance.currentUser!.uid,
-                                        _difficulty!,
-                                        _sport!);
-                                  },
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                )),
           ]);
-        });
-  }
-
-  @override
-  Widget buildSportsDropDown() {
-    return FutureBuilder<List<String>>(
-        future: SportServices()
-            .getDifferentSports(FirebaseAuth.instance.currentUser!.uid),
-        builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-          if (!snapshot.hasData) return Container();
-          return DropdownButtonHideUnderline(
-            child: DropdownButton2(
-              isExpanded: true,
-              hint: Row(
-                children: const [
-                  SizedBox(
-                    width: 4,
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Pick',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              items: snapshot.data!
-                  .map((item) => DropdownMenuItem<String>(
-                        value: item,
-                        child: RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: [
-                              WidgetSpan(
-                                child: Icon(
-                                  Icons.star,
-                                  size: 18,
-                                  color: kPrimaryColor,
-                                ),
-                              ),
-                              TextSpan(
-                                  text: item,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: kPrimaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  )),
-                            ],
-                          ),
-                        ),
-                      ))
-                  .toList(),
-              value: _sport,
-              onChanged: (value) {
-                setState(() {
-                  _sport = value as String;
-                });
-              },
-              icon: const Icon(
-                Icons.add,
-              ),
-              iconSize: 21,
-              iconEnabledColor: Colors.black,
-              buttonHeight: 50,
-              buttonWidth: 150,
-              buttonPadding: const EdgeInsets.only(left: 14, right: 14),
-              buttonDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(
-                  color: Colors.black26,
-                ),
-                color: kPrimaryLightColor,
-              ).copyWith(
-                boxShadow: kElevationToShadow[2],
-              ),
-              itemHeight: 40,
-              itemPadding: const EdgeInsets.only(left: 14, right: 14),
-              dropdownMaxHeight: 200,
-              dropdownPadding: null,
-              scrollbarRadius: const Radius.circular(40),
-              scrollbarThickness: 6,
-              scrollbarAlwaysShow: true,
-            ),
-          );
         });
   }
 }

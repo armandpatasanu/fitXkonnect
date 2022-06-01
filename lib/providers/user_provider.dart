@@ -14,6 +14,8 @@ class UserProvider extends ChangeNotifier {
     country: '',
     matches: [],
     sports: [],
+    sports_configured: [],
+    sports_not_configured: [],
     notifications: [],
     token: '',
   );

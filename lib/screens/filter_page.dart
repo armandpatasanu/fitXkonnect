@@ -6,12 +6,12 @@ import 'package:fitxkonnect/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class FilterPage extends StatefulWidget {
+  final List<Map<LocationModel, List<String>>> map_loc;
   final List<SportModel> sports;
-  final List<LocationModel> locations;
   FilterPage({
     Key? key,
     required this.sports,
-    required this.locations,
+    required this.map_loc,
   }) : super(key: key);
 
   @override
@@ -146,12 +146,16 @@ class _FilterPageState extends State<FilterPage> {
                       Navigator.of(context).pushReplacement(
                         PageRouteBuilder(
                           pageBuilder: (context, animation1, animation2) =>
-                              FutureBuilder<List<LocationModel>>(
+                              FutureBuilder<
+                                      List<Map<LocationModel, List<String>>>>(
                                   future: LocationServices()
                                       .getListOfLocationsBasedOfSelectedSports(
                                           _sports),
                                   builder: (BuildContext context,
-                                      AsyncSnapshot<List<LocationModel>>
+                                      AsyncSnapshot<
+                                              List<
+                                                  Map<LocationModel,
+                                                      List<String>>>>
                                           snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.waiting) {
@@ -160,7 +164,7 @@ class _FilterPageState extends State<FilterPage> {
                                       );
                                     }
                                     return FilterLocationScreen(
-                                      locations: snapshot.data!,
+                                      map_loc: snapshot.data!,
                                       sports: widget.sports,
                                     );
                                   }),

@@ -14,6 +14,7 @@ import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/colors.dart';
 import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/location_info.dart';
 import 'package:fitxkonnect/utils/widgets/search_screen/map_user_container.dart';
@@ -21,6 +22,8 @@ import 'package:fitxkonnect/utils/widgets/text_field_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -33,14 +36,14 @@ const double PIN_VISIBLE_POSITION = 20;
 const double PIN_INVISIBLE_POSITION = -920;
 
 class MapScreen extends StatefulWidget {
-  final List<LocationModel> locations;
+  final List<Map<LocationModel, List<String>>> loc_maps;
   final String filteredSport;
   final List<SportModel> listOfSports;
   MapScreen(
       {Key? key,
-      required this.locations,
       required this.filteredSport,
-      required this.listOfSports})
+      required this.listOfSports,
+      required this.loc_maps})
       : super(key: key);
 
   @override
@@ -61,6 +64,9 @@ class _MapScreenState extends State<MapScreen> {
   List<SportModel> _sportsToPass = [];
   String sportName = '';
   Set<Marker> _markers = Set<Marker>();
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
 
   @override
   void initState() {
@@ -76,7 +82,8 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void setSourceAndDestinationMarkerIcons() async {
-    sourceIcon = await getBytesFromAsset('assets/images/pin.png', 300);
+    sourceIcon =
+        await getBytesFromAsset('assets/images/map_screen/pin.png', 300);
   }
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
@@ -101,8 +108,38 @@ class _MapScreenState extends State<MapScreen> {
     _mapController.setMapStyle(mapStyle);
   }
 
+  _addPolyLine() {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+        polylineId: id,
+        color: Colors.blue,
+        points: polylineCoordinates,
+        width: 3);
+    polylines[id] = polyline;
+    setState(() {});
+  }
+
+  _getPolyline(Position myPos) async {
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        'AIzaSyAqe-WSpShain2e78IdFL5FVvfv0oFfp7o',
+        PointLatLng(myPos.latitude, myPos.longitude),
+        PointLatLng(widget.loc_maps[0].keys.first.geopoint.latitude,
+            widget.loc_maps[0].keys.first.geopoint.longitude),
+        travelMode: TravelMode.driving);
+    // wayPoints: [PolylineWayPoint(location: "Sabo, Yaba Lagos Nigeria")]);
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    _addPolyLine();
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("TAZTE : ${widget.filteredSport}");
+    // sportName = "LIST";
+    print("EMPTY ?: $sportName");
     final applicationBloc = Provider.of<AppBloc>(context);
     return Scaffold(
       // appBar: AppBar(
@@ -117,7 +154,8 @@ class _MapScreenState extends State<MapScreen> {
                 Container(
                   decoration: new BoxDecoration(
                     image: new DecorationImage(
-                      image: new ExactAssetImage('assets/images/wtf.jpg'),
+                      image: new ExactAssetImage(
+                          'assets/images/map_screen/loading_map.jpg'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -134,6 +172,7 @@ class _MapScreenState extends State<MapScreen> {
             : Stack(
                 children: [
                   GoogleMap(
+                    polylines: Set<Polyline>.of(polylines.values),
                     myLocationEnabled: true,
                     zoomControlsEnabled: false,
                     compassEnabled: false,
@@ -153,10 +192,13 @@ class _MapScreenState extends State<MapScreen> {
                       });
                     },
                     onMapCreated: (GoogleMapController controller) {
+                      widget.loc_maps.length == 1
+                          ? _getPolyline(applicationBloc.currentLocation!)
+                          : null;
                       _mapController = controller;
                       changeMapMode();
                       setState(() {
-                        startQuery();
+                        startQuery(applicationBloc.currentLocation!);
                       });
                     },
                   ),
@@ -213,7 +255,7 @@ class _MapScreenState extends State<MapScreen> {
                                         pageBuilder:
                                             (context, animation1, animation2) =>
                                                 FilterLocationScreen(
-                                          locations: _locationsToPass,
+                                          map_loc: widget.loc_maps,
                                           sports: _sportsToPass,
                                         ),
                                         transitionDuration: Duration(),
@@ -243,13 +285,23 @@ class _MapScreenState extends State<MapScreen> {
                                     PageRouteBuilder(
                                       pageBuilder: (context, animation1,
                                               animation2) =>
-                                          FutureBuilder<List<LocationModel>>(
+                                          FutureBuilder<
+                                                  List<
+                                                      Map<LocationModel,
+                                                          List<String>>>>(
                                               future: LocationServices()
-                                                  .getListOfLocationsBasedOfASport(
-                                                      sportName),
+                                                  .getMapOfLocationsBasedOfASport(
+                                                sportName == ""
+                                                    ? "LIST"
+                                                    : sportName,
+                                              ),
                                               builder: (BuildContext context,
                                                   AsyncSnapshot<
-                                                          List<LocationModel>>
+                                                          List<
+                                                              Map<
+                                                                  LocationModel,
+                                                                  List<
+                                                                      String>>>>
                                                       snapshot) {
                                                 if (snapshot.connectionState ==
                                                         ConnectionState
@@ -260,8 +312,11 @@ class _MapScreenState extends State<MapScreen> {
                                                           CircularProgressIndicator());
                                                 }
                                                 return MapScreen(
-                                                    locations: snapshot.data!,
-                                                    filteredSport: sportName,
+                                                    loc_maps: snapshot.data!,
+                                                    filteredSport:
+                                                        sportName == ""
+                                                            ? "LIST"
+                                                            : sportName,
                                                     listOfSports:
                                                         widget.listOfSports);
                                               }),
@@ -316,7 +371,8 @@ class _MapScreenState extends State<MapScreen> {
                                       // mainAxisAlignment:
                                       //     MainAxisAlignment.center,
                                       children: [
-                                        convertSportToIcon(str.name),
+                                        convertSportToIcon(str.name,
+                                            widget.filteredSport, Colors.grey),
                                         SizedBox(
                                           width: 5,
                                         ),
@@ -345,6 +401,8 @@ class _MapScreenState extends State<MapScreen> {
                                   convertSportToIcon(
                                     // sportName != widget.filteredSport ? sportName : widget.filteredSport,
                                     widget.filteredSport,
+                                    widget.filteredSport,
+                                    Colors.grey,
                                   ),
                                   // Text(
                                   //   widget.filteredSport,
@@ -388,108 +446,38 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget convertSportToIcon(String sport) {
-    switch (sport) {
-      case 'Badminton':
-        return Image.asset(
-          'assets/images/sport_icons/badminton.png',
-          width: 25,
-          height: 25,
-          fit: BoxFit.cover,
-          color: Colors.grey,
-        );
-
-      case 'Biliard':
-        return Image.asset(
-          'assets/images/sport_icons/biliard.jpg',
-          width: 25,
-          height: 25,
-          fit: BoxFit.cover,
-          color: Colors.grey,
-        );
-      case 'Darts':
-        return Image.asset(
-          'assets/images/sport_icons/darts.png',
-          width: 25,
-          height: 25,
-          fit: BoxFit.cover,
-          color: Colors.grey,
-        );
-      case 'Golf':
-        return Image.asset(
-          'assets/images/sport_icons/golf.png',
-          width: 25,
-          height: 25,
-          fit: BoxFit.cover,
-          color: Colors.grey,
-        );
-      case 'PadBol':
-        return Image.asset(
-          'assets/images/sport_icons/padbol.png',
-          width: 25,
-          height: 25,
-          fit: BoxFit.cover,
-          color: Colors.grey,
-        );
-      case 'Squash':
-        return Image.asset(
-          'assets/images/sport_icons/squash.png',
-          width: 25,
-          height: 25,
-          fit: BoxFit.cover,
-          color: Colors.grey,
-        );
-      case 'Tenis':
-        return Image.asset(
-          'assets/images/sport_icons/tenis.png',
-          width: 25,
-          height: 25,
-          fit: BoxFit.cover,
-          color: Colors.grey,
-        );
-      case 'Tenis de masa':
-        return Image.asset(
-          'assets/images/sport_icons/tenis_de_masa.png',
-          width: 25,
-          height: 25,
-          fit: BoxFit.cover,
-          color: Colors.grey,
-        );
-      default:
-        return Text(
-          widget.filteredSport,
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            fontFamily: "Netflix",
-            // fontWeight: FontWeight.w600,
-            fontWeight: ui.FontWeight.bold,
-            fontSize: 15,
-            letterSpacing: 0.0,
-            color: Colors.black,
-          ),
-        );
-    }
-  }
-
-  startQuery() async {
+  startQuery(Position myPos) async {
     _sportsToPass = await SportServices().getListOfSports();
-    getMarkers(widget.locations);
+    getMarkers(myPos, widget.loc_maps);
   }
 
-  void getMarkers(List<LocationModel> documentList) {
-    documentList.forEach((LocationModel location) {
-      _locationsToPass.add(location);
-      GeoPoint geoPoint = location.geopoint;
+  void getMarkers(
+      Position myPos, List<Map<LocationModel, List<String>>> documentList) {
+    documentList.forEach((Map<LocationModel, List<String>> location) {
+      print("SAD NIBBA!");
+      _locationsToPass.add(location.keys.first);
+      GeoPoint geoPoint = location.keys.first.geopoint;
+      // double distance = Geolocator.distanceBetween(myPos.longitude,
+      //         myPos.latitude, geoPoint.longitude, geoPoint.latitude) /
+      //     1000;
+      String distance = (Geolocator.distanceBetween(myPos.longitude,
+                  myPos.latitude, geoPoint.longitude, geoPoint.latitude) /
+              1000)
+          .toString()
+          .substring(0, 4);
+      LocationServices()
+          .updateDistance(location.keys.first.locationId, distance);
       setState(() {
         _markers.add(
           Marker(
-              markerId: MarkerId(location.locationId),
+              markerId: MarkerId(location.keys.first.locationId),
               position: LatLng(geoPoint.latitude, geoPoint.longitude),
               icon: BitmapDescriptor.fromBytes(sourceIcon),
-              infoWindow: InfoWindow(title: location.name),
+              infoWindow: InfoWindow(title: location.keys.first.name),
               onTap: () {
                 setState(() {
-                  _selectedLocation = location;
+                  print("DISTANCE TO THAT: $distance");
+                  _selectedLocation = location.keys.first;
                   pinPillPosition = PIN_VISIBLE_POSITION;
                 });
               }),
