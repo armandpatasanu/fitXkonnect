@@ -58,51 +58,42 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Flutter Notification Details",
-              style: TextStyle(color: kPrimaryColor),
+    return Container(
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      color: Colors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Flutter Notification Details",
+            style: TextStyle(color: kPrimaryColor, fontSize: 16),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            "Notification Title:-  $notificationTitle",
+            style: TextStyle(color: kPrimaryColor, fontSize: 16),
+          ),
+          Text(
+            "Notification Body:-  $notificationBody",
+            style: TextStyle(color: kPrimaryColor, fontSize: 16),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          Material(
+            child: IconButton(
+              icon: const Icon(Icons.home),
+              color: Colors.white,
+              onPressed: () => {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProfilePage())),
+              },
             ),
-            const SizedBox(height: 20),
-            Text(
-              "Notification Title:-  $notificationTitle",
-              style: TextStyle(color: kPrimaryColor),
-            ),
-            Text(
-              "Notification Body:-  $notificationBody",
-              style: TextStyle(color: kPrimaryColor),
-            ),
-            Positioned(
-              top: 700,
-              right: 20,
-              child: Material(
-                color: Colors.white,
-                child: Center(
-                  child: Ink(
-                    decoration: const ShapeDecoration(
-                      color: Colors.lightBlue,
-                      shape: CircleBorder(),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.home),
-                      color: Colors.white,
-                      onPressed: () => {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ProfilePage())),
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

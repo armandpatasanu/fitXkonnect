@@ -26,9 +26,7 @@ class MatchModel {
   });
 
   static MatchModel fromSnap(DocumentSnapshot snap) {
-    print("DIS IS DEEP BOI");
     var snapshot = snap.data() as Map<String, dynamic>;
-    print("DIS IS DEEP BOI#!#!#!##!#");
 
     return MatchModel(
       matchId: snapshot["matchId"],

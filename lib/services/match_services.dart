@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/models/dp_match_model.dart';
+import 'package:fitxkonnect/models/full_match_model.dart';
 import 'package:fitxkonnect/models/hp_match_model.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
@@ -109,6 +110,27 @@ class MatchServices {
     return wantedMatches;
   }
 
+  Future<List<MatchModel>> getAllFullMatches() async {
+    var ref = await FirebaseFirestore.instance
+        .collection('matches')
+        .orderBy('datePublished', descending: true)
+        .get();
+
+    List<DocumentSnapshot> documentList = ref.docs;
+
+    List<MatchModel> wantedMatches = [];
+
+    documentList.forEach((DocumentSnapshot snap) {
+      MatchModel m = MatchModel.fromSnap((snap));
+
+      if (m.status == 'decided') {
+        wantedMatches.add(m);
+      }
+    });
+
+    return wantedMatches;
+  }
+
   Future<List<HomePageMatch>> getActualHomePageMatches(
       String sportFilter, String diffFilter, String dayFilter) async {
     print("THIS WAS CALLED@@@@@");
@@ -156,6 +178,51 @@ class MatchServices {
     return neededMatches;
   }
 
+  Future<List<MatchModel>> getFullMatches() async {
+    List<MatchModel> matches = await MatchServices().getListOfMatches();
+    print("DANIEL : ${matches.length}");
+    List<MatchModel> fullMatches = [];
+    for (var m in matches) {
+      print("DAN : ${m.matchId}");
+      print("DANUT ${m.player2}");
+      if (m.player2 != "") {
+        fullMatches.add(m);
+      }
+    }
+    print("DEBUG: ${fullMatches.length}");
+    return fullMatches;
+  }
+
+  Future<List<FullMatch>> getActualFullMatches() async {
+    print("THIS WAS CALLED@@@@@");
+    List<MatchModel> fullMatches = await getFullMatches();
+    print("BEIBI ${fullMatches.length}");
+    List<FullMatch> neededMatches = [];
+    for (var match in fullMatches) {
+      print("MECI: ${match.matchId}");
+      UserModel user1 = await UserServices().getSpecificUser(match.player1);
+      UserModel user2 = await UserServices().getSpecificUser(match.player2);
+      LocationModel location =
+          await LocationServices().getCertainLocation(match.location);
+      neededMatches.add(FullMatch(
+        p1uid: user1.uid,
+        p1Name: user1.fullName,
+        p1Profile: user1.profilePhoto,
+        p2uid: user2.uid,
+        p2Name: user2.fullName,
+        p2Profile: user2.profilePhoto,
+        sport: match.sport,
+        difficulty: match.difficulty,
+        matchDate: match.matchDate,
+        startingTime: match.startingTime,
+        locationName: location.name,
+        matchId: match.matchId,
+        status: match.status,
+      ));
+    }
+    return neededMatches;
+  }
+
   Future<List<DetailsPageMatch>> getActualDetailsPageMatches(
       String locationId) async {
     List<MatchModel> allMatches =
@@ -193,31 +260,38 @@ class MatchServices {
     return wantedMatches;
   }
 
-  Future<List<MatchModel>> getUserEndedMatches(String userId) async {
+  Future<List<FullMatch>> getUserEndedMatches(String userId) async {
     print(userId);
     // List<String> usersUIDS = await UserServices().getListOfUsersUIDS();
-    List<MatchModel> generalMatches = await MatchServices().getListOfMatches();
-    List<MatchModel> endedMatches = [];
+    List<FullMatch> generalMatches =
+        await MatchServices().getActualFullMatches();
+    List<FullMatch> endedMatches = [];
     generalMatches.forEach((element) async {
       if ((element.status == 'decided') &&
-          (element.player1 == userId || element.player2 == userId)) {
+          (element.p1uid == userId || element.p2uid == userId)) {
         endedMatches.add(element);
       }
     });
     return endedMatches;
   }
 
-  Future<List<MatchModel>> getUserToComeMatches(String userId) async {
-    print(userId);
+  Future<List<FullMatch>> getUserToComeMatches(String userId) async {
+    print("LUCI");
     // List<String> usersUIDS = await UserServices().getListOfUsersUIDS();
-    List<MatchModel> generalMatches = await MatchServices().getListOfMatches();
-    List<MatchModel> endedMatches = [];
+    List<FullMatch> generalMatches =
+        await MatchServices().getActualFullMatches();
+    print("LUCI GENERAL LENGTH: ${generalMatches.length}");
+    print("LUCI 1");
+    List<FullMatch> endedMatches = [];
     generalMatches.forEach((element) async {
+      print("WHTF : ${element.status}");
+      print("WFTF: ${element.p1uid}");
       if ((element.status == 'open' || element.status == 'matched') &&
-          (element.player1 == userId || element.player2 == userId)) {
+          (element.p1uid == userId || element.p2uid == userId)) {
         endedMatches.add(element);
       }
     });
+    print("LUCI FILTERED LENGTH ${endedMatches.length}");
     return endedMatches;
   }
 

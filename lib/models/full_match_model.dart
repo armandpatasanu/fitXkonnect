@@ -11,6 +11,7 @@ class FullMatch {
   final String matchId;
   final String startingTime;
   final String locationName;
+  final String status;
 
   const FullMatch({
     required this.p1uid,
@@ -25,5 +26,6 @@ class FullMatch {
     required this.matchId,
     required this.startingTime,
     required this.locationName,
+    required this.status,
   });
 }

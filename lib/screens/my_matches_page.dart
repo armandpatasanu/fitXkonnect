@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/main.dart';
+import 'package:fitxkonnect/models/full_match_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
@@ -26,7 +27,6 @@ class MyMatchesPage extends StatefulWidget {
 
 class _MyMatchesPageState extends State<MyMatchesPage> {
   UserModel _userData = StorageMethods().getEmptyUser();
-  String _searchedPlayer1Id = "";
   @override
   Widget build(BuildContext context) => FutureBuilder(
       future: UserServices()
@@ -39,7 +39,7 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
         }
         return Stack(children: [
           DefaultTabController(
-            length: 2,
+            length: 3,
             child: Scaffold(
               appBar: AppBar(
                 //centerTitle: true,
@@ -59,7 +59,8 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                   indicatorColor: Colors.white,
                   indicatorWeight: 5,
                   tabs: [
-                    Tab(icon: Icon(Icons.games), text: 'UpComing Games'),
+                    Tab(icon: Icon(Icons.games), text: 'UpComing '),
+                    Tab(icon: Icon(Icons.games), text: 'Opened '),
                     Tab(
                       icon: Icon(Icons.history),
                       text: 'History',
@@ -71,18 +72,24 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
               ),
               body: TabBarView(
                 children: [
-                  FutureBuilder(
+                  FutureBuilder<List<FullMatch>>(
                       future: MatchServices().getUserToComeMatches(
                           FirebaseAuth.instance.currentUser!.uid),
                       initialData: [],
-                      builder: (context, snapshot) {
+                      builder:
+                          (context, AsyncSnapshot<List<FullMatch>> snapshot) {
                         return createMatchesListView(context, snapshot);
                       }),
-                  FutureBuilder(
+                  Center(
+                      child: Text('TBD',
+                          style:
+                              TextStyle(color: kPrimaryColor, fontSize: 24))),
+                  FutureBuilder<List<FullMatch>>(
                       future: MatchServices().getUserEndedMatches(
                           FirebaseAuth.instance.currentUser!.uid),
                       initialData: [],
-                      builder: (context, snapshot) {
+                      builder:
+                          (context, AsyncSnapshot<List<FullMatch>> snapshot) {
                         return createMatchesListView(context, snapshot);
                       }),
                 ],
@@ -124,14 +131,9 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
         ),
       );
 
-  Future<UserModel> getUser() async {
-    _userData = await UserServices().getSpecificUser(_searchedPlayer1Id);
-    // setState(() {});
-    return _userData;
-  }
-
-  Widget createMatchesListView(BuildContext context, AsyncSnapshot snapshot) {
-    var values = snapshot.data;
+  Widget createMatchesListView(
+      BuildContext context, AsyncSnapshot<List<FullMatch>> snapshot) {
+    var values = snapshot.data!;
     print("NUMERO DE MATCHES: ${values.length}");
     return values.length == 0
         ? Text(
@@ -142,186 +144,169 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
             scrollDirection: Axis.vertical,
             itemCount: values.length,
             itemBuilder: (BuildContext context, int index) {
-              _searchedPlayer1Id = values[index].player1;
               return values.isNotEmpty
-                  ? FutureBuilder(
-                      future: getUser(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<UserModel> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Stack(
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.all(16),
-                                height: 180,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(24),
-                                  gradient: LinearGradient(
-                                      colors: [
-                                        Color(0xff6DC8F3),
-                                        Color(0xff73A1F9)
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color.fromARGB(255, 208, 85, 112),
-                                      blurRadius: 12,
-                                      offset: Offset(0, 6),
-                                    ),
+                  ? Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Stack(
+                        children: <Widget>[
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            height: 180,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xff6DC8F3),
+                                    Color(0xff73A1F9)
                                   ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromARGB(255, 208, 85, 112),
+                                  blurRadius: 12,
+                                  offset: Offset(0, 6),
                                 ),
-                              ),
-                              Positioned(
-                                right: 0,
-                                bottom: 0,
-                                top: 0,
-                                child: CustomPaint(
-                                  size: Size(120, 250),
-                                  painter: CustomCardShapePainter(
-                                      20, Color(0xff6DC8F3), Color(0xff73A1F9)),
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            top: 0,
+                            child: CustomPaint(
+                              size: Size(120, 250),
+                              painter: CustomCardShapePainter(
+                                  20, Color(0xff6DC8F3), Color(0xff73A1F9)),
+                            ),
+                          ),
+                          Positioned.fill(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                  child: Image.network(values[index].p1Profile,
+                                      height: 68, width: 68, fit: BoxFit.cover),
+                                  flex: 2,
                                 ),
-                              ),
-                              Positioned.fill(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Image.network(
-                                          snapshot.data!.profilePhoto,
-                                          height: 68,
-                                          width: 68,
-                                          fit: BoxFit.cover),
-                                      flex: 2,
-                                    ),
-                                    SizedBox(
-                                      width: 3,
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                SizedBox(
+                                  width: 3,
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        values[index].p1Name,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Avenir',
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18),
+                                      ),
+                                      Text(
+                                        '${values[index].sport} · Casual ·',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Avenir',
+                                        ),
+                                      ),
+                                      SizedBox(height: 16),
+                                      Row(
                                         children: <Widget>[
-                                          Text(
-                                            snapshot.data!.fullName,
-                                            style: TextStyle(
+                                          Icon(
+                                            Icons.lock_clock,
+                                            color: Colors.white,
+                                            size: 16,
+                                          ),
+                                          SizedBox(
+                                            width: 8,
+                                          ),
+                                          Flexible(
+                                            child: Text(
+                                              values[index].startingTime,
+                                              style: TextStyle(
                                                 color: Colors.white,
                                                 fontFamily: 'Avenir',
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 18),
-                                          ),
-                                          Text(
-                                            '${values[index].sport} · Casual ·',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontFamily: 'Avenir',
+                                              ),
                                             ),
                                           ),
-                                          SizedBox(height: 16),
-                                          Row(
-                                            children: <Widget>[
-                                              Icon(
-                                                Icons.lock_clock,
-                                                color: Colors.white,
-                                                size: 16,
-                                              ),
-                                              SizedBox(
-                                                width: 8,
-                                              ),
-                                              Flexible(
-                                                child: Text(
-                                                  values[index].startingTime,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'Avenir',
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Flexible(
-                                                child: Text(
-                                                  snapshot.data!.age,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'Avenir',
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(width: 5),
-                                              Flexible(
-                                                child: Text(
-                                                  snapshot.data!.country
-                                                      .substring(2),
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'Avenir',
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          )
                                         ],
                                       ),
-                                    ),
-                                    Expanded(
-                                      flex: 2,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          Text(
-                                            values[index].difficulty,
-                                            style: TextStyle(
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              '23',
+                                              style: TextStyle(
                                                 color: Colors.white,
                                                 fontFamily: 'Avenir',
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w700),
+                                              ),
+                                            ),
                                           ),
-                                          RatingBar(rating: 3),
+                                          SizedBox(width: 5),
+                                          Flexible(
+                                            child: Text(
+                                              'Country',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Avenir',
+                                              ),
+                                            ),
+                                          ),
                                         ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Positioned(
-                                top: 10,
-                                right: 20,
-                                child: Center(
-                                  child: Ink(
-                                    decoration: const ShapeDecoration(
-                                      color: Colors.lightBlue,
-                                      shape: CircleBorder(),
-                                    ),
-                                    child: IconButton(
-                                      icon: const Icon(Icons.home),
-                                      color: Colors.white,
-                                      onPressed: () => {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const ProfilePage())),
-                                      },
-                                    ),
+                                      )
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ],
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Text(
+                                        values[index].difficulty,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Avenir',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                      RatingBar(rating: 3),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      })
+                          Positioned(
+                            top: 10,
+                            right: 20,
+                            child: Center(
+                              child: Ink(
+                                decoration: const ShapeDecoration(
+                                  color: Colors.lightBlue,
+                                  shape: CircleBorder(),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.home),
+                                  onPressed: () => {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const ProfilePage())),
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   : CircularProgressIndicator();
             },
           );
