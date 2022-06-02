@@ -10,7 +10,6 @@ class CustomDetailsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("In custom DETAILS BUTTON THE ID IS: ${selectedLocation}");
     return OpenContainer(
       transitionDuration: Duration(seconds: 2),
       openBuilder: (context, _) => DetailPage(

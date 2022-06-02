@@ -10,13 +10,13 @@ class ProfileMenu extends StatelessWidget {
   }) : super(key: key);
 
   final String text;
-  final Icon icon;
+  final String icon;
   final VoidCallback? press;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
       child: TextButton(
         style: TextButton.styleFrom(
           primary: kPrimaryColor,
@@ -28,7 +28,8 @@ class ProfileMenu extends StatelessWidget {
         onPressed: press,
         child: Row(
           children: [
-            icon,
+            Image.asset(icon,
+                width: 35, height: 35, fit: BoxFit.cover, color: Colors.black),
             SizedBox(width: 20),
             Expanded(child: Text(text)),
             Icon(Icons.arrow_forward_ios),

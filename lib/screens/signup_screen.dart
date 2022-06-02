@@ -51,7 +51,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _isLoading = true;
     });
 
-    print("AMBER ${_dateTimeController.text}");
     String result = await AuthMethods().registerValidation(
       email: _emailController.text,
       password: _passwordController.text,
@@ -75,7 +74,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (result != 'success') {
       showSnackBar(result, context);
     } else {
-      print("WHAT?");
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LoginScreen()));
     }

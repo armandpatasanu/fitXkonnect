@@ -45,11 +45,9 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
   }
 
   void addSport(String uid, String dif, String sport) {
-    // sportName = "Choose a sport";
     sportName = widget.not_conf_sports[_index + 1];
     SportServices().addSport(uid, dif, sport);
     setState() {}
-    // print("@@@@@@@@GOT HERE");
     showSnackBar("The sport has been added!", context);
   }
 
@@ -57,8 +55,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
     SportServices().deleteSport(uid, sport);
     sportName = widget.not_conf_sports[0];
     setState() {}
-    print("%%%%%% Deleted sport $sport");
-    // print("@@@@@@@@GOT HERE");
     showSnackBar("The sport has been added!", context);
   }
 
@@ -252,7 +248,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                 sportName = value.toString();
                 _index =
                     snapshot.data!['sports_not_configured'].indexOf(sportName);
-                print("index e  $_index");
                 setState(
                   () {},
                 );
@@ -341,7 +336,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                     onPressed: () {
                       setState(() {
                         // clearFields();
-                        print("Doing something?");
                         addSport(widget.user.uid, _diffFilter, sportName);
                       });
                     },
@@ -464,14 +458,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                     ? MediaQuery.of(context).size.width * 0.7
                     : 0.0,
               ),
-              // _isSecondContainerVisible
-              //     ? TextButton(
-              //         onPressed: () {
-              //           print("SAVING");
-              //         },
-              //         child: Text('SAVE'),
-              //       )
-              //     : Container(),
             ],
           ));
         });
@@ -495,7 +481,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
             ),
             onPressed: () {
               setState(() {
-                print("LADY $index");
                 if (index == _diffValue) {
                   _diffSelected[index - 1] = !_diffSelected[index - 1];
                   _diffFilter = "all";
@@ -510,7 +495,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                   _diffFilter = getDifFromValue(index);
                   _diffValue = index;
                 }
-                print("FILTER: $_diffFilter");
               });
             },
             child: Row(
@@ -574,7 +558,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
           setState(() {
             setState(() {
               _dayFilter = getDayFromValue(index);
-              print("OK $_dayFilter");
               _dayValue = index;
             });
           });

@@ -62,22 +62,15 @@ class LocationServices {
     bool contains = false;
     List<LocationModel> locations =
         await LocationServices().getListOfLocations();
-    sports.forEach((element) {
-      print("SELECTED SPORT IS: ${element.name}");
-    });
+
     String sportId = "";
     List<Map<LocationModel, List<String>>> map = await getMapOfLocations();
     List<String> sportz = [];
     List<Map<LocationModel, List<String>>> my_locations = [];
     for (var m in map) {
-      print(" VINE LOCATIA: ${m.keys.first.name}");
-      m.values.first.forEach((element) {
-        print("VINE LOCATIA CU SPORTUL: ${element}");
-      });
+      m.values.first.forEach((element) {});
       for (var sport in sports) {
-        print(" VINE SPORTU: ${sport.name}");
         if (m.values.last.contains(sport.name)) {
-          print(" VINE INTRU");
           sportz.add(sport.name);
         }
       }
@@ -92,7 +85,6 @@ class LocationServices {
           lm: sportz,
         };
         my_locations.add(map);
-        print("VINE 1");
       }
       sportz = [];
     }
@@ -153,11 +145,8 @@ class LocationServices {
     String sp = "";
 
     for (var loc in locations) {
-      print("MAPPING THIS LOCATION: ${loc.name}");
       for (var sp in loc.sports) {
-        print("MAPPING THIS SPORT FOR ${loc.name} ");
         sp = await SportServices().getSportNameBasedOfId(sp);
-        print("ZPORT: $sp");
         sports.add(sp);
       }
 

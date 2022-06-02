@@ -49,7 +49,6 @@ class MatchServices {
       String diff, List<MatchModel> list) {
     List<MatchModel> wantedMatches = [];
     list.forEach((element) {
-      print("WHAT DA HELL! ${element.difficulty}");
       if (element.difficulty == diff) {
         wantedMatches.add(element);
       }
@@ -58,7 +57,6 @@ class MatchServices {
   }
 
   List<MatchModel> getMatchesBasedOnDay(String diff, List<MatchModel> list) {
-    print("AJUNG AICI#########");
     List<MatchModel> wantedMatches = [];
     int startingHour = 99;
     int finishHour = 99;
@@ -77,11 +75,9 @@ class MatchServices {
         finishHour = 24;
         break;
     }
-    print("NU CRAP DUPA SWITCH#########");
+
     list.forEach((element) {
-      print("SUNT IN LISTA!##");
       hour = int.parse(element.startingTime.substring(0, 2));
-      print("LOLX $hour");
       if (hour <= finishHour && hour >= startingHour) {
         wantedMatches.add(element);
       }
@@ -133,12 +129,9 @@ class MatchServices {
 
   Future<List<HomePageMatch>> getActualHomePageMatches(
       String sportFilter, String diffFilter, String dayFilter) async {
-    print("THIS WAS CALLED@@@@@");
     List<MatchModel> filteredOnce = [];
     if (sportFilter == "all") {
-      print("I SHOULD BE HERE");
       filteredOnce = await MatchServices().getAllHomePageMatches();
-      print("WAS I STUCK?");
     } else {
       filteredOnce = await MatchServices().getMatchesBasedOnSport(sportFilter);
     }
@@ -174,32 +167,25 @@ class MatchServices {
           locationName: location.name,
           matchId: match.matchId));
     }
-    if (diffFilter != "all") {}
     return neededMatches;
   }
 
   Future<List<MatchModel>> getFullMatches() async {
     List<MatchModel> matches = await MatchServices().getListOfMatches();
-    print("DANIEL : ${matches.length}");
     List<MatchModel> fullMatches = [];
     for (var m in matches) {
-      print("DAN : ${m.matchId}");
-      print("DANUT ${m.player2}");
       if (m.player2 != "") {
         fullMatches.add(m);
       }
     }
-    print("DEBUG: ${fullMatches.length}");
     return fullMatches;
   }
 
   Future<List<FullMatch>> getActualFullMatches() async {
-    print("THIS WAS CALLED@@@@@");
     List<MatchModel> fullMatches = await getFullMatches();
-    print("BEIBI ${fullMatches.length}");
+
     List<FullMatch> neededMatches = [];
     for (var match in fullMatches) {
-      print("MECI: ${match.matchId}");
       UserModel user1 = await UserServices().getSpecificUser(match.player1);
       UserModel user2 = await UserServices().getSpecificUser(match.player2);
       LocationModel location =
@@ -207,9 +193,13 @@ class MatchServices {
       neededMatches.add(FullMatch(
         p1uid: user1.uid,
         p1Name: user1.fullName,
+        p1Age: user1.age,
+        p1Country: user1.country,
         p1Profile: user1.profilePhoto,
         p2uid: user2.uid,
         p2Name: user2.fullName,
+        p2Age: user2.age,
+        p2Country: user2.country,
         p2Profile: user2.profilePhoto,
         sport: match.sport,
         difficulty: match.difficulty,
@@ -218,6 +208,7 @@ class MatchServices {
         locationName: location.name,
         matchId: match.matchId,
         status: match.status,
+        locationAddress: location.contact[0],
       ));
     }
     return neededMatches;
@@ -227,11 +218,9 @@ class MatchServices {
       String locationId) async {
     List<MatchModel> allMatches =
         await MatchServices().getMatchesBasedOnLocation(locationId);
-    print(' details matches: ${allMatches.length}');
     List<DetailsPageMatch> neededMatches = [];
 
     for (var match in allMatches) {
-      print("Entering with ${match.sport}");
       UserModel user = await UserServices().getSpecificUser(match.player1);
       LocationModel location =
           await LocationServices().getCertainLocation(match.location);
@@ -261,13 +250,11 @@ class MatchServices {
   }
 
   Future<List<FullMatch>> getUserEndedMatches(String userId) async {
-    print(userId);
-    // List<String> usersUIDS = await UserServices().getListOfUsersUIDS();
     List<FullMatch> generalMatches =
         await MatchServices().getActualFullMatches();
     List<FullMatch> endedMatches = [];
     generalMatches.forEach((element) async {
-      if ((element.status == 'decided') &&
+      if ((element.status == 'decided' || element.status == 'abandoned') &&
           (element.p1uid == userId || element.p2uid == userId)) {
         endedMatches.add(element);
       }
@@ -275,23 +262,32 @@ class MatchServices {
     return endedMatches;
   }
 
-  Future<List<FullMatch>> getUserToComeMatches(String userId) async {
-    print("LUCI");
-    // List<String> usersUIDS = await UserServices().getListOfUsersUIDS();
+  Future<List<HomePageMatch>> getUserOpenMatches(String userId) async {
+    List<HomePageMatch> generalMatches =
+        await MatchServices().getActualHomePageMatches("all", "all", "all");
+
+    List<HomePageMatch> matchesToCome = [];
+    generalMatches.forEach((element) async {
+      if (element.p1uid == userId) {
+        matchesToCome.add(element);
+      }
+    });
+
+    return matchesToCome;
+  }
+
+  Future<List<FullMatch>> getUsersMatched(String userId) async {
     List<FullMatch> generalMatches =
         await MatchServices().getActualFullMatches();
-    print("LUCI GENERAL LENGTH: ${generalMatches.length}");
-    print("LUCI 1");
+
     List<FullMatch> endedMatches = [];
     generalMatches.forEach((element) async {
-      print("WHTF : ${element.status}");
-      print("WFTF: ${element.p1uid}");
-      if ((element.status == 'open' || element.status == 'matched') &&
+      if ((element.status == 'matched') &&
           (element.p1uid == userId || element.p2uid == userId)) {
         endedMatches.add(element);
       }
     });
-    print("LUCI FILTERED LENGTH ${endedMatches.length}");
+
     return endedMatches;
   }
 

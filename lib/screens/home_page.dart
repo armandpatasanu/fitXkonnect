@@ -1,8 +1,8 @@
 import 'package:fitxkonnect/models/hp_match_model.dart';
-import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
+import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:fitxkonnect/utils/widgets/special_match_card.dart';
 import 'package:flutter/material.dart';
@@ -34,27 +34,10 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     _getTaskAsync = SportServices().getButtonsSports();
     super.initState();
-    print("Mihaitz");
   }
 
-  List<Color> _color = [
-    Colors.transparent,
-    Colors.transparent,
-    Colors.transparent,
-    Colors.transparent,
-    Colors.transparent,
-    Colors.transparent,
-    Colors.transparent,
-    Colors.transparent,
-  ];
   @override
   Widget build(BuildContext context) {
-    print("IN BUILD:#################");
-    for (var s in _sportsButtons) {
-      print("{ ${s.keys.first} , ${s.values.first} }");
-    }
-    print("BUILDING");
-    // getSports();
     return Scaffold(
       bottomNavigationBar: NaviBar(
         index: 0,
@@ -88,10 +71,6 @@ class _HomePageState extends State<HomePage> {
                               return Container();
                             }
                             _sportsButtons = snapshot.data!;
-                            print("AFTER FUTUREBUILDER:#################");
-                            for (var s in _sportsButtons) {
-                              print("{ ${s.keys.first} , ${s.values.first} }");
-                            }
                             return ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: snapshot.data!.length,
@@ -121,8 +100,6 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       onPressed: () {
                                         setState(() {
-                                          // print(
-                                          //     " QUADUS: ${pressedAttentions[index]}");
                                           int found = 99;
                                           _counter = 0;
                                           for (int i = 0;
@@ -136,8 +113,6 @@ class _HomePageState extends State<HomePage> {
                                               found = i;
                                             }
                                           }
-                                          print("FOUNDER IS: $found");
-                                          print("COUNTER IS: $_counter");
                                           if (_counter == 0) {
                                             _sportsButtons[index].update(
                                                 _sportsButtons[index]
@@ -172,19 +147,6 @@ class _HomePageState extends State<HomePage> {
                                                 .keys
                                                 .first;
                                           }
-                                          for (var s in _sportsButtons) {
-                                            print(
-                                                "{ ${s.keys.first} , ${s.values.first} }");
-                                          }
-
-                                          print("FILTER IS ${_sportFilter}");
-                                          print("THRID FILTER IS $_diffFilter");
-                                          print("SECOND FILTER IS $_dayFilter");
-
-                                          // print(
-                                          //     " QUADUS: ${pressedAttentions[index]}");
-                                          // print("HMMMM: ${sports[index].name}");
-                                          // _filter = sports[index].name;
                                         });
                                       },
                                       child: Text(
@@ -291,11 +253,8 @@ class _HomePageState extends State<HomePage> {
                       _sportFilter, _diffFilter, _dayFilter),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<HomePageMatch>> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (!snapshot.hasData) {
+                    if (snapshot.connectionState == ConnectionState.waiting ||
+                        !snapshot.hasData) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
@@ -324,32 +283,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  String getDifFromValue(int v) {
-    switch (v) {
-      case 1:
-        return 'Easy';
-      case 2:
-        return 'Medium';
-      case 3:
-        return 'Hard';
-      default:
-        return 'all';
-    }
-  }
-
-  String getDayFromValue(int v) {
-    switch (v) {
-      case 1:
-        return 'Morning';
-      case 2:
-        return 'Afternoon';
-      case 3:
-        return 'Night';
-      default:
-        return 'all';
-    }
-  }
-
   Widget buildDifficultyRadioText(String photo, int index, String diff) {
     return Row(
       children: [
@@ -368,7 +301,6 @@ class _HomePageState extends State<HomePage> {
             ),
             onPressed: () {
               setState(() {
-                print("LADY $index");
                 if (index == _diffValue) {
                   _diffSelected[index - 1] = !_diffSelected[index - 1];
                   _diffFilter = "all";
@@ -383,7 +315,6 @@ class _HomePageState extends State<HomePage> {
                   _diffFilter = getDifFromValue(index);
                   _diffValue = index;
                 }
-                print("FILTER: $_diffFilter");
               });
             },
             child: Row(
@@ -430,7 +361,6 @@ class _HomePageState extends State<HomePage> {
               setState(() {
                 setState(() {
                   _dayFilter = getDayFromValue(index);
-                  print("OK $_dayFilter");
                   _dayValue = index;
                 });
               });

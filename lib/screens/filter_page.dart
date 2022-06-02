@@ -139,9 +139,6 @@ class _FilterPageState extends State<FilterPage> {
                           _sports.add(widget.sports[i]);
                         }
                       }
-                      for (var s in _sports) {
-                        print("SPORTZ: ${s.name}");
-                      }
 
                       Navigator.of(context).pushReplacement(
                         PageRouteBuilder(

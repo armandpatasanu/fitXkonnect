@@ -235,8 +235,6 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                                 itemCount:
                                     _locations[index].values.first.length,
                                 itemBuilder: (context, indecs) {
-                                  print(
-                                      "NU ANTELEG ${widget.map_loc[index].values.first[indecs]}");
                                   return convertSportToIcon(
                                       _locations[index].values.first[indecs],
                                       '',

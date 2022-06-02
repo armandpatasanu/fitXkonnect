@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/main.dart';
 import 'package:fitxkonnect/models/full_match_model.dart';
+import 'package:fitxkonnect/models/hp_match_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
@@ -9,8 +10,12 @@ import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/colors.dart';
+import 'package:fitxkonnect/utils/components/profile_page/profile_pic.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/rating_bar.dart';
+import 'package:fitxkonnect/utils/utils.dart';
+import 'package:fitxkonnect/utils/widgets/full_match_widget.dart';
+import 'package:fitxkonnect/utils/widgets/open_match_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
@@ -27,6 +32,7 @@ class MyMatchesPage extends StatefulWidget {
 
 class _MyMatchesPageState extends State<MyMatchesPage> {
   UserModel _userData = StorageMethods().getEmptyUser();
+
   @override
   Widget build(BuildContext context) => FutureBuilder(
       future: UserServices()
@@ -73,24 +79,49 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
               body: TabBarView(
                 children: [
                   FutureBuilder<List<FullMatch>>(
-                      future: MatchServices().getUserToComeMatches(
+                      future: MatchServices().getUsersMatched(
                           FirebaseAuth.instance.currentUser!.uid),
                       initialData: [],
-                      builder:
-                          (context, AsyncSnapshot<List<FullMatch>> snapshot) {
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<FullMatch>> snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            !snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
                         return createMatchesListView(context, snapshot);
                       }),
-                  Center(
-                      child: Text('TBD',
-                          style:
-                              TextStyle(color: kPrimaryColor, fontSize: 24))),
+                  FutureBuilder<List<HomePageMatch>>(
+                      future: MatchServices().getUserOpenMatches(
+                          FirebaseAuth.instance.currentUser!.uid),
+                      initialData: [],
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<HomePageMatch>> snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            !snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return createOpenMatchesListView(context, snapshot);
+                      }),
                   FutureBuilder<List<FullMatch>>(
                       future: MatchServices().getUserEndedMatches(
                           FirebaseAuth.instance.currentUser!.uid),
                       initialData: [],
-                      builder:
-                          (context, AsyncSnapshot<List<FullMatch>> snapshot) {
-                        return createMatchesListView(context, snapshot);
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<FullMatch>> snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            !snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return createDecidedMatchesListView(context, snapshot);
                       }),
                 ],
               ),
@@ -100,11 +131,12 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
             top: 700,
             right: 20,
             child: Material(
+              shape: CircleBorder(),
               color: Colors.white,
               child: Center(
                 child: Ink(
                   decoration: const ShapeDecoration(
-                    color: Colors.lightBlue,
+                    color: Colors.black,
                     shape: CircleBorder(),
                   ),
                   child: IconButton(
@@ -124,17 +156,9 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
         ]);
       });
 
-  Widget buildPage(String text) => Center(
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 28, color: kPrimaryColor),
-        ),
-      );
-
   Widget createMatchesListView(
       BuildContext context, AsyncSnapshot<List<FullMatch>> snapshot) {
     var values = snapshot.data!;
-    print("NUMERO DE MATCHES: ${values.length}");
     return values.length == 0
         ? Text(
             'No matches yet!',
@@ -145,208 +169,48 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
             itemCount: values.length,
             itemBuilder: (BuildContext context, int index) {
               return values.isNotEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Stack(
-                        children: <Widget>[
-                          Container(
-                            padding: EdgeInsets.all(16),
-                            height: 180,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              gradient: LinearGradient(
-                                  colors: [
-                                    Color(0xff6DC8F3),
-                                    Color(0xff73A1F9)
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color.fromARGB(255, 208, 85, 112),
-                                  blurRadius: 12,
-                                  offset: Offset(0, 6),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            right: 0,
-                            bottom: 0,
-                            top: 0,
-                            child: CustomPaint(
-                              size: Size(120, 250),
-                              painter: CustomCardShapePainter(
-                                  20, Color(0xff6DC8F3), Color(0xff73A1F9)),
-                            ),
-                          ),
-                          Positioned.fill(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                Expanded(
-                                  child: Image.network(values[index].p1Profile,
-                                      height: 68, width: 68, fit: BoxFit.cover),
-                                  flex: 2,
-                                ),
-                                SizedBox(
-                                  width: 3,
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        values[index].p1Name,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'Avenir',
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 18),
-                                      ),
-                                      Text(
-                                        '${values[index].sport} · Casual ·',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Avenir',
-                                        ),
-                                      ),
-                                      SizedBox(height: 16),
-                                      Row(
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.lock_clock,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
-                                          SizedBox(
-                                            width: 8,
-                                          ),
-                                          Flexible(
-                                            child: Text(
-                                              values[index].startingTime,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'Avenir',
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              '23',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'Avenir',
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 5),
-                                          Flexible(
-                                            child: Text(
-                                              'Country',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'Avenir',
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Text(
-                                        values[index].difficulty,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'Avenir',
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                      RatingBar(rating: 3),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            top: 10,
-                            right: 20,
-                            child: Center(
-                              child: Ink(
-                                decoration: const ShapeDecoration(
-                                  color: Colors.lightBlue,
-                                  shape: CircleBorder(),
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.home),
-                                  onPressed: () => {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const ProfilePage())),
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                  ? FullMatchCard(match: values[index])
                   : CircularProgressIndicator();
             },
           );
   }
-}
 
-class CustomCardShapePainter extends CustomPainter {
-  final double radius;
-  final Color startColor;
-  final Color endColor;
+  Widget createDecidedMatchesListView(
+      BuildContext context, AsyncSnapshot<List<FullMatch>> snapshot) {
+    var values = snapshot.data!;
 
-  CustomCardShapePainter(this.radius, this.startColor, this.endColor);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    var radius = 24.0;
-
-    var paint = Paint();
-    paint.shader = ui.Gradient.linear(
-        Offset(0, 0), Offset(size.width, size.height), [
-      HSLColor.fromColor(startColor).withLightness(0.8).toColor(),
-      endColor
-    ]);
-
-    var path = Path()
-      ..moveTo(0, size.height)
-      ..lineTo(size.width - radius, size.height)
-      ..quadraticBezierTo(
-          size.width, size.height, size.width, size.height - radius)
-      ..lineTo(size.width, radius)
-      ..quadraticBezierTo(size.width, 0, size.width - radius, 0)
-      ..lineTo(size.width - 1.5 * radius, 0)
-      ..quadraticBezierTo(-radius, 2 * radius, 0, size.height)
-      ..close();
-
-    canvas.drawPath(path, paint);
+    return values.length == 0
+        ? Text(
+            'No matches yet!',
+            style: TextStyle(color: kPrimaryColor),
+          )
+        : ListView.builder(
+            scrollDirection: Axis.vertical,
+            itemCount: values.length,
+            itemBuilder: (BuildContext context, int index) {
+              return values.isNotEmpty
+                  ? FullMatchCard(match: values[index])
+                  : CircularProgressIndicator();
+            },
+          );
   }
 
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+  Widget createOpenMatchesListView(
+      BuildContext context, AsyncSnapshot<List<HomePageMatch>> snapshot) {
+    var values = snapshot.data!;
+    return values.length == 0
+        ? Text(
+            'No matches yet!',
+            style: TextStyle(color: kPrimaryColor),
+          )
+        : ListView.builder(
+            scrollDirection: Axis.vertical,
+            itemCount: values.length,
+            itemBuilder: (BuildContext context, int index) {
+              return values.isNotEmpty
+                  ? OpenMatchCard(match: values[index])
+                  : CircularProgressIndicator();
+            },
+          );
   }
 }

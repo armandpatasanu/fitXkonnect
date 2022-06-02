@@ -50,10 +50,6 @@ class UserServices {
     int counter = 0;
     String result = "success";
 
-    print("GOT HERE BABY!");
-    print("COUNTER : $counter");
-    print("EMAIL : $email");
-    print("ACTUAL EMAIL: $actualEmail");
     try {
       if (pass.isEmpty) {
         result = "Please enter your password!";

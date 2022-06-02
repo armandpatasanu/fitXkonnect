@@ -169,8 +169,6 @@ class _ProfilePageState extends State<ProfilePage> {
                             shrinkWrap: true,
                             itemCount: user.data![2].length,
                             itemBuilder: (context, index) {
-                              print(
-                                  "ALO LENGTHUUUU ${user.data![2][index]['difficulty']}");
                               switch (user.data![2][index]['difficulty']) {
                                 case 'Easy':
                                   _sportsColor = Colors.green;
@@ -204,7 +202,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     ProfileMenu(
                       text: "Sports configuration",
-                      icon: Icon(Icons.add),
+                      icon: 'assets/images/profile_screen/edit_sport.png',
                       press: () {
                         Navigator.of(context).pushReplacement(PageRouteBuilder(
                           pageBuilder: (context, animation1, animation2) =>
@@ -219,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     ProfileMenu(
                       text: "Edit Profile",
-                      icon: Icon(Icons.settings),
+                      icon: 'assets/images/profile_screen/edit_profile.png',
                       press: () {
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (context) => FutureBuilder(
@@ -242,7 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     ProfileMenu(
                       text: "My Matches",
-                      icon: Icon(Icons.question_mark),
+                      icon: 'assets/images/profile_screen/my_matches_icon.png',
                       press: () {
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (context) => MyMatchesPage(

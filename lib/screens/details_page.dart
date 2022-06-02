@@ -291,7 +291,6 @@ class _DetailPageState extends State<DetailPage> {
   Widget createMatchesListView(
       BuildContext context, List<DetailsPageMatch> snapshot) {
     var values = snapshot;
-    print("NUMERO DE MATCHES: ${values.length}");
     return values.length != 0
         ? PageView.builder(
             scrollDirection: Axis.horizontal,

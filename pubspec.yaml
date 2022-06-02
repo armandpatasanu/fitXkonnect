@@ -76,6 +76,7 @@ flutter:
     - assets/images/
     - assets/images/sport_icons/
     - assets/images/time_icons/
+    - assets/images/profile_screen/
     - assets/images/map_screen/
     - assets/images/reg_log/
     - assets/images/difficulty_icons/

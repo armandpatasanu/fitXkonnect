@@ -30,12 +30,9 @@ class SportServices {
   }
 
   Future<List<dynamic>> getUsersSportsPlayed(String userId) async {
-    print("HELLO?");
     UserModel user = await UserServices().getSpecificUser(userId);
     List users_sports = user.sports_configured;
-    for (var map in users_sports) {
-      print("OLA: ${map['sport']}, ${map['difficulty']} ");
-    }
+    for (var map in users_sports) {}
     return users_sports;
   }
 
@@ -65,8 +62,6 @@ class SportServices {
       myList.add(map);
     });
 
-    print("My list items: ${myList.length}");
-    print("VALOARE: ${myList[0].values.first}");
     return myList;
   }
 
@@ -80,18 +75,12 @@ class SportServices {
     var ref = await FirebaseFirestore.instance.collection('sports').get();
     List<DocumentSnapshot> documentList = ref.docs;
     String wantedId = "";
-    print("Y1");
+
     for (var snap in documentList) {
-      print("Y2");
       if (snap['name'] == name) {
-        print(snap['name']);
-        print("Y3");
-        print("URMEAZA SA TE BLOCHEZI?");
         wantedId =
             (await SportServices().getSpecificSportFromName(snap['name']))
                 .sportId;
-        print("HELLO?");
-        print("AM GASIT BOI: $wantedId");
       }
     }
     ;
@@ -107,17 +96,14 @@ class SportServices {
 
     for (var map in playedSports) {
       playedSports_strings.add(map['sport']);
-      // print("sport care e configurat: ${playedSports_strings}");
     }
 
     for (var sport in allSports) {
       allSports_strings.add(sport.name);
-      // print("sport care e configurat: ${allSports_strings}");
     }
 
     for (var name in allSports_strings) {
       if (!playedSports_strings.contains(name)) {
-        // print("Sport care nu e: $name");
         wantedSports.add(name);
       }
     }

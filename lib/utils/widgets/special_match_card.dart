@@ -148,7 +148,6 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                       onPressed: () {
                         MatchServices().matchPlayers(widget.snap.matchId,
                             FirebaseAuth.instance.currentUser!.uid);
-                        print("IT's HAWWT");
                       },
                     ),
                   ),

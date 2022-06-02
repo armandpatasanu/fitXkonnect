@@ -424,17 +424,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() {
       _isLoading = true;
     });
-    print("ENTERED FUNCTION");
-    // print('user: ${FirebaseAuth.instance.currentUser!.uid}');
-    // print(
-    //     'fullname: ${_fullNameController.text != '' ? _fullNameController.text : widget.snap.fullName}');
-    // print(
-    //     'email: ${_emailController.text != '' ? _emailController.text : widget.snap.email}');
-    // print('country: ${_country}');
     try {
       String result = "";
       User uzer = FirebaseAuth.instance.currentUser!;
-      print(_image);
+
       _image != null
           ? result = await UserServices().updateUser(
               user.uid,

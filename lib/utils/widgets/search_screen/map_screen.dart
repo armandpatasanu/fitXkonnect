@@ -137,9 +137,6 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("TAZTE : ${widget.filteredSport}");
-    // sportName = "LIST";
-    print("EMPTY ?: $sportName");
     final applicationBloc = Provider.of<AppBloc>(context);
     return Scaffold(
       // appBar: AppBar(
@@ -420,7 +417,6 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                               onSelected: (v) {
                                 setState(() {
-                                  print('!!!===== $v');
                                   sportName = v;
                                 });
                               },
@@ -454,7 +450,6 @@ class _MapScreenState extends State<MapScreen> {
   void getMarkers(
       Position myPos, List<Map<LocationModel, List<String>>> documentList) {
     documentList.forEach((Map<LocationModel, List<String>> location) {
-      print("SAD NIBBA!");
       _locationsToPass.add(location.keys.first);
       GeoPoint geoPoint = location.keys.first.geopoint;
       // double distance = Geolocator.distanceBetween(myPos.longitude,
@@ -476,7 +471,6 @@ class _MapScreenState extends State<MapScreen> {
               infoWindow: InfoWindow(title: location.keys.first.name),
               onTap: () {
                 setState(() {
-                  print("DISTANCE TO THAT: $distance");
                   _selectedLocation = location.keys.first;
                   pinPillPosition = PIN_VISIBLE_POSITION;
                 });

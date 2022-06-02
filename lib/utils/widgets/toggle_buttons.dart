@@ -33,15 +33,12 @@ class _TransactionToggleState extends State<TransactionToggle> {
             switch (index) {
               case 0:
                 updateString('Easy');
-                print('Easy');
                 break;
               case 1:
                 updateString('Medium');
-                print('Medium');
                 break;
               case 2:
                 updateString('Hard');
-                print('Hard');
                 break;
             }
             for (int buttonIndex = 0;
