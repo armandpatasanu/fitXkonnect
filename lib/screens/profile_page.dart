@@ -209,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ConfigureSportPage(
                             user: user.data![0],
                             not_conf_sports: user.data![1],
-                            conf_sports: [],
+                            conf_sports: user.data![2],
                           ),
                           transitionDuration: Duration(),
                         ));

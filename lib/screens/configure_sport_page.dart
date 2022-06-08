@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 
 class ConfigureSportPage extends StatefulWidget {
   final List<String> not_conf_sports;
-  final List<String> conf_sports;
+  final List<dynamic> conf_sports;
   final UserModel user;
   ConfigureSportPage(
       {Key? key,
@@ -33,27 +33,39 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
   String _diffFilter = "all";
   List<bool> _diffSelected = [false, false, false];
   int _diffValue = 0;
+  List<int> _diffValuez = [];
   int _dayValue = 0;
   String _dayFilter = "all";
-  String sportName = "";
-  int _index = 0;
+  String sportName = "Choose a sport";
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    sportName = widget.not_conf_sports[_index];
+    _diffValuez = List.generate(
+        widget.conf_sports.length,
+        (index) =>
+            getIntFromDifficulty(widget.conf_sports[index].values.first));
   }
 
-  void addSport(String uid, String dif, String sport) {
-    sportName = widget.not_conf_sports[_index + 1];
-    SportServices().addSport(uid, dif, sport);
-    setState() {}
-    showSnackBar("The sport has been added!", context);
+  addSport(String uid, String dif, String sport) async {
+    print("$_diffFilter");
+    print("$_diffValue");
+    String result = await SportServices().addSport(uid, dif, sport);
+
+    if (result == 'success') {
+      _diffValuez.add(getIntFromDifficulty(dif));
+      clearFields();
+      showSnackBar('succesfully created a match!', context);
+    } else {
+      showSnackBar(result, context);
+    }
   }
 
-  void deleteSport(String uid, String sport) {
+  void deleteSport(String uid, String sport, int ind) {
+    print("INDEX IS $ind");
     SportServices().deleteSport(uid, sport);
-    sportName = widget.not_conf_sports[0];
+    _diffValuez.removeAt(ind);
     setState() {}
     showSnackBar("The sport has been added!", context);
   }
@@ -243,14 +255,10 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                             ),
                           ))
                   .toList(),
-              value: sportName,
               onChanged: (value) {
-                sportName = value.toString();
-                _index =
-                    snapshot.data!['sports_not_configured'].indexOf(sportName);
-                setState(
-                  () {},
-                );
+                setState(() {
+                  sportName = value.toString();
+                });
               },
               icon: const Icon(Icons.arrow_downward_sharp),
               iconSize: 21,
@@ -334,10 +342,8 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                     label: Text('Configure'),
                     icon: Icon(Icons.settings),
                     onPressed: () {
-                      setState(() {
-                        // clearFields();
-                        addSport(widget.user.uid, _diffFilter, sportName);
-                      });
+                      showSnackBar('LMAO', context);
+                      addSport(widget.user.uid, _diffFilter, sportName);
                     },
                   ),
                 ],
@@ -365,11 +371,38 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
   }
 
   void clearFields() {
-    _diffSelected[_diffValue - 1] = false;
+    sportName = "Choose a sport";
+    for (int i = 0; i < 3; i++) {
+      _diffSelected[i] = false;
+    }
+    setState(() {});
+    _diffValue = 0;
+    _diffFilter = "all";
+  }
+
+  int getIntFromDifficulty(String dif) {
+    // print("WTF $dif");
+    switch (dif) {
+      case 'Easy':
+        return 1;
+      case 'Medium':
+        // print("hello?");
+        return 2;
+      case 'Hard':
+        return 3;
+      default:
+        return 9;
+    }
   }
 
   @override
   Widget buildSecondContainer() {
+    // if (_diffValuez.length > 1) {
+    //   for (int i = 0; i < _diffValuez.length; i++) {
+    //     print("LIST: ${_diffValuez[i]}");
+    //   }
+    // }
+    print("OKEH ${_diffValuez.length}");
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('users')
@@ -389,6 +422,9 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                 child: ListView.builder(
                   itemCount: snapshot.data!["sports_configured"].length,
                   itemBuilder: (context, index) {
+                    // print(
+                    // _diffValuez.add(getIntFromDifficulty(snapshot
+                    //     .data!["sports_configured"][index].values.first));
                     return ListTile(
                         contentPadding: EdgeInsets.only(left: 5, right: 5),
                         title: Row(
@@ -398,7 +434,8 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                               onTap: () => deleteSport(
                                   widget.user.uid,
                                   snapshot.data!["sports_configured"][index]
-                                      .values.last),
+                                      .values.last,
+                                  index),
                             ),
                             Text(
                               snapshot.data!["sports_configured"][index].values
@@ -414,29 +451,12 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                           height: 20,
                           child: Row(
                             children: [
-                              buildDiffRadioText(1),
-                              buildDiffRadioText(2),
-                              buildDiffRadioText(3),
+                              buildDiffRadioText(1, index),
+                              buildDiffRadioText(2, index),
+                              buildDiffRadioText(3, index),
                             ],
                           ),
                         ),
-                        // trailing: SizedBox(
-                        //   width: 200,
-                        //   child: Row(
-                        //     mainAxisAlignment: MainAxisAlignment.center,
-                        //     children: <Widget>[
-                        //       buildDiffRadioText(
-                        //         1,
-                        //       ),
-                        //       buildDiffRadioText(
-                        //         2,
-                        //       ),
-                        //       buildDiffRadioText(
-                        //         3,
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
                         onTap: () => print("ListTile"));
                   },
                 ),
@@ -547,18 +567,18 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
     }
   }
 
-  Widget buildDiffRadioText(int index) {
+  Widget buildDiffRadioText(int index, int index2) {
     return Theme(
       data: Theme.of(context).copyWith(
           unselectedWidgetColor: Colors.grey, disabledColor: Colors.blue),
       child: Radio(
         value: index,
-        groupValue: _dayValue,
+        groupValue: _diffValuez[index2],
         onChanged: (value) {
           setState(() {
             setState(() {
               _dayFilter = getDayFromValue(index);
-              _dayValue = index;
+              _diffValuez[index2] = index;
             });
           });
         },

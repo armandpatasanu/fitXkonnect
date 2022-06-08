@@ -27,6 +27,9 @@ import 'package:provider/provider.dart';
 class AddMatchPage extends StatefulWidget {
   @override
   _AddMatchPageState createState() => _AddMatchPageState();
+  AddMatchPage({
+    Key? key,
+  }) : super(key: key);
 }
 
 class _AddMatchPageState extends State<AddMatchPage> {
@@ -52,6 +55,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("$selectedValue");
     return Scaffold(
       bottomNavigationBar: NaviBar(
         index: 2,
@@ -63,6 +67,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
                 .getSpecificUser(FirebaseAuth.instance.currentUser!.uid),
             SportServices()
                 .getUsersSportsPlayed(FirebaseAuth.instance.currentUser!.uid),
+            LocationServices().getListOfLocations(),
           ]),
           builder:
               (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
@@ -97,7 +102,8 @@ class _AddMatchPageState extends State<AddMatchPage> {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          buildSignupSection(snapshot.data![1]),
+                          buildSignupSection(
+                              snapshot.data![1], snapshot.data![2]),
                         ],
                       ),
                     ),
@@ -111,7 +117,8 @@ class _AddMatchPageState extends State<AddMatchPage> {
     );
   }
 
-  Container buildSignupSection(List<dynamic> snap) {
+  Container buildSignupSection(
+      List<dynamic> snap, List<LocationModel> locations) {
     return Container(
       margin: EdgeInsets.only(top: 60),
       child: Column(
@@ -135,7 +142,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
             height: 10,
           ),
 
-          buildLocationsDropDown(),
+          buildLocationsDropDown(locations),
           // LocationsDropDownList(),
           SizedBox(
             height: 18,
@@ -348,109 +355,100 @@ class _AddMatchPageState extends State<AddMatchPage> {
   }
 
   @override
-  Widget buildLocationsDropDown() {
-    return StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('locations').snapshots(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          // Safety check to ensure that snapshot contains data
-          // without this safety check, StreamBuilder dirty state warnings will be thrown
-          if (!snapshot.hasData)
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          return DropdownButtonHideUnderline(
-            child: DropdownButton2(
-              isExpanded: true,
-              hint: Row(
-                children: const [
-                  Icon(
-                    Icons.list,
-                    size: 18,
-                    color: Colors.black,
-                  ),
-                  SizedBox(
-                    width: 4,
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Choose location',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+  Widget buildLocationsDropDown(List<LocationModel> locations) {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton2(
+        isExpanded: true,
+        hint: Row(
+          children: [
+            Icon(
+              Icons.list,
+              size: 18,
+              color: Colors.black,
+            ),
+            SizedBox(
+              width: 4,
+            ),
+            Expanded(
+              child: Text(
+                "Pick location",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        items: locations
+            .map<DropdownMenuItem<String>>((item) => DropdownMenuItem<String>(
+                  value: item.name,
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      children: [
+                        WidgetSpan(
+                          child: Icon(
+                            Icons.location_on,
+                            size: 18,
+                            color: textColor1,
+                          ),
+                        ),
+                        TextSpan(
+                            text: item.name,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: textColor1,
+                              fontWeight: FontWeight.bold,
+                            )),
+                      ],
                     ),
                   ),
-                ],
-              ),
-              items: snapshot.data.docs
-                  .map<DropdownMenuItem<String>>(
-                      (item) => DropdownMenuItem<String>(
-                            value: item.get('name'),
-                            child: RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(
-                                      Icons.location_on,
-                                      size: 18,
-                                      color: textColor1,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                      text: item.get('name'),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: textColor1,
-                                        fontWeight: FontWeight.bold,
-                                      )),
-                                ],
-                              ),
-                            ),
-                          ))
-                  .toList(),
-              value: selectedValue,
-              onChanged: (value) {
-                setState(() {
-                  selectedValue = value as String;
-                });
-              },
-              icon: const Icon(
-                Icons.arrow_forward_ios_outlined,
-              ),
-              iconSize: 15,
-              iconEnabledColor: Colors.black,
-              buttonHeight: 50,
-              buttonWidth: 200,
-              buttonPadding: const EdgeInsets.only(left: 14, right: 14),
-              buttonDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(
-                  color: Colors.black26,
-                ),
-                color: Colors.white,
-              ).copyWith(
-                boxShadow: kElevationToShadow[2],
-              ),
-              itemHeight: 40,
-              itemPadding: const EdgeInsets.only(left: 14, right: 14),
-              dropdownMaxHeight: 200,
-              dropdownPadding: null,
-              scrollbarRadius: const Radius.circular(40),
-              scrollbarThickness: 6,
-              scrollbarAlwaysShow: true,
-            ),
-          );
-        });
+                ))
+            .toList(),
+        value: selectedValue,
+        onChanged: (value) {
+          setState(() {
+            selectedValue = value as String;
+          });
+        },
+        icon: const Icon(
+          Icons.arrow_forward_ios_outlined,
+        ),
+        iconSize: 15,
+        iconEnabledColor: Colors.black,
+        buttonHeight: 50,
+        buttonWidth: 200,
+        buttonPadding: const EdgeInsets.only(left: 14, right: 14),
+        buttonDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: Colors.black26,
+          ),
+          color: Colors.white,
+        ).copyWith(
+          boxShadow: kElevationToShadow[2],
+        ),
+        itemHeight: 40,
+        itemPadding: const EdgeInsets.only(left: 14, right: 14),
+        dropdownMaxHeight: 200,
+        dropdownPadding: null,
+        scrollbarRadius: const Radius.circular(40),
+        scrollbarThickness: 6,
+        scrollbarAlwaysShow: true,
+      ),
+    );
   }
 
   void clearTextFields() {
     _dateTimeController.clear();
     _locationController.clear();
     sportName = "Choose a sport";
+    selectedValue = null;
     _sportController.clear();
+    setState(() {});
   }
 
   @override
@@ -464,13 +462,9 @@ class _AddMatchPageState extends State<AddMatchPage> {
   }
 
   createMatch() async {
-    setState(() {
-      _isLoading = true;
-    });
-
     String result = await FirestoreMethods().createMatch(
       FirebaseAuth.instance.currentUser!.uid,
-      selectedValue!,
+      selectedValue,
       _dateTimeController.text,
       sportName,
       difficulty,
@@ -478,15 +472,9 @@ class _AddMatchPageState extends State<AddMatchPage> {
     );
 
     if (result == 'success') {
-      setState(() {
-        _isLoading = false;
-      });
       showSnackBar('succesfully created a match!', context);
       clearTextFields();
     } else {
-      setState(() {
-        _isLoading = false;
-      });
       showSnackBar(result, context);
     }
   }

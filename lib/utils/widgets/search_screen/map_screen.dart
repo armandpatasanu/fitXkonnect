@@ -189,14 +189,14 @@ class _MapScreenState extends State<MapScreen> {
                       });
                     },
                     onMapCreated: (GoogleMapController controller) {
+                      setState(() {
+                        startQuery(applicationBloc.currentLocation!);
+                      });
                       widget.loc_maps.length == 1
                           ? _getPolyline(applicationBloc.currentLocation!)
                           : null;
                       _mapController = controller;
                       changeMapMode();
-                      setState(() {
-                        startQuery(applicationBloc.currentLocation!);
-                      });
                     },
                   ),
                   // Container(
@@ -452,9 +452,6 @@ class _MapScreenState extends State<MapScreen> {
     documentList.forEach((Map<LocationModel, List<String>> location) {
       _locationsToPass.add(location.keys.first);
       GeoPoint geoPoint = location.keys.first.geopoint;
-      // double distance = Geolocator.distanceBetween(myPos.longitude,
-      //         myPos.latitude, geoPoint.longitude, geoPoint.latitude) /
-      //     1000;
       String distance = (Geolocator.distanceBetween(myPos.longitude,
                   myPos.latitude, geoPoint.longitude, geoPoint.latitude) /
               1000)

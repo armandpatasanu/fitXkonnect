@@ -156,11 +156,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               icon: Icons.email,
                               controller: _emailController,
                             ),
-                            // RoundedInputField(
-                            //   hintText: "Username",
-                            //   icon: Icons.person,
-                            //   controller: _usernameController,
-                            // ),
                             RoundedInputField(
                               hintText: "Full Name",
                               icon: Icons.person,

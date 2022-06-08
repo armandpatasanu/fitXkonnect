@@ -9,7 +9,7 @@ class FirestoreMethods {
 
   Future<String> createMatch(
     String player1,
-    String locationName,
+    String? locationName,
     String matchDate,
     String sport,
     String difficulty,
@@ -20,14 +20,14 @@ class FirestoreMethods {
     try {
       if (sport == "Choose a sport") {
         result = "Please select a sport!";
-      } else if (locationName == "") {
+      } else if (locationName == null) {
         result = "Please select a location!";
       } else if (matchDate == "") {
         result = "Select a valid match date!";
       } else {
         String matchId = const Uuid().v1();
         String locationId =
-            await LocationServices().getLocationId(locationName);
+            await LocationServices().getLocationId(locationName!);
         String sportId = await SportServices().getSportIdBasedOfName(sport);
         MatchModel match = MatchModel(
           matchId: matchId,

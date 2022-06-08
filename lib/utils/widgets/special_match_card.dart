@@ -13,10 +13,12 @@ import 'package:geolocator/geolocator.dart';
 
 class SpecialMatchCard extends StatefulWidget {
   final snap;
+  final Function callbackFunction;
 
-  const SpecialMatchCard({
+  SpecialMatchCard({
     Key? key,
     this.snap,
+    required this.callbackFunction,
   }) : super(key: key);
 
   @override
@@ -34,31 +36,32 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: kPrimaryColor),
+      decoration: BoxDecoration(color: Colors.white),
       height: 250,
       width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.only(left: 10, right: 10),
       child: Stack(
         children: [
           Container(
             height: 200,
-            margin: EdgeInsets.only(left: 40, right: 40),
+            margin: EdgeInsets.only(left: 20, right: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              color: kPrimaryLightColor,
+              color: Colors.white,
               image: DecorationImage(
-                  colorFilter: new ColorFilter.mode(
-                      Colors.black.withOpacity(0.2), BlendMode.dstATop),
-                  image: NetworkImage(
-                    'https://jooinn.com/images/sunny-day-1.jpg',
-                  ),
-                  fit: BoxFit.cover),
+                colorFilter: new ColorFilter.mode(
+                    Colors.black.withOpacity(0.8), BlendMode.dstATop),
+                image: new ExactAssetImage(
+                    'assets/images/period_images/night.jpg'),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Positioned(
-            left: 100,
+            left: 190,
+            top: 30,
             child: Container(
-              padding: EdgeInsets.only(left: 40, top: 30),
+              height: 100,
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               child: Column(
                 children: [
                   IconAndTextWidget(
@@ -68,7 +71,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     color: kPrimaryColor,
                   ),
                   SizedBox(
-                    height: 15,
+                    height: 5,
                   ),
                   IconAndTextWidget(
                     icon: Icons.calendar_month,
@@ -77,7 +80,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     color: kPrimaryColor,
                   ),
                   SizedBox(
-                    height: 15,
+                    height: 5,
                   ),
                   IconAndTextWidget(
                     icon: Icons.access_alarm,
@@ -88,21 +91,20 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                 ],
                 crossAxisAlignment: CrossAxisAlignment.center,
               ),
-              height: 200,
+
               width: 200,
-              margin: EdgeInsets.only(left: 40, right: 40),
+              // margin: EdgeInsets.only(left: 40, right: 40),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: kPrimaryLightColor,
-              ),
+                  borderRadius: BorderRadius.circular(30), color: Colors.white),
             ),
           ),
           widget.snap.p1uid == FirebaseAuth.instance.currentUser!.uid
               ? Positioned(
-                  left: 250,
-                  top: 180,
+                  left: 260,
+                  top: 140,
                   child: Container(
-                    width: 80,
+                    width: 85,
+                    height: 45,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       gradient: LinearGradient(
@@ -121,15 +123,17 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                       onPressed: () {
                         MatchServices().cancelMatch(widget.snap.matchId);
                         setState(() {});
+                        widget.callbackFunction(widget.snap.locationName);
                       },
                     ),
                   ),
                 )
               : Positioned(
-                  left: 250,
-                  top: 180,
+                  left: 260,
+                  top: 140,
                   child: Container(
-                    width: 80,
+                    width: 85,
+                    height: 45,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       gradient: LinearGradient(
@@ -158,82 +162,65 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                 height: 250,
               ),
               Positioned(
-                top: 140,
+                top: 132,
+                left: 5,
                 child: Container(
-                  height: 100,
-                  width: 220,
+                  height: 70,
+                  width: 210,
                   margin: EdgeInsets.only(left: 15, right: 20, bottom: 15),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    color: Color.fromARGB(255, 198, 171, 171),
+                    color: Colors.white,
                   ),
                   child: Container(
-                    padding: EdgeInsets.only(top: 15, left: 15, right: 15),
-                    child: Column(
-                      children: [
-                        Text(
-                          widget.snap.p1Name + ', ' + widget.snap.p1Age,
-                          style: TextStyle(fontSize: 18, color: kPrimaryColor),
-                        ),
-                        SizedBox(
-                          height: 0,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Sport: ',
-                                  style: TextStyle(color: kPrimaryColor),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                IconAndTextWidget(
-                                  icon: Icons.sports_tennis,
-                                  text: widget.snap.sport,
-                                  color: Colors.white,
-                                  iconColor: Colors.yellow,
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Row(
-                              children: [
-                                // Text(
-                                //   locationData.contact.length > 0
-                                //       ? locationData.contact[0]
-                                //       : 'xxx',
-                                //   style: TextStyle(color: kPrimaryColor),
-                                // ),
-                                FittedBox(
-                                  child: Text('Difficulty:'),
-                                  fit: BoxFit.fitWidth,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                IconAndTextWidget(
-                                  icon: Icons.question_answer,
-                                  text: widget.snap.difficulty,
-                                  color: Colors.white,
-                                  iconColor: Colors.yellow,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                    child: Column(children: [
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        widget.snap.p1Name + ', ' + widget.snap.p1Age,
+                        style: TextStyle(fontSize: 18, color: kPrimaryColor),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                          height: 25,
+                          width: 160,
+                          child: Row(
+                            children: [
+                              Text(
+                                widget.snap.sport,
+                                style: TextStyle(color: kPrimaryColor),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              convertSportToIcon(
+                                  widget.snap.sport, '', Colors.black),
+                              SizedBox(
+                                width: 2,
+                              ),
+                              Text(
+                                ' -  ${widget.snap.difficulty}',
+                                style: TextStyle(color: kPrimaryColor),
+                              ),
+                              // IconAndTextWidget(
+                              //   icon: Icons.sports_tennis,
+                              //   text: widget.snap.sport,
+                              //   color: Colors.white,
+                              //   iconColor: Colors.yellow,
+                              // ),
+                            ],
+                          )),
+                    ]),
                   ),
                 ),
               ),
               Positioned(
-                top: 30,
-                left: 50,
+                top: 20,
+                left: 65,
                 child: Container(
                     width: 120.0,
                     height: 120.0,

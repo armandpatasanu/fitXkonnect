@@ -24,6 +24,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool isResetPressed = false;
+
+  void resetPassword() async {
+    String result = await AuthMethods().resetPassword(
+      email: _emailController.text.trim(),
+    );
+
+    if (result != 'success') {
+      showSnackBar(result, context);
+    } else {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginScreen()));
+    }
+  }
 
   void logInUser() async {
     setState(() {
@@ -61,121 +75,193 @@ class _LoginScreenState extends State<LoginScreen> {
     Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        body: SizedBox(
-          width: size.width,
-          height: size.height,
-          child: SingleChildScrollView(
-            child: Stack(
-              children: [
-                const Upside(
-                  imgUrl: "assets/images/reg_log/login.png",
-                ),
-                const PageTitleBar(
-                  title: 'Login to your account',
-                  topPadding: 260,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 320.0),
-                  child: Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(50),
-                        topRight: Radius.circular(50),
+        body: isResetPressed == true
+            ? SizedBox(
+                width: size.width,
+                height: size.height,
+                child: SingleChildScrollView(
+                  child: Stack(
+                    children: [
+                      const Upside(
+                        imgUrl: "assets/images/reg_log/login.png",
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        const Text(
-                          "or use your email account",
-                          style: TextStyle(
-                              color: Colors.grey,
-                              fontFamily: 'OpenSans',
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        Form(
+                      const PageTitleBar(
+                        title: 'Reset your password',
+                        topPadding: 260,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 320.0),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(50),
+                              topRight: Radius.circular(50),
+                            ),
+                          ),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              RoundedInputField(
-                                hintText: "Email",
-                                icon: Icons.email,
-                                controller: _emailController,
-                              ),
-                              RoundedPasswordField(
-                                controller: _passwordController,
-                              ),
-                              switchListTile(),
-                              RoundedButton(
-                                isLoading: _isLoading,
-                                text: 'LOGIN',
-                                press: logInUser,
-                              ),
                               const SizedBox(
-                                height: 10,
+                                height: 15,
                               ),
-                              UnderPart(
-                                title: "Don't have an account?",
-                                navigatorText: "Register here",
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const SignUpScreen()));
-                                },
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Text(
-                                'Forgot password?',
-                                style: TextStyle(
-                                    color: kPrimaryColor,
-                                    fontFamily: 'OpenSans',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13),
-                              ),
-                              const SizedBox(
-                                height: 20,
+                              Form(
+                                child: Column(
+                                  children: [
+                                    const SizedBox(
+                                      height: 60,
+                                    ),
+                                    const Text(
+                                      "Enter your account's email",
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontFamily: 'OpenSans',
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                    RoundedInputField(
+                                      hintText: "Email",
+                                      icon: Icons.email,
+                                      controller: _emailController,
+                                    ),
+                                    RoundedButton(
+                                      isLoading: _isLoading,
+                                      text: 'REQUEST',
+                                      press: resetPassword,
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    UnderPart(
+                                      title: "Don't have an account?",
+                                      navigatorText: "Register here",
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const SignUpScreen()));
+                                      },
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    )
+                                  ],
+                                ),
                               )
                             ],
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-          ),
-        ),
+                ),
+              )
+            : SizedBox(
+                width: size.width,
+                height: size.height,
+                child: SingleChildScrollView(
+                  child: Stack(
+                    children: [
+                      const Upside(
+                        imgUrl: "assets/images/reg_log/login.png",
+                      ),
+                      const PageTitleBar(
+                        title: 'Login to your account',
+                        topPadding: 260,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 320.0),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(50),
+                              topRight: Radius.circular(50),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              const Text(
+                                "use your email account",
+                                style: TextStyle(
+                                    color: Colors.grey,
+                                    fontFamily: 'OpenSans',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Form(
+                                child: Column(
+                                  children: [
+                                    RoundedInputField(
+                                      hintText: "Email",
+                                      icon: Icons.email,
+                                      controller: _emailController,
+                                    ),
+                                    RoundedPasswordField(
+                                      controller: _passwordController,
+                                    ),
+                                    RoundedButton(
+                                      isLoading: _isLoading,
+                                      text: 'LOGIN',
+                                      press: logInUser,
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    UnderPart(
+                                      title: "Don't have an account?",
+                                      navigatorText: "Register here",
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const SignUpScreen()));
+                                      },
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    GestureDetector(
+                                        child: const Text(
+                                          'Forgot password?',
+                                          style: TextStyle(
+                                              color: kPrimaryColor,
+                                              fontFamily: 'OpenSans',
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13),
+                                        ),
+                                        onTap: () => setState(() {
+                                              isResetPressed = true;
+                                            })),
+                                    const SizedBox(
+                                      height: 20,
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
       ),
     );
   }
-}
-
-switchListTile() {
-  return Padding(
-    padding: const EdgeInsets.only(left: 50, right: 40),
-    child: SwitchListTile(
-      dense: true,
-      title: const Text(
-        'Remember Me',
-        style: TextStyle(
-            fontSize: 16,
-            fontFamily: 'OpenSans',
-            color: kPrimaryColor,
-            fontWeight: FontWeight.bold),
-      ),
-      value: true,
-      activeColor: kPrimaryColor,
-      onChanged: (val) {},
-    ),
-  );
 }

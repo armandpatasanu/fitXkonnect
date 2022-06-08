@@ -3,6 +3,7 @@ import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
+import 'package:fitxkonnect/utils/widgets/home_match_skelet.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:fitxkonnect/utils/widgets/special_match_card.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   String _sportFilter = "all";
   List<bool> _diffSelected = [false, false, false];
   List<bool> _daySelected = [false, false, false];
+  String callbeck = "not changed";
   @override
   void initState() {
     // TODO: implement initState
@@ -36,8 +38,16 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
+  callback(String value) {
+    setState(() {
+      callbeck = value;
+    });
+    print("LMAO $callbeck");
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("LMAO $callbeck");
     return Scaffold(
       bottomNavigationBar: NaviBar(
         index: 0,
@@ -46,7 +56,7 @@ class _HomePageState extends State<HomePage> {
         toolbarHeight: 0,
       ),
       body: Container(
-        color: kPrimaryColor,
+        color: Colors.white,
         padding: EdgeInsets.only(top: 20),
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -246,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 )),
             Container(
-              height: 511,
+              height: 470,
               padding: EdgeInsets.only(top: 10),
               child: FutureBuilder(
                   future: MatchServices().getActualHomePageMatches(
@@ -255,8 +265,19 @@ class _HomePageState extends State<HomePage> {
                       AsyncSnapshot<List<HomePageMatch>> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting ||
                         !snapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
+                      return Container(
+                        child: Column(children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 10,
+                              child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: 3,
+                                  itemBuilder: (context, index) =>
+                                      LoadingMatchCard()),
+                            ),
+                          ),
+                        ]),
                       );
                     }
                     return Container(
@@ -269,8 +290,8 @@ class _HomePageState extends State<HomePage> {
                                 itemCount: snapshot.data!.length,
                                 itemBuilder: (context, index) =>
                                     SpecialMatchCard(
-                                      snap: snapshot.data![index],
-                                    )),
+                                        snap: snapshot.data![index],
+                                        callbackFunction: callback)),
                           ),
                         ),
                       ]),

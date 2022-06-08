@@ -109,6 +109,24 @@ class AuthMethods {
     return result;
   }
 
+  Future<String> resetPassword({
+    required String email,
+  }) async {
+    String result = 'success';
+    try {
+      if (email.isEmpty) {
+        result = 'Email field cannot be empty!';
+      } else if (!regExp.hasMatch(email)) {
+        result = 'Email format is not valid!';
+      } else {
+        await _auth.sendPasswordResetEmail(email: email);
+      }
+    } catch (error) {
+      result = error.toString();
+    }
+    return result;
+  }
+
   Future logOutUser() async {
     try {
       return await _auth.signOut();

@@ -130,24 +130,34 @@ class SportServices {
     return wantedList;
   }
 
-  Future<void> addSport(String uid, String dif, String sport) async {
+  Future<String> addSport(String uid, String dif, String sport) async {
     UserModel user = await UserServices().getSpecificUser(uid);
     List<dynamic> users_sports = [];
-    // String sportId =
-    //     (await SportServices().getSpecificSportFromName(sport)).sportId;
-    Map<String, String> map = {
-      'difficulty': dif,
-      'sport': sport,
-    };
-    users_sports.add(map);
-    _firestore
-        .collection('users')
-        .doc(uid)
-        .update({'sports_configured': FieldValue.arrayUnion(users_sports)});
+    String result = "success";
 
-    _firestore.collection('users').doc(uid).update({
-      'sports_not_configured': FieldValue.arrayRemove([sport])
-    });
+    if (sport == "Choose a sport") {
+      print("AM INTRAT");
+      result = 'Please select a sport';
+    } else if (dif == "all") {
+      print("AM INTRAT 2");
+      result = 'Please select a difficulty';
+    } else {
+      Map<String, String> map = {
+        'difficulty': dif,
+        'sport': sport,
+      };
+      users_sports.add(map);
+      _firestore
+          .collection('users')
+          .doc(uid)
+          .update({'sports_configured': FieldValue.arrayUnion(users_sports)});
+
+      _firestore.collection('users').doc(uid).update({
+        'sports_not_configured': FieldValue.arrayRemove([sport])
+      });
+    }
+
+    return result;
   }
 
   Future<void> deleteSport(String uid, String sport) async {
