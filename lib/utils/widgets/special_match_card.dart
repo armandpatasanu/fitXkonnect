@@ -5,6 +5,7 @@ import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
+import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/icon_text_widget.dart';
@@ -57,17 +58,17 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
             ),
           ),
           Positioned(
-            left: 190,
-            top: 30,
+            left: 192,
+            top: 0,
             child: Container(
-              height: 100,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              height: 135,
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: Column(
                 children: [
                   IconAndTextWidget(
                     icon: Icons.location_on,
                     text: widget.snap.locationName,
-                    iconColor: kPrimaryColor,
+                    iconColor: Colors.purple,
                     color: kPrimaryColor,
                   ),
                   SizedBox(
@@ -76,7 +77,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   IconAndTextWidget(
                     icon: Icons.calendar_month,
                     text: widget.snap.matchDate,
-                    iconColor: kPrimaryColor,
+                    iconColor: Colors.purple,
                     color: kPrimaryColor,
                   ),
                   SizedBox(
@@ -85,7 +86,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   IconAndTextWidget(
                     icon: Icons.access_alarm,
                     text: widget.snap.startingTime,
-                    iconColor: kPrimaryColor,
+                    iconColor: Colors.purple,
                     color: kPrimaryColor,
                   ),
                 ],
@@ -100,19 +101,19 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
           ),
           widget.snap.p1uid == FirebaseAuth.instance.currentUser!.uid
               ? Positioned(
-                  left: 260,
-                  top: 140,
+                  right: 20,
+                  top: 90,
                   child: Container(
                     width: 85,
                     height: 45,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       gradient: LinearGradient(
-                        colors: <Color>[Colors.red, Colors.black],
+                        colors: <Color>[Colors.white, Colors.purple],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey,
+                          color: Colors.purple,
                           offset: Offset(0.0, 1.5),
                           blurRadius: 1.5,
                         ),
@@ -120,8 +121,13 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     ),
                     child: IconButton(
                       icon: Icon(Icons.cancel),
-                      onPressed: () {
-                        MatchServices().cancelMatch(widget.snap.matchId);
+                      onPressed: () async {
+                        // UserModel user = await UserServices().getSpecificUser(
+                        //     FirebaseAuth.instance.currentUser!.uid);
+                        //     print("WTF? ${user.token}");
+                        // UserServices()
+                        //     .sendPushMessage('Nu mere', 'Soto', user.token!);
+                        // await MatchServices().cancelMatch(widget.snap.matchId);
                         setState(() {});
                         widget.callbackFunction(widget.snap.locationName);
                       },
@@ -129,8 +135,8 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   ),
                 )
               : Positioned(
-                  left: 260,
-                  top: 140,
+                  right: 20,
+                  top: 90,
                   child: Container(
                     width: 85,
                     height: 45,
@@ -189,6 +195,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                           height: 25,
                           width: 160,
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 widget.snap.sport,
@@ -206,12 +213,6 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                                 ' -  ${widget.snap.difficulty}',
                                 style: TextStyle(color: kPrimaryColor),
                               ),
-                              // IconAndTextWidget(
-                              //   icon: Icons.sports_tennis,
-                              //   text: widget.snap.sport,
-                              //   color: Colors.white,
-                              //   iconColor: Colors.yellow,
-                              // ),
                             ],
                           )),
                     ]),
@@ -229,6 +230,17 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                         image: new DecorationImage(
                             fit: BoxFit.cover,
                             image: new NetworkImage(widget.snap.p1Profile)))),
+              ),
+              Positioned(
+                top: 20,
+                left: 150,
+                child: SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: Text(
+                      '${widget.snap.p1Country}',
+                      style: TextStyle(fontSize: 28),
+                    )),
               ),
             ],
           ),

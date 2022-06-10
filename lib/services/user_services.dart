@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +7,7 @@ import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
+import 'package:http/http.dart' as http;
 
 class UserServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -14,6 +16,7 @@ class UserServices {
   Future<UserModel> getSpecificUser(String userId) async {
     var result = await _firestore.collection('users').doc(userId).get();
     UserModel searchedUser = UserModel.fromSnap(result);
+    print("AJUNG!");
     return searchedUser;
   }
 
@@ -84,5 +87,41 @@ class UserServices {
       result = error.toString();
     }
     return result;
+  }
+
+  Stream<UserModel> userStream(String uid) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .map((snapshot) => UserModel.fromSnap(snapshot));
+  }
+
+  void sendPushMessage(String body, String title, String token) async {
+    try {
+      await http.post(
+        Uri.parse('https://fcm.googleapis.com/fcm/send'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization':
+              'key=AAAA20fBAmM:APA91bFcnrBWmLkTCw4WHBExrTx1ZkBvFSVDdhG7ZCxXWg_oiTnlH2WOX9AxXM910p5PjIS57qSiMZiAqzNvsd8yWRt2xJd6Tl4L6MBHFhAh41nrKOBddyD3gMDwhTj6AWk7nzHYwpoY',
+        },
+        body: jsonEncode(
+          <String, dynamic>{
+            'notification': <String, dynamic>{
+              'body': body,
+              'title': title,
+            },
+            'priority': 'high',
+            'data': <String, dynamic>{
+              'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+              'id': '1',
+              'status': 'done'
+            },
+            "to": token,
+          },
+        ),
+      );
+    } catch (e) {}
   }
 }

@@ -4,6 +4,7 @@ import 'package:fitxkonnect/models/full_match_model.dart';
 import 'package:fitxkonnect/models/hp_match_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/screens/add_match_page.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/match_services.dart';
@@ -65,8 +66,8 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                   indicatorColor: Colors.white,
                   indicatorWeight: 5,
                   tabs: [
-                    Tab(icon: Icon(Icons.games), text: 'UpComing '),
-                    Tab(icon: Icon(Icons.games), text: 'Opened '),
+                    Tab(icon: Icon(Icons.next_week), text: 'UpComing '),
+                    Tab(icon: Icon(Icons.open_in_new), text: 'Opened '),
                     Tab(
                       icon: Icon(Icons.history),
                       text: 'History',
@@ -128,7 +129,7 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
             ),
           ),
           Positioned(
-            top: 700,
+            top: MediaQuery.of(context).size.height * 0.9,
             right: 20,
             child: Material(
               shape: CircleBorder(),
@@ -160,9 +161,12 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
       BuildContext context, AsyncSnapshot<List<FullMatch>> snapshot) {
     var values = snapshot.data!;
     return values.length == 0
-        ? Text(
-            'No matches yet!',
-            style: TextStyle(color: kPrimaryColor),
+        ? Container(
+            color: Colors.grey[100],
+            width: 100,
+            height: 100,
+            child: Image.asset('assets/images/profile_screen/no_upcoming.jpg',
+                fit: BoxFit.scaleDown),
           )
         : ListView.builder(
             scrollDirection: Axis.vertical,
@@ -180,9 +184,24 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
     var values = snapshot.data!;
 
     return values.length == 0
-        ? Text(
-            'No matches yet!',
-            style: TextStyle(color: kPrimaryColor),
+        ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Clear history for the moment',
+                  style: TextStyle(color: Colors.black),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Icon(
+                  Icons.history_sharp,
+                  color: Colors.black,
+                  size: 32,
+                ),
+              ],
+            ),
           )
         : ListView.builder(
             scrollDirection: Axis.vertical,
@@ -199,9 +218,38 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
       BuildContext context, AsyncSnapshot<List<HomePageMatch>> snapshot) {
     var values = snapshot.data!;
     return values.length == 0
-        ? Text(
-            'No matches yet!',
-            style: TextStyle(color: kPrimaryColor),
+        ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Currently you have no matches opened',
+                  style: TextStyle(color: Colors.black),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.black)),
+                  child: InkWell(
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.black,
+                      size: 32,
+                    ),
+                    onTap: () => Navigator.of(context).pushReplacement(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) =>
+                            AddMatchPage(),
+                        transitionDuration: Duration(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           )
         : ListView.builder(
             scrollDirection: Axis.vertical,

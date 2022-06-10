@@ -33,6 +33,7 @@ class SportServices {
     UserModel user = await UserServices().getSpecificUser(userId);
     List users_sports = user.sports_configured;
     for (var map in users_sports) {}
+    print("AJUNG");
     return users_sports;
   }
 
@@ -66,8 +67,10 @@ class SportServices {
   }
 
   Future<String> getSportNameBasedOfId(String sportId) async {
+    print("ENTERING WITH $sportId");
     SportModel sport = SportModel.fromSnap(
         await _firestore.collection('sports').doc(sportId).get());
+    print("ENTERING returning ${sport.name}");
     return sport.name;
   }
 

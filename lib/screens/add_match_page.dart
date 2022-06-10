@@ -18,6 +18,7 @@ import 'package:fitxkonnect/utils/widgets/toggle_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import 'package:fitxkonnect/utils/colors.dart';
@@ -73,8 +74,17 @@ class _AddMatchPageState extends State<AddMatchPage> {
               (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting ||
                 !snapshot.hasData) {
-              return const Center(
-                child: CircularProgressIndicator(),
+              return Center(
+                child: SpinKitCircle(
+                  size: 50,
+                  itemBuilder: (context, index) {
+                    final colors = [Colors.black, Colors.purple];
+                    final color = colors[index % colors.length];
+                    return DecoratedBox(
+                      decoration: BoxDecoration(color: color),
+                    );
+                  },
+                ),
               );
             }
             return Stack(
@@ -95,7 +105,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.grey.withOpacity(0.45),
                               blurRadius: 15,
                               spreadRadius: 5),
                         ]),
@@ -150,29 +160,27 @@ class _AddMatchPageState extends State<AddMatchPage> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  children: [
-                    WidgetSpan(
-                      child: Icon(
-                        Icons.calendar_month,
-                        size: 25,
-                        color: textColor1,
-                      ),
-                    ),
-                    TextSpan(
-                        text: "Select Match Date",
-                        style: TextStyle(fontSize: 21, color: textColor1)),
-                  ],
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.calendar_month,
+                    size: 25,
+                    color: Colors.purple,
+                  ),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Text("Select Match Date",
+                      style: TextStyle(fontSize: 21, color: textColor1)),
+                ],
               ),
               SizedBox(
                 height: 18,
               ),
               Container(
                 height: 50,
-                width: 300,
+                width: 250,
                 // padding: EdgeInsets.only(left: 35),
                 decoration: BoxDecoration(
                     border: Border.all(color: Colors.black),
@@ -183,7 +191,9 @@ class _AddMatchPageState extends State<AddMatchPage> {
                   controller: _dateTimeController,
                   style: TextStyle(fontSize: 16, color: textColor1),
                   decoration: InputDecoration(
-                    hintText: 'dd/mm/yyyy',
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    hintText: 'Day/Month/Year - Time',
                     hintStyle: TextStyle(fontSize: 16, color: textColor1),
                   ),
                   format: DateFormat('MM/dd/yyyy HH:mm'),
@@ -230,20 +240,20 @@ class _AddMatchPageState extends State<AddMatchPage> {
                 borderRadius: BorderRadius.circular(100),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.35),
+                      color: Colors.purple.withOpacity(0.35),
                       blurRadius: 7,
                       spreadRadius: 2),
                 ]),
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: [
-                  Colors.white,
-                  kPrimaryColor,
+                  Colors.purple,
+                  Colors.black,
                 ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 borderRadius: BorderRadius.circular(100),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(.3),
+                      color: Colors.purple.withOpacity(.3),
                       spreadRadius: 1,
                       blurRadius: 2,
                       offset: Offset(0, 1))
@@ -274,11 +284,15 @@ class _AddMatchPageState extends State<AddMatchPage> {
           width: 150,
           padding: EdgeInsets.all(15),
           decoration: BoxDecoration(
-              color: Colors.white,
+              gradient: LinearGradient(colors: [
+                Color.fromARGB(255, 130, 68, 141),
+                Color.fromARGB(255, 40, 39, 39),
+              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+              // color: Colors.purple[200],
               borderRadius: BorderRadius.circular(100),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.grey.withOpacity(0.45),
                     blurRadius: 15,
                     spreadRadius: 5),
               ]),
@@ -320,7 +334,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
 
   var setDefaultMake = true, setDefaultMakeModel = true;
   Widget buildSportsDropwDownList(List<dynamic> snap) {
-    return DropdownButton(
+    return DropdownButton2(
       hint: Text(
         sportName,
         style: TextStyle(color: textColor1),
@@ -328,16 +342,35 @@ class _AddMatchPageState extends State<AddMatchPage> {
       icon: Icon(
         Icons.arrow_downward,
         size: 18,
-        color: textColor1,
+        color: Colors.purple,
       ),
       isExpanded: false,
       items: snap.map((whatdeactual) {
         return DropdownMenuItem(
-          value: whatdeactual['sport'],
-          child:
-              Text('${whatdeactual['sport']} - ${whatdeactual['difficulty']}'),
-        );
+            value: whatdeactual['sport'],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "${whatdeactual['sport']}",
+                  style: TextStyle(color: Colors.black),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text("[${whatdeactual['difficulty']}]",
+                    style: TextStyle(color: Colors.purple)),
+              ],
+            ));
       }).toList(),
+      dropdownDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        color: Colors.white,
+      ),
+      // dropdownElevation: 8,
+      offset: Offset(-20, 10),
+      dropdownWidth: 180,
+      scrollbarRadius: const Radius.circular(40),
       onChanged: (value) {
         debugPrint('selected onchange: $value');
         setState(
@@ -360,14 +393,18 @@ class _AddMatchPageState extends State<AddMatchPage> {
       child: DropdownButton2(
         isExpanded: true,
         hint: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(
+              width: 25,
+            ),
             Icon(
               Icons.list,
               size: 18,
-              color: Colors.black,
+              color: Colors.purple,
             ),
             SizedBox(
-              width: 4,
+              width: 5,
             ),
             Expanded(
               child: Text(
@@ -385,26 +422,23 @@ class _AddMatchPageState extends State<AddMatchPage> {
         items: locations
             .map<DropdownMenuItem<String>>((item) => DropdownMenuItem<String>(
                   value: item.name,
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      children: [
-                        WidgetSpan(
-                          child: Icon(
-                            Icons.location_on,
-                            size: 18,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        size: 18,
+                        color: textColor1,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(item.name,
+                          style: TextStyle(
+                            fontSize: 14,
                             color: textColor1,
-                          ),
-                        ),
-                        TextSpan(
-                            text: item.name,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: textColor1,
-                              fontWeight: FontWeight.bold,
-                            )),
-                      ],
-                    ),
+                            fontWeight: FontWeight.bold,
+                          )),
+                    ],
                   ),
                 ))
             .toList(),
@@ -417,8 +451,13 @@ class _AddMatchPageState extends State<AddMatchPage> {
         icon: const Icon(
           Icons.arrow_forward_ios_outlined,
         ),
+        dropdownDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: Colors.white,
+        ),
+        dropdownWidth: 200,
         iconSize: 15,
-        iconEnabledColor: Colors.black,
+        iconEnabledColor: Colors.purple,
         buttonHeight: 50,
         buttonWidth: 200,
         buttonPadding: const EdgeInsets.only(left: 14, right: 14),

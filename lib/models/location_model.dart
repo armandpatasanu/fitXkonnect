@@ -21,7 +21,7 @@ class LocationModel {
 
   static LocationModel fromSnap(DocumentSnapshot snap) {
     var snapshot = snap.data() as Map<String, dynamic>;
-
+    print("Still here");
     return LocationModel(
       schedule: snapshot["schedule"] ?? '',
       contact: snapshot["contact"],

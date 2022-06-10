@@ -16,24 +16,43 @@ class ProfileMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-      child: TextButton(
-        style: TextButton.styleFrom(
-          primary: kPrimaryColor,
-          padding: EdgeInsets.all(15),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-          backgroundColor: kPrimaryLightColor,
-        ),
-        onPressed: press,
-        child: Row(
-          children: [
-            Image.asset(icon,
-                width: 35, height: 35, fit: BoxFit.cover, color: Colors.black),
-            SizedBox(width: 20),
-            Expanded(child: Text(text)),
-            Icon(Icons.arrow_forward_ios),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [
+            Colors.purple,
+            Colors.black,
+          ], begin: Alignment.centerLeft, end: Alignment.centerRight),
+          borderRadius: BorderRadius.circular(100),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.purple.withOpacity(.3),
+                spreadRadius: 1,
+                blurRadius: 2,
+                offset: Offset(0, 1))
           ],
+        ),
+        child: TextButton(
+          style: TextButton.styleFrom(
+            primary: Colors.white,
+            padding: EdgeInsets.all(15),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            // backgroundColor: kPrimaryColor,
+          ),
+          onPressed: press,
+          child: Row(
+            children: [
+              Image.asset(icon,
+                  width: 35,
+                  height: 35,
+                  fit: BoxFit.cover,
+                  color: Colors.white),
+              SizedBox(width: 20),
+              Expanded(child: Text(text)),
+              Icon(Icons.arrow_forward_ios),
+            ],
+          ),
         ),
       ),
     );

@@ -67,36 +67,38 @@ class _NaviBarState extends State<NaviBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavyBar(
-      backgroundColor: Colors.black,
-      containerHeight: 70,
+      backgroundColor: Colors.white,
+      containerHeight: 65,
       selectedIndex: widget.index,
       items: <BottomNavyBarItem>[
         BottomNavyBarItem(
-          icon: Icon(Icons.home),
+          icon: Icon(
+            Icons.home,
+          ),
           title: Text('Home'),
           textAlign: TextAlign.center,
-          activeColor: Colors.green,
+          activeColor: Colors.purple,
           inactiveColor: Colors.grey,
         ),
         BottomNavyBarItem(
           icon: Icon(Icons.search),
           title: Text('Search'),
           textAlign: TextAlign.center,
-          activeColor: Colors.amber,
+          activeColor: Colors.purple,
           inactiveColor: Colors.grey,
         ),
         BottomNavyBarItem(
           icon: Icon(Icons.add),
           title: Text('Create'),
           textAlign: TextAlign.center,
-          activeColor: Colors.red,
+          activeColor: Colors.purple,
           inactiveColor: Colors.grey,
         ),
         BottomNavyBarItem(
           icon: Icon(Icons.people),
           title: Text('My Account'),
           textAlign: TextAlign.center,
-          activeColor: Colors.yellow,
+          activeColor: Colors.purple,
           inactiveColor: Colors.grey,
         ),
       ],

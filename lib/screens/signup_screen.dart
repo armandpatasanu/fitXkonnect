@@ -50,7 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() {
       _isLoading = true;
     });
-
+    String? token = await FirebaseMessaging.instance.getToken();
     String result = await AuthMethods().registerValidation(
       email: _emailController.text,
       password: _passwordController.text,
@@ -63,7 +63,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       matches: [],
       sports: [],
       notifications: [],
-      token: '',
+      token: token,
     );
 
     print(result);

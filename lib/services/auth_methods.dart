@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
@@ -30,7 +31,7 @@ class AuthMethods {
     required List matches,
     required List sports,
     required List notifications,
-    required String token,
+    required String? token,
   }) async {
     String result = 'success';
     try {
@@ -53,7 +54,8 @@ class AuthMethods {
           email: email,
           password: password,
         );
-
+        ;
+        print("Token is $token");
         String photoUrl =
             await StorageMethods().uploadImageToStorage('profilePics', file);
 

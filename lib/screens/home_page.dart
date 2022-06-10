@@ -7,6 +7,7 @@ import 'package:fitxkonnect/utils/widgets/home_match_skelet.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:fitxkonnect/utils/widgets/special_match_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class HomePage extends StatefulWidget {
   // final snapshot;
@@ -96,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                                             ? MaterialStateProperty.all(
                                                 Colors.red)
                                             : MaterialStateProperty.all(
-                                                Colors.amber),
+                                                Colors.purple[400]),
                                         overlayColor: MaterialStateProperty
                                             .resolveWith<Color?>(
                                           (Set<MaterialState> states) {
@@ -256,8 +257,19 @@ class _HomePageState extends State<HomePage> {
                   ),
                 )),
             Container(
-              height: 470,
-              padding: EdgeInsets.only(top: 10),
+              height: 50,
+              padding: EdgeInsets.only(
+                top: 20,
+                left: 20,
+                right: 20,
+              ),
+              child: Text('Available matches are:',
+                  style: TextStyle(color: Colors.purple, fontSize: 16)),
+            ),
+            Container(
+              // color: Colors.amber,
+              height: MediaQuery.of(context).size.height - 316,
+              padding: EdgeInsets.only(top: 20),
               child: FutureBuilder(
                   future: MatchServices().getActualHomePageMatches(
                       _sportFilter, _diffFilter, _dayFilter),
@@ -266,17 +278,36 @@ class _HomePageState extends State<HomePage> {
                     if (snapshot.connectionState == ConnectionState.waiting ||
                         !snapshot.hasData) {
                       return Container(
-                        child: Column(children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 10,
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: 3,
-                                  itemBuilder: (context, index) =>
-                                      LoadingMatchCard()),
+                        child: Stack(children: [
+                          ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: 3,
+                              itemBuilder: (context, index) =>
+                                  LoadingMatchCard()),
+                          Center(
+                              child: Container(
+                            height: 90,
+                            child: Column(
+                              children: [
+                                SpinKitCircle(
+                                  size: 50,
+                                  itemBuilder: (context, index) {
+                                    final colors = [
+                                      Colors.white,
+                                      Colors.purple
+                                    ];
+                                    final color = colors[index % colors.length];
+                                    return DecoratedBox(
+                                      decoration: BoxDecoration(color: color),
+                                    );
+                                  },
+                                ),
+                                Text('Refreshing matches',
+                                    style: TextStyle(
+                                        color: Colors.purple, fontSize: 16)),
+                              ],
                             ),
-                          ),
+                          )),
                         ]),
                       );
                     }
@@ -285,13 +316,23 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           child: SizedBox(
                             height: 10,
-                            child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: snapshot.data!.length,
-                                itemBuilder: (context, index) =>
-                                    SpecialMatchCard(
-                                        snap: snapshot.data![index],
-                                        callbackFunction: callback)),
+                            child: RefreshIndicator(
+                              strokeWidth: 3,
+                              displacement: 0,
+                              color: Colors.black,
+                              backgroundColor: Colors.grey.withOpacity(0.2),
+                              onRefresh: () {
+                                setState(() {});
+                                return Future.value(false);
+                              },
+                              child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (context, index) =>
+                                      SpecialMatchCard(
+                                          snap: snapshot.data![index],
+                                          callbackFunction: callback)),
+                            ),
                           ),
                         ),
                       ]),
@@ -374,9 +415,11 @@ class _HomePageState extends State<HomePage> {
         ),
         Theme(
           data: Theme.of(context).copyWith(
-              unselectedWidgetColor: Colors.grey, disabledColor: Colors.blue),
+              unselectedWidgetColor: Colors.black,
+              disabledColor: Colors.purple),
           child: Radio(
             value: index,
+            activeColor: Colors.purple,
             groupValue: _dayValue,
             onChanged: (value) {
               setState(() {

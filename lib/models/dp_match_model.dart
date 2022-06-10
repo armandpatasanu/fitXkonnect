@@ -1,4 +1,5 @@
 class DetailsPageMatch {
+  final String p1uid;
   final String p1Name;
   final String p1Age;
   final String p1Profile;
@@ -10,6 +11,7 @@ class DetailsPageMatch {
   final String startingTime;
 
   const DetailsPageMatch({
+    required this.p1uid,
     required this.p1Name,
     required this.p1Age,
     required this.p1Profile,

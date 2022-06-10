@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/screens/details_page.dart';
@@ -64,10 +65,10 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
     TabController _tabController = TabController(length: 2, vsync: this);
 
     return Scaffold(
-      bottomNavigationBar: NaviBar(index: 1),
+      // bottomNavigationBar: NaviBar(index: 1),
       body: Container(
         width: 500,
-        height: 711,
+        height: 850,
         color: Colors.white,
         child: Stack(
           children: [
@@ -85,7 +86,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                 children: [
                   Container(
                     padding: EdgeInsets.only(left: 5, right: 5),
-                    margin: EdgeInsets.only(top: 37, left: 15),
+                    margin: EdgeInsets.only(top: 42, left: 15),
                     height: 40,
                     width: 210,
                     decoration: BoxDecoration(
@@ -216,10 +217,10 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
               height: 34,
             ),
             Positioned(
-              top: 120,
+              top: 110,
               child: Container(
-                height: 604,
-                color: Colors.white,
+                height: 750,
+                // color: Colors.amber,
                 width: MediaQuery.of(context).size.width,
                 child: TabBarView(controller: _tabController, children: [
                   ListView.builder(
@@ -244,7 +245,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                           leading: Column(
                             children: [
                               const Icon(
-                                Icons.flight_land,
+                                Icons.social_distance,
                                 color: Colors.grey,
                               ),
                               Text(
@@ -270,15 +271,49 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                           onTap: () => {
                                 Navigator.of(context).pushReplacement(
                                   PageRouteBuilder(
-                                    pageBuilder:
-                                        (context, animation1, animation2) =>
-                                            DetailPage(
-                                                map_loc: widget.map_loc,
-                                                sports: widget.sports,
-                                                locationId: _locations[index]
-                                                    .keys
-                                                    .first
-                                                    .locationId),
+                                    pageBuilder: (context, animation1,
+                                            animation2) =>
+                                        FutureBuilder(
+                                            future: Future.wait([
+                                              FirebaseStorage.instance
+                                                  .ref()
+                                                  .child(
+                                                      "locationPics/backgroundPics/${_locations[index].keys.first.locationId}.jpg")
+                                                  .getDownloadURL(),
+                                              FirebaseStorage.instance
+                                                  .ref()
+                                                  .child(
+                                                      "locationPics/profilePics/${_locations[index].keys.first.locationId}.jpg")
+                                                  .getDownloadURL(),
+                                              LocationServices()
+                                                  .getCertainLocation(
+                                                      _locations[index]
+                                                          .keys
+                                                          .first
+                                                          .locationId),
+                                            ]),
+                                            builder: (BuildContext context,
+                                                AsyncSnapshot<List<dynamic>>
+                                                    snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                );
+                                              }
+                                              return DetailPage(
+                                                  backIcon: true,
+                                                  bkg: snapshot.data![0],
+                                                  profile: snapshot.data![1],
+                                                  location: snapshot.data![2],
+                                                  map_loc: widget.map_loc,
+                                                  sports: widget.sports,
+                                                  locationId: _locations[index]
+                                                      .keys
+                                                      .first
+                                                      .locationId);
+                                            }),
                                     transitionDuration: Duration(),
                                   ),
                                 )

@@ -44,151 +44,164 @@ class _LocationInfoState extends State<LocationInfo> {
   }
 
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: Future.wait([
-          FirebaseStorage.instance
-              .ref()
-              .child(
-                  "locationPics/backgroundPics/${widget.selectedLocation.locationId}.jpg")
-              .getDownloadURL(),
-          getLocationSports(),
-          MatchServices().getNumberOfMatchesOpenBasedOnLocation(
-              widget.selectedLocation.locationId),
-        ]),
-        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting ||
-              !snapshot.hasData) {
+    return StreamBuilder<Object>(
+        stream: FirebaseFirestore.instance
+            .collection('matches')
+            .where('location', isEqualTo: widget.selectedLocation.locationId)
+            .where('status', isEqualTo: 'open')
+            .snapshots(),
+        builder: (context, AsyncSnapshot snep) {
+          if (!snep.hasData) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
-          return Stack(
-            children: [
-              Container(
-                margin: EdgeInsets.all(20),
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: Offset.zero)
-                    ]),
-                child: Column(
+          final documentSnapshotList = snep.data.docs;
+          return FutureBuilder(
+              future: Future.wait([
+                FirebaseStorage.instance
+                    .ref()
+                    .child(
+                        "locationPics/backgroundPics/${widget.selectedLocation.locationId}.jpg")
+                    .getDownloadURL(),
+                getLocationSports(),
+              ]),
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<dynamic>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting ||
+                    !snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                return Stack(
                   children: [
                     Container(
-                      color: Colors.white,
-                      child: Row(
+                      margin: EdgeInsets.all(20),
+                      padding: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: Offset.zero)
+                          ]),
+                      child: Column(
                         children: [
-                          Flexible(
-                            child: ClipRect(
-                              child: Image.network(snapshot.data![0],
-                                  width: 60, height: 60, fit: BoxFit.cover),
+                          Container(
+                            color: Colors.white,
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: ClipRect(
+                                    child: Image.network(snapshot.data![0],
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover),
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.selectedLocation.name,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Text(
+                                      widget.selectedLocation.contact.length > 0
+                                          ? widget.selectedLocation.contact[0]
+                                          : 'WTF',
+                                      style: TextStyle(
+                                          color: kPrimaryLightColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: kPrimaryColor,
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 20),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.selectedLocation.name,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                widget.selectedLocation.contact.length > 0
-                                    ? widget.selectedLocation.contact[0]
-                                    : 'WTF',
-                                style: TextStyle(
-                                    color: kPrimaryLightColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                          Divider(
+                            color: Colors.black,
                           ),
                           Container(
-                            decoration: BoxDecoration(
-                              color: kPrimaryColor,
-                              borderRadius: BorderRadius.circular(40),
+                            child: Row(
+                              children: [
+                                ClipRect(
+                                  child: Image.asset(
+                                      'assets/images/map_screen/sportsGuys.jpg',
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover),
+                                ),
+                                SizedBox(width: 20),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: 200,
+                                      child: Text(
+                                        snapshot.data![1] ?? '',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: kPrimaryColor,
+                                            fontWeight: FontWeight.bold),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Text(
+                                      documentSnapshotList.length != 0
+                                          ? 'Available matches: ${documentSnapshotList.length.toString()}'
+                                          : 'No availabe matches ',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: kPrimaryColor,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),
-                    Divider(
-                      color: Colors.black,
-                    ),
-                    Container(
-                      child: Row(
-                        children: [
-                          ClipRect(
-                            child: Image.asset(
-                                'assets/images/map_screen/sportsGuys.jpg',
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover),
-                          ),
-                          SizedBox(width: 20),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                snapshot.data![1] ?? '',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: kPrimaryColor,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                snapshot.data![2] != 0
-                                    ? 'Available matches: ${snapshot.data![2].toString()}'
-                                    : 'No availabe matches ',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: kPrimaryColor,
-                                    fontWeight: FontWeight.normal),
-                              ),
-                            ],
-                          ),
-                        ],
+                    Positioned(
+                      top: 75,
+                      left: 310,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: CustomDetailsButton(
+                            selectedLocation:
+                                widget.selectedLocation.locationId),
                       ),
                     )
                   ],
-                ),
-              ),
-              Positioned(
-                top: 90,
-                left: 280,
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: kPrimaryLightColor,
-                    borderRadius: BorderRadius.circular(15),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: kPrimaryColor.withOpacity(0.2),
-                    //     blurRadius: 2,
-                    //     spreadRadius: 2,
-                    //     offset: Offset(0, 2),
-                    //   ),
-                    // ],
-                  ),
-                  child: CustomDetailsButton(
-                      selectedLocation: widget.selectedLocation.locationId),
-                ),
-              )
-            ],
-          );
+                );
+              });
         });
   }
 }

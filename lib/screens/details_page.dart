@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fitxkonnect/models/dp_match_model.dart';
 import 'package:fitxkonnect/models/location_model.dart';
@@ -16,6 +17,10 @@ import 'package:flutter_svg/svg.dart';
 import 'dart:ui' as ui;
 
 class DetailPage extends StatefulWidget {
+  final bool backIcon;
+  final String bkg;
+  final String profile;
+  final LocationModel location;
   final String locationId;
   final List<SportModel> sports;
   final List<Map<LocationModel, List<String>>> map_loc;
@@ -24,6 +29,10 @@ class DetailPage extends StatefulWidget {
     required this.locationId,
     required this.sports,
     required this.map_loc,
+    required this.bkg,
+    required this.profile,
+    required this.location,
+    required this.backIcon,
   }) : super(key: key);
 
   @override
@@ -36,26 +45,33 @@ class _DetailPageState extends State<DetailPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kPrimaryLightColor,
-        actions: [
-          InkWell(
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onTap: () {
-              Navigator.of(context).pushReplacement(
-                PageRouteBuilder(
-                  pageBuilder: (context, animation1, animation2) =>
-                      FilterLocationScreen(
-                    map_loc: widget.map_loc,
-                    sports: widget.sports,
-                  ),
-                  transitionDuration: Duration(),
-                ),
-              );
-            },
-          )
-        ],
+        title: widget.backIcon == true
+            ? Row(
+                children: <Widget>[
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: InkWell(
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation1, animation2) =>
+                                FilterLocationScreen(
+                              map_loc: widget.map_loc,
+                              sports: widget.sports,
+                            ),
+                            transitionDuration: Duration(),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                ],
+              )
+            : Container(),
         elevation: 0,
       ),
       backgroundColor: Colors.white,
@@ -65,222 +81,198 @@ class _DetailPageState extends State<DetailPage> {
 
   Widget getBody() {
     var size = MediaQuery.of(context).size;
-    return FutureBuilder(
-        future: Future.wait([
-          FirebaseStorage.instance
-              .ref()
-              .child("locationPics/backgroundPics/${widget.locationId}.jpg")
-              .getDownloadURL(),
-          FirebaseStorage.instance
-              .ref()
-              .child("locationPics/profilePics/${widget.locationId}.jpg")
-              .getDownloadURL(),
-          LocationServices().getCertainLocation(widget.locationId),
-        ]),
-        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          return SingleChildScrollView(
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: size.height * 0.35,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: NetworkImage(snapshot.data![0]),
-                        fit: BoxFit.cover),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: size.height * 0.3),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(50)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(30),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Align(
-                          child: Container(
-                            width: 150,
-                            height: 7,
-                            decoration: BoxDecoration(
-                                color: Colors.red[50],
-                                borderRadius: BorderRadius.circular(24)),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                image: DecorationImage(
-                                    image: NetworkImage(snapshot.data![1]),
-                                    fit: BoxFit.cover),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  snapshot.data![2].name,
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: kPrimaryColor),
-                                ),
-                                SizedBox(
-                                  height: 3,
-                                ),
-                                Text(
-                                  snapshot.data![2].contact[0],
-                                  style: TextStyle(
-                                      fontSize: 13, color: kPrimaryColor),
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "SCHEDULE",
-                          style: TextStyle(
-                              fontSize: 20, height: 1.5, color: kPrimaryColor),
-                        ),
-                        Text(
-                          snapshot.data![2].schedule,
-                          style: TextStyle(height: 1.6, color: kPrimaryColor),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "CONTACT",
-                          style: TextStyle(
-                              fontSize: 20, height: 1.5, color: kPrimaryColor),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Container(
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_city,
-                                    color: kPrimaryLightColor,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    snapshot.data![2].contact[0],
-                                    style: TextStyle(color: kPrimaryColor),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Container(
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.phone,
-                                    color: kPrimaryLightColor,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    snapshot.data![2].contact[1],
-                                    style: TextStyle(color: kPrimaryColor),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Container(
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.web,
-                                    color: kPrimaryLightColor,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    snapshot.data![2].contact[2],
-                                    style: TextStyle(color: kPrimaryColor),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "MATCHES",
-                          style: TextStyle(fontSize: 18, color: kPrimaryColor),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        SizedBox(
-                          height: 200,
-                          child: FutureBuilder<List<DetailsPageMatch>>(
-                              future: MatchServices()
-                                  .getActualDetailsPageMatches(
-                                      widget.locationId),
-                              initialData: [],
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<List<DetailsPageMatch>>
-                                      snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-                                return createMatchesListView(
-                                    context, snapshot.data!);
-                              }),
-                        ),
-                      ],
+    return SingleChildScrollView(
+      child: Stack(
+        children: <Widget>[
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: size.height * 0.35,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: NetworkImage(widget.bkg), fit: BoxFit.cover),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: size.height * 0.3),
+            width: double.infinity,
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(50)),
+            child: Padding(
+              padding: const EdgeInsets.all(30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Align(
+                    child: Container(
+                      width: 150,
+                      height: 7,
+                      decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(24)),
                     ),
                   ),
-                )
-              ],
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          image: DecorationImage(
+                              image: NetworkImage(widget.profile),
+                              fit: BoxFit.cover),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            widget.location.name,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: kPrimaryColor),
+                          ),
+                          SizedBox(
+                            height: 3,
+                          ),
+                          Text(
+                            widget.location.contact[0],
+                            style:
+                                TextStyle(fontSize: 13, color: kPrimaryColor),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "SCHEDULE",
+                    style: TextStyle(
+                        fontSize: 20, height: 1.5, color: kPrimaryColor),
+                  ),
+                  Text(
+                    widget.location.schedule,
+                    style: TextStyle(height: 1.6, color: kPrimaryColor),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "CONTACT",
+                    style: TextStyle(
+                        fontSize: 20, height: 1.5, color: kPrimaryColor),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_city,
+                              color: kPrimaryLightColor,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              widget.location.contact[0],
+                              style: TextStyle(color: kPrimaryColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.phone,
+                              color: kPrimaryLightColor,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              widget.location.contact[1],
+                              style: TextStyle(color: kPrimaryColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.web,
+                              color: kPrimaryLightColor,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              widget.location.contact[2],
+                              style: TextStyle(color: kPrimaryColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "MATCHES",
+                    style: TextStyle(fontSize: 18, color: kPrimaryColor),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    height: 200,
+                    child: FutureBuilder<List<DetailsPageMatch>>(
+                        future: MatchServices()
+                            .getActualDetailsPageMatches(widget.locationId),
+                        initialData: [],
+                        builder: (BuildContext context,
+                            AsyncSnapshot<List<DetailsPageMatch>> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return createMatchesListView(context, snapshot.data!);
+                        }),
+                  ),
+                ],
+              ),
             ),
-          );
-        });
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -438,6 +430,74 @@ class _DetailPageState extends State<DetailPage> {
                               ],
                             ),
                           ),
+                          values[index].p1uid ==
+                                  FirebaseAuth.instance.currentUser!.uid
+                              ? Positioned(
+                                  left: 200,
+                                  top: 120,
+                                  child: Container(
+                                    width: 85,
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      gradient: LinearGradient(
+                                        colors: <Color>[
+                                          Colors.red,
+                                          Colors.black
+                                        ],
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey,
+                                          offset: Offset(0.0, 1.5),
+                                          blurRadius: 1.5,
+                                        ),
+                                      ],
+                                    ),
+                                    child: IconButton(
+                                      icon: Icon(Icons.cancel),
+                                      onPressed: () async {
+                                        await MatchServices()
+                                            .cancelMatch(values[index].matchId);
+                                        setState(() {});
+                                        // widget.callbackFunction();
+                                      },
+                                    ),
+                                  ),
+                                )
+                              : Positioned(
+                                  left: 200,
+                                  top: 120,
+                                  child: Container(
+                                    width: 85,
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      gradient: LinearGradient(
+                                        colors: <Color>[
+                                          Colors.green,
+                                          Colors.black
+                                        ],
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey,
+                                          offset: Offset(0.0, 1.5),
+                                          blurRadius: 1.5,
+                                        ),
+                                      ],
+                                    ),
+                                    child: IconButton(
+                                      icon: Icon(Icons.play_circle),
+                                      onPressed: () {
+                                        MatchServices().matchPlayers(
+                                            values[index].matchId,
+                                            FirebaseAuth
+                                                .instance.currentUser!.uid);
+                                      },
+                                    ),
+                                  ),
+                                ),
                         ],
                       ),
                     )

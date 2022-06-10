@@ -33,51 +33,12 @@ class _FilterPageState extends State<FilterPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.only(top: 20),
       child: Stack(
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Text(
-              //   'Difficulty',
-              //   style: TextStyle(
-              //     fontSize: 21,
-              //     color: kPrimaryColor,
-              //     fontFamily: 'OpenSans',
-              //     fontWeight: FontWeight.w600,
-              //   ),
-              // ),
-              // SizedBox(
-              //   height: 5,
-              // ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: <Widget>[
-              //     buildDifficultyRadioText('Easy', 1),
-              //     buildDifficultyRadioText('Medium', 2),
-              //     buildDifficultyRadioText('Hard', 3),
-              //   ],
-              // ),
-              // Text(
-              //   'Part of day',
-              //   style: TextStyle(
-              //     fontSize: 21,
-              //     color: kPrimaryColor,
-              //     fontFamily: 'OpenSans',
-              //     fontWeight: FontWeight.w600,
-              //   ),
-              // ),
-              // SizedBox(
-              //   height: 5,
-              // ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: <Widget>[
-              //     buildDayRadioText('Morning', 1),
-              //     buildDayRadioText('Afternoon', 2),
-              //     buildDayRadioText('Night', 3),
-              //   ],
-              // ),
               Container(
                 color: Colors.white,
                 height: 550,
@@ -88,7 +49,7 @@ class _FilterPageState extends State<FilterPage> {
                         leading: Transform.scale(
                           scale: 1.5,
                           child: Checkbox(
-                            checkColor: Colors.red,
+                            checkColor: Colors.orangeAccent,
                             activeColor: Colors.white,
                             value: _isChecked[index],
                             onChanged: (value) {
@@ -111,24 +72,24 @@ class _FilterPageState extends State<FilterPage> {
             ],
           ),
           Positioned(
-            top: 480,
-            left: 60,
+            top: 620,
+            left: 80,
             child: Row(
               children: [
                 SizedBox(
                   width: 120,
-                  height: 60,
+                  height: 40,
                   child: ElevatedButton(
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(38.0),
-                              side: BorderSide(color: Colors.red))),
-                      backgroundColor: MaterialStateProperty.all(Colors.red),
+                              side: BorderSide(color: Colors.orange))),
+                      backgroundColor: MaterialStateProperty.all(Colors.orange),
                       overlayColor: MaterialStateProperty.resolveWith<Color?>(
                         (Set<MaterialState> states) {
                           if (states.contains(MaterialState.selected))
-                            return Colors.redAccent; //<-- SEE HERE
+                            return Colors.orangeAccent; //<-- SEE HERE
                           return null; // Defer to the widget's default.
                         },
                       ),
@@ -177,7 +138,7 @@ class _FilterPageState extends State<FilterPage> {
                 ),
                 SizedBox(
                   width: 120,
-                  height: 60,
+                  height: 40,
                   child: ElevatedButton(
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(

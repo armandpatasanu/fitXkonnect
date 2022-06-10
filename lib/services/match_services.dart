@@ -4,6 +4,7 @@ import 'package:fitxkonnect/models/full_match_model.dart';
 import 'package:fitxkonnect/models/hp_match_model.dart';
 import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
+import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
@@ -19,7 +20,7 @@ class MatchServices {
     List<MatchModel> wantedMatches = [];
 
     documentList.forEach((DocumentSnapshot snap) {
-      if (snap['location'] == locationId) {
+      if (snap['location'] == locationId && snap['status'] == 'open') {
         wantedMatches.add(MatchModel.fromSnap(snap));
       }
     });
@@ -159,6 +160,7 @@ class MatchServices {
           p1uid: user.uid,
           p1Name: user.fullName,
           p1Age: user.age,
+          p1Country: user.country.substring(2),
           p1Profile: user.profilePhoto,
           sport: match.sport,
           difficulty: match.difficulty,
@@ -225,6 +227,7 @@ class MatchServices {
       LocationModel location =
           await LocationServices().getCertainLocation(match.location);
       neededMatches.add(DetailsPageMatch(
+          p1uid: user.uid,
           p1Name: user.fullName,
           p1Age: user.age,
           p1Profile: user.profilePhoto,
@@ -236,6 +239,31 @@ class MatchServices {
           matchId: match.matchId));
     }
     return neededMatches;
+  }
+
+  Stream<List<DetailsPageMatch>> getStreamActualDetailsPageMatches(
+      String locationId) async* {
+    List<MatchModel> allMatches =
+        await MatchServices().getMatchesBasedOnLocation(locationId);
+    List<DetailsPageMatch> neededMatches = [];
+
+    for (var match in allMatches) {
+      UserModel user = await UserServices().getSpecificUser(match.player1);
+      LocationModel location =
+          await LocationServices().getCertainLocation(match.location);
+      neededMatches.add(DetailsPageMatch(
+          p1uid: user.uid,
+          p1Name: user.fullName,
+          p1Age: user.age,
+          p1Profile: user.profilePhoto,
+          p1Country: user.country,
+          sport: match.sport,
+          difficulty: match.difficulty,
+          matchDate: match.matchDate,
+          startingTime: match.startingTime,
+          matchId: match.matchId));
+    }
+    yield neededMatches;
   }
 
   Future<List<MatchModel>> getListOfMatches() async {
@@ -305,15 +333,52 @@ class MatchServices {
 
   Future<void> matchPlayers(String matchId, String player2Id) async {
     var collection = FirebaseFirestore.instance.collection('matches');
-    collection.doc(matchId) // <-- Doc ID where data should be updated.
-        .update({
-      'player2': player2Id,
-      'status': 'matched',
-    });
+    UserModel u2 = await UserServices().getSpecificUser(player2Id);
+    MatchModel m = await MatchServices().getCertainMatch(matchId);
+    UserModel u = await UserServices().getSpecificUser(m.player1);
+    UserServices().sendPushMessage(
+        'You will face ${u2.fullName} in a match of ${m.sport}',
+        'Get ready! You have a new match!',
+        u.token!);
+    // collection.doc(matchId) // <-- Doc ID where data should be updated.
+    //     .update({
+    //   'player2': player2Id,
+    //   'status': 'matched',
+    // });
+  }
+
+  Future<MatchModel> getCertainMatch(String matchId) async {
+    MatchModel location = MatchModel.fromSnap(
+        await _firestore.collection('matches').doc(matchId).get());
+
+    return location;
   }
 
   Future<void> cancelMatch(String matchId) async {
     try {
+      MatchModel match = await MatchServices().getCertainMatch(matchId);
+      LocationModel location =
+          await LocationServices().getCertainLocation(match.location);
+      List locations_sports = location.sports;
+      SportModel wohoo =
+          await SportServices().getSpecificSportFromName(match.sport);
+      print("WTF ${wohoo.sportId}");
+      int numberOfMatches;
+      print("WTF LENGTH: ${locations_sports.length}");
+      for (var element in locations_sports) {
+        if (element["sport"] == wohoo.sportId) {
+          print("WTF: MATCHED");
+          numberOfMatches = element["matches"] - 1;
+          print("WTF : THE NEW NUMBER: ${numberOfMatches}");
+          print("WTF : $numberOfMatches");
+          element.update("matches", (value) => numberOfMatches);
+        }
+      }
+
+      await _firestore
+          .collection('locations')
+          .doc(match.location)
+          .update({'sports': locations_sports});
       await _firestore.collection('matches').doc(matchId).delete();
     } catch (error) {
       print(error.toString());

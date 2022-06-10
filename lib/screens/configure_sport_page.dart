@@ -3,11 +3,14 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
+import 'package:fitxkonnect/services/storage_methods.dart';
+import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/components/profile_page/profile_pic.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ConfigureSportPage extends StatefulWidget {
   final List<String> not_conf_sports;
@@ -40,7 +43,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _diffValuez = List.generate(
         widget.conf_sports.length,
@@ -49,8 +51,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
   }
 
   addSport(String uid, String dif, String sport) async {
-    print("$_diffFilter");
-    print("$_diffValue");
     String result = await SportServices().addSport(uid, dif, sport);
 
     if (result == 'success') {
@@ -62,10 +62,15 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
     }
   }
 
+  saveSports() {
+    for (int i = 0; i < _diffValuez.length; i++) {
+      print("Found a way ${_diffValuez[i]}");
+    }
+  }
+
   void deleteSport(String uid, String sport, int ind) {
-    print("INDEX IS $ind");
-    SportServices().deleteSport(uid, sport);
     _diffValuez.removeAt(ind);
+    SportServices().deleteSport(uid, sport);
     setState() {}
     showSnackBar("The sport has been added!", context);
   }
@@ -76,223 +81,220 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        bottomNavigationBar: NaviBar(
-          index: 3,
-        ),
-        body: Material(
-          color: Colors.white,
-          child: Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ProfilePic(profilePhoto: widget.user.profilePhoto),
-                Text(
-                  widget.user.fullName + ', ' + widget.user.country,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontFamily: 'OpenSans',
-                      fontSize: 20,
-                      letterSpacing: 1,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xfff575861)),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.blue.withOpacity(0.3),
-                                blurRadius: 15,
-                                spreadRadius: 5),
-                          ]),
-                      child: TextButton.icon(
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0))),
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.white)),
-                        label: Text(
-                          'Add sport',
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isSecondContainerVisible = false;
-                            _isFirstContainerVisible =
-                                !_isFirstContainerVisible;
-                          });
-                        },
-                        icon: Icon(
-                          Icons.add,
-                          color: Colors.blue,
-                          size: 30,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.green.withOpacity(0.3),
-                                blurRadius: 15,
-                                spreadRadius: 5),
-                          ]),
-                      child: TextButton.icon(
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0))),
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.white)),
-                        label: Text(
-                          'Edit sport',
-                          style: TextStyle(color: Colors.green),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isFirstContainerVisible = false;
-                            _isSecondContainerVisible =
-                                !_isSecondContainerVisible;
-                          });
-                        },
-                        icon: Icon(
-                          Icons.edit_note,
-                          color: Colors.green,
-                          size: 30,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                buildFirstContainer(),
-                buildSecondContainer(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget buildSportsDropDown() {
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('users')
             .doc(widget.user.uid)
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          // Safety check to ensure that snapshot contains data
-          // without this safety check, StreamBuilder dirty state warnings will be thrown
           if (!snapshot.hasData)
             return const Center(
               child: CircularProgressIndicator(),
             );
-          return DropdownButtonHideUnderline(
-            child: DropdownButton2(
-              isExpanded: true,
-              hint: Row(
-                children: [
-                  SizedBox(
-                    width: 4,
-                  ),
-                  Expanded(
-                    child: Text(
-                      sportName,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              bottomNavigationBar: NaviBar(
+                index: 3,
               ),
-              items: snapshot.data!['sports_not_configured']
-                  .map<DropdownMenuItem<String>>(
-                      (item) => DropdownMenuItem<String>(
-                            value: item,
-                            child: RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(
-                                      Icons.star,
-                                      size: 18,
-                                      color: kPrimaryColor,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                      text: item as String,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: kPrimaryColor,
-                                        fontWeight: FontWeight.bold,
-                                      )),
-                                ],
+              body: Material(
+                color: Colors.white,
+                child: Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ProfilePic(profilePhoto: widget.user.profilePhoto),
+                      Text(
+                        widget.user.fullName + ', ' + widget.user.country,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontFamily: 'OpenSans',
+                            fontSize: 20,
+                            letterSpacing: 1,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xfff575861)),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.blue.withOpacity(0.3),
+                                      blurRadius: 15,
+                                      spreadRadius: 5),
+                                ]),
+                            child: TextButton.icon(
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30.0))),
+                                  backgroundColor:
+                                      MaterialStateProperty.all(Colors.white)),
+                              label: Text(
+                                'Add sport',
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isSecondContainerVisible = false;
+                                  _isFirstContainerVisible =
+                                      !_isFirstContainerVisible;
+                                });
+                              },
+                              icon: Icon(
+                                Icons.add,
+                                color: Colors.blue,
+                                size: 30,
                               ),
                             ),
-                          ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  sportName = value.toString();
-                });
-              },
-              icon: const Icon(Icons.arrow_downward_sharp),
-              iconSize: 21,
-              iconEnabledColor: Colors.black,
-              buttonHeight: 50,
-              buttonWidth: 180,
-              buttonPadding: const EdgeInsets.only(left: 14, right: 14),
-              buttonDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(
-                  color: Colors.black26,
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.green.withOpacity(0.3),
+                                      blurRadius: 15,
+                                      spreadRadius: 5),
+                                ]),
+                            child: TextButton.icon(
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30.0))),
+                                  backgroundColor:
+                                      MaterialStateProperty.all(Colors.white)),
+                              label: Text(
+                                'Edit sport',
+                                style: TextStyle(color: Colors.green),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isFirstContainerVisible = false;
+                                  _isSecondContainerVisible =
+                                      !_isSecondContainerVisible;
+                                });
+                              },
+                              icon: Icon(
+                                Icons.edit_note,
+                                color: Colors.green,
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      buildFirstContainer(snapshot),
+                      buildSecondContainer(snapshot),
+                    ],
+                  ),
                 ),
-                color: Colors.white,
-              ).copyWith(
-                boxShadow: kElevationToShadow[2],
               ),
-              itemHeight: 40,
-              itemPadding: const EdgeInsets.only(left: 14, right: 14),
-              dropdownMaxHeight: 200,
-              dropdownPadding: null,
-              scrollbarRadius: const Radius.circular(40),
-              scrollbarThickness: 6,
-              scrollbarAlwaysShow: true,
             ),
           );
         });
   }
 
   @override
-  Widget buildFirstContainer() {
+  Widget buildSportsDropDown(AsyncSnapshot snapshot) {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton2(
+        isExpanded: true,
+        hint: Row(
+          children: [
+            SizedBox(
+              width: 4,
+            ),
+            Expanded(
+              child: Text(
+                sportName,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        items: snapshot.data!['sports_not_configured']
+            .map<DropdownMenuItem<String>>((item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      children: [
+                        WidgetSpan(
+                          child: Icon(
+                            Icons.star,
+                            size: 18,
+                            color: kPrimaryColor,
+                          ),
+                        ),
+                        TextSpan(
+                            text: item as String,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: kPrimaryColor,
+                              fontWeight: FontWeight.bold,
+                            )),
+                      ],
+                    ),
+                  ),
+                ))
+            .toList(),
+        onChanged: (value) {
+          setState(() {
+            sportName = value.toString();
+          });
+        },
+        icon: const Icon(Icons.arrow_downward_sharp),
+        iconSize: 21,
+        iconEnabledColor: Colors.black,
+        buttonHeight: 50,
+        buttonWidth: 180,
+        buttonPadding: const EdgeInsets.only(left: 14, right: 14),
+        buttonDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: Colors.black26,
+          ),
+          color: Colors.white,
+        ).copyWith(
+          boxShadow: kElevationToShadow[2],
+        ),
+        itemHeight: 40,
+        itemPadding: const EdgeInsets.only(left: 14, right: 14),
+        dropdownMaxHeight: 200,
+        dropdownPadding: null,
+        scrollbarRadius: const Radius.circular(40),
+        scrollbarThickness: 6,
+        scrollbarAlwaysShow: true,
+      ),
+    );
+  }
+
+  @override
+  Widget buildFirstContainer(AsyncSnapshot snapshot) {
     return AnimatedContainer(
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center,
-          // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               padding: EdgeInsets.only(top: 35),
@@ -300,7 +302,7 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                   color: Colors.white,
                   child: Column(
                     children: [
-                      buildSportsDropDown(),
+                      buildSportsDropDown(snapshot),
                       SizedBox(
                         height: 10,
                       ),
@@ -381,12 +383,10 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
   }
 
   int getIntFromDifficulty(String dif) {
-    // print("WTF $dif");
     switch (dif) {
       case 'Easy':
         return 1;
       case 'Medium':
-        // print("hello?");
         return 2;
       case 'Hard':
         return 3;
@@ -396,91 +396,109 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
   }
 
   @override
-  Widget buildSecondContainer() {
-    // if (_diffValuez.length > 1) {
-    //   for (int i = 0; i < _diffValuez.length; i++) {
-    //     print("LIST: ${_diffValuez[i]}");
-    //   }
-    // }
+  Widget buildSecondContainer(AsyncSnapshot snapshot) {
     print("OKEH ${_diffValuez.length}");
-    return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(widget.user.uid)
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          // Safety check to ensure that snapshot contains data
-          // without this safety check, StreamBuilder dirty state warnings will be thrown
-          if (!snapshot.hasData)
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          return Center(
-              child: Column(
-            children: [
-              AnimatedContainer(
-                child: ListView.builder(
-                  itemCount: snapshot.data!["sports_configured"].length,
-                  itemBuilder: (context, index) {
-                    // print(
-                    // _diffValuez.add(getIntFromDifficulty(snapshot
-                    //     .data!["sports_configured"][index].values.first));
-                    return ListTile(
-                        contentPadding: EdgeInsets.only(left: 5, right: 5),
-                        title: Row(
-                          children: [
-                            InkWell(
-                              child: Icon(Icons.delete),
-                              onTap: () => deleteSport(
-                                  widget.user.uid,
-                                  snapshot.data!["sports_configured"][index]
-                                      .values.last,
-                                  index),
-                            ),
-                            Text(
+    return Center(
+      child: AnimatedContainer(
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.only(top: 10),
+              height: 30,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Sport',
+                      style: TextStyle(color: kPrimaryColor, fontSize: 14)),
+                  SizedBox(
+                    width: 120,
+                  ),
+                  Text('Difficulty',
+                      style: TextStyle(color: kPrimaryColor, fontSize: 14)),
+                ],
+              ),
+            ),
+            Container(
+              height: 170,
+              padding: EdgeInsets.only(top: 5, bottom: 10, left: 8, right: 8),
+              child: ListView.builder(
+                itemCount: snapshot.data!["sports_configured"].length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    contentPadding: EdgeInsets.only(left: 5, right: 5),
+                    title: Row(
+                      children: [
+                        InkWell(
+                          child: Icon(Icons.delete),
+                          onTap: () => deleteSport(
+                              widget.user.uid,
                               snapshot.data!["sports_configured"][index].values
                                   .last,
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                              index),
                         ),
-                        trailing: SizedBox(
-                          width: 144,
-                          height: 20,
-                          child: Row(
-                            children: [
-                              buildDiffRadioText(1, index),
-                              buildDiffRadioText(2, index),
-                              buildDiffRadioText(3, index),
-                            ],
+                        Text(
+                          snapshot
+                              .data!["sports_configured"][index].values.last,
+                          style: TextStyle(
+                            color: Colors.grey,
                           ),
                         ),
-                        onTap: () => print("ListTile"));
+                      ],
+                    ),
+                    trailing: SizedBox(
+                      width: 144,
+                      height: 20,
+                      child: Row(
+                        children: [
+                          buildDiffRadioText(1, index),
+                          buildDiffRadioText(2, index),
+                          buildDiffRadioText(3, index),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(bottom: 5),
+              height: 48,
+              child: Container(
+                width: 55,
+                height: 55,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.green),
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.white),
+                child: IconButton(
+                  icon: Icon(Icons.save, color: Colors.green),
+                  onPressed: () {
+                    saveSports();
                   },
                 ),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.green.withOpacity(0.3),
-                          blurRadius: 15,
-                          spreadRadius: 5),
-                    ]),
-                duration: Duration(seconds: 0),
-                // color: Colors.red,
-                height: _isSecondContainerVisible
-                    ? MediaQuery.of(context).size.height * 0.3
-                    : 0.0,
-                width: _isSecondContainerVisible
-                    ? MediaQuery.of(context).size.width * 0.7
-                    : 0.0,
               ),
-            ],
-          ));
-        });
+            ),
+          ],
+        ),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.green.withOpacity(0.3),
+                  blurRadius: 15,
+                  spreadRadius: 5),
+            ]),
+        duration: Duration(seconds: 0),
+        // color: Colors.red,
+        height: _isSecondContainerVisible
+            ? MediaQuery.of(context).size.height * 0.3
+            : 0.0,
+        width: _isSecondContainerVisible
+            ? MediaQuery.of(context).size.width * 0.8
+            : 0.0,
+      ),
+    );
   }
 
   Widget buildDifficultyRadioText(String photo, int index, String diff) {
@@ -494,8 +512,8 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
               overlayColor: MaterialStateProperty.resolveWith<Color?>(
                 (Set<MaterialState> states) {
                   if (states.contains(MaterialState.selected))
-                    return Colors.redAccent; //<-- SEE HERE
-                  return null; // Defer to the widget's default.
+                    return Colors.redAccent;
+                  return null;
                 },
               ),
             ),
@@ -534,37 +552,11 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
         Text(diff,
             style: TextStyle(
               color: _diffSelected[index - 1] == true
-                  ? Colors.white
+                  ? Colors.purple
                   : kPrimaryColor,
             )),
       ],
     );
-  }
-
-  String getDifFromValue(int v) {
-    switch (v) {
-      case 1:
-        return 'Easy';
-      case 2:
-        return 'Medium';
-      case 3:
-        return 'Hard';
-      default:
-        return 'all';
-    }
-  }
-
-  String getDayFromValue(int v) {
-    switch (v) {
-      case 1:
-        return 'Morning';
-      case 2:
-        return 'Afternoon';
-      case 3:
-        return 'Night';
-      default:
-        return 'all';
-    }
   }
 
   Widget buildDiffRadioText(int index, int index2) {

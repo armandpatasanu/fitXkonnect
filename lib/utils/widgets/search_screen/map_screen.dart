@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -67,12 +68,58 @@ class _MapScreenState extends State<MapScreen> {
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
+  LatLng initPosition =
+      LatLng(0, 0); //initial Position cannot assign null values
+  LatLng currentLatLng = LatLng(
+      0.0, 0.0); //initial currentPosition values cannot assign null values
+  LocationPermission permission =
+      LocationPermission.denied; //initial permission status
+  Completer<GoogleMapController> _controller = Completer();
 
   @override
   void initState() {
-    _applicationBloc = Provider.of<AppBloc>(context, listen: false);
+    // _applicationBloc = Provider.of<AppBloc>(context, listen: false);
     setSourceAndDestinationMarkerIcons();
     super.initState();
+    getCurrentLocation();
+    checkPermission();
+  }
+
+  void checkPermission() async {
+    permission = await Geolocator.checkPermission();
+  }
+
+  // get current location
+  void getCurrentLocation() async {
+    await Geolocator.getCurrentPosition().then((currLocation) {
+      setState(() {
+        currentLatLng =
+            new LatLng(currLocation.latitude, currLocation.longitude);
+      });
+    });
+  }
+
+  void _currentLocation() async {
+    final GoogleMapController controller = await _controller.future;
+    getCurrentLocation();
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(
+        bearing: 0,
+        target: currentLatLng,
+        zoom: 18.0,
+      ),
+    ));
+  }
+
+  //Check permission status and currentPosition before render the map
+  bool checkReady(LatLng? x, LocationPermission? y) {
+    if (x == initPosition ||
+        y == LocationPermission.denied ||
+        y == LocationPermission.deniedForever) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @override
@@ -83,7 +130,7 @@ class _MapScreenState extends State<MapScreen> {
 
   void setSourceAndDestinationMarkerIcons() async {
     sourceIcon =
-        await getBytesFromAsset('assets/images/map_screen/pin.png', 300);
+        await getBytesFromAsset('assets/images/map_screen/pin.png', 180);
   }
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
@@ -119,7 +166,7 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {});
   }
 
-  _getPolyline(Position myPos) async {
+  _getPolyline(LatLng myPos) async {
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         'AIzaSyAqe-WSpShain2e78IdFL5FVvfv0oFfp7o',
         PointLatLng(myPos.latitude, myPos.longitude),
@@ -137,16 +184,12 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final applicationBloc = Provider.of<AppBloc>(context);
+    // final applicationBloc = Provider.of<AppBloc>(context);
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      // ),
       bottomNavigationBar: NaviBar(index: 1),
       body: Container(
-        padding: EdgeInsets.only(top: 24),
-        child: (applicationBloc.currentLocation == null)
+        padding: EdgeInsets.only(top: 30),
+        child: checkReady(currentLatLng, permission)
             ? Stack(children: [
                 Container(
                   decoration: new BoxDecoration(
@@ -164,7 +207,18 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                Center(child: CircularProgressIndicator(color: Colors.red)),
+                Center(
+                  child: SpinKitCircle(
+                    size: 50,
+                    itemBuilder: (context, index) {
+                      final colors = [Colors.white, Colors.purple];
+                      final color = colors[index % colors.length];
+                      return DecoratedBox(
+                        decoration: BoxDecoration(color: color),
+                      );
+                    },
+                  ),
+                ),
               ])
             : Stack(
                 children: [
@@ -179,9 +233,9 @@ class _MapScreenState extends State<MapScreen> {
                     markers: _markers,
                     mapType: MapType.normal,
                     initialCameraPosition: CameraPosition(
-                      target: LatLng(applicationBloc.currentLocation!.latitude,
-                          applicationBloc.currentLocation!.longitude),
-                      zoom: 14,
+                      target: LatLng(
+                          currentLatLng.latitude, currentLatLng.longitude),
+                      zoom: 10,
                     ),
                     onTap: (LatLng loc) {
                       setState(() {
@@ -189,242 +243,258 @@ class _MapScreenState extends State<MapScreen> {
                       });
                     },
                     onMapCreated: (GoogleMapController controller) {
+                      print("AJUNG AICI?");
                       setState(() {
-                        startQuery(applicationBloc.currentLocation!);
+                        startQuery(currentLatLng);
                       });
                       widget.loc_maps.length == 1
-                          ? _getPolyline(applicationBloc.currentLocation!)
+                          ? _getPolyline(currentLatLng)
                           : null;
                       _mapController = controller;
                       changeMapMode();
                     },
                   ),
-                  // Container(
-                  //   color: Colors.white,
-                  //   child: TextButton.icon(
-                  //     //onPressed: handleMarkers,
-                  //     icon: Icon(Icons.sports_tennis),
-                  //     label: Text('Only this'),
-                  //   ),
-                  // ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        margin: EdgeInsets.only(top: 13, left: 15),
-                        height: 40,
-                        width: 210,
-                        decoration: BoxDecoration(
-                            // gradient: LinearGradient(
-                            //   colors: [
-                            //     Colors.white,
-                            //     Color.fromRGBO(255, 188, 143, 1),
-                            //   ],
-                            //   begin: Alignment.centerLeft,
-                            //   end: Alignment.centerRight,
-                            // ),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                            border: Border.all(color: Colors.grey.shade300),
-                            color: Colors.white.withOpacity(0.85),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                spreadRadius: 2,
-                                blurRadius: 7,
-                                offset: Offset(0, 1),
-                              )
-                            ]),
-                        child: Container(
-                          height: 30,
-                          width: 50,
-                          child: Row(
-                            children: [
-                              Icon(Icons.search, color: kPrimaryLightColor),
-                              Flexible(
-                                child: TextFormField(
+                  Container(
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(
+                            left: 5,
+                            right: 5,
+                          ),
+                          margin: EdgeInsets.only(top: 13, left: 15),
+                          height: 40,
+                          width: 210,
+                          decoration: BoxDecoration(
+                              // gradient: LinearGradient(
+                              //   colors: [
+                              //     Colors.white,
+                              //     Color.fromRGBO(255, 188, 143, 1),
+                              //   ],
+                              //   begin: Alignment.centerLeft,
+                              //   end: Alignment.centerRight,
+                              // ),
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(10.0),
+                              ),
+                              border: Border.all(color: Colors.grey.shade300),
+                              color: Colors.white.withOpacity(0.85),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  spreadRadius: 2,
+                                  blurRadius: 7,
+                                  offset: Offset(0, 1),
+                                )
+                              ]),
+                          child: Container(
+                            height: 30,
+                            width: 50,
+                            child: Row(
+                              children: [
+                                Icon(Icons.search, color: Colors.purple),
+                                Flexible(
+                                  child: TextFormField(
+                                    onTap: () {
+                                      FocusScope.of(context)
+                                          .requestFocus(new FocusNode());
+                                      Navigator.of(context).pushReplacement(
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation1,
+                                                  animation2) =>
+                                              FilterLocationScreen(
+                                            map_loc: widget.loc_maps,
+                                            sports: _sportsToPass,
+                                          ),
+                                          transitionDuration: Duration(),
+                                        ),
+                                      );
+                                    },
+                                    controller: _locationController,
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.black),
+                                    cursorColor: kPrimaryColor,
+                                    decoration: InputDecoration(
+                                        hintText: 'Search in Timișoara',
+                                        hintStyle: const TextStyle(
+                                          fontFamily: "Netflix",
+                                          fontSize: 15,
+                                          letterSpacing: 0.0,
+                                          color: Colors.grey,
+                                        ),
+                                        border: InputBorder.none),
+                                  ),
+                                ),
+                                InkWell(
+                                  child: Icon(Icons.filter_list,
+                                      color: Colors.purple, size: 25),
                                   onTap: () {
-                                    FocusScope.of(context)
-                                        .requestFocus(new FocusNode());
                                     Navigator.of(context).pushReplacement(
                                       PageRouteBuilder(
-                                        pageBuilder:
-                                            (context, animation1, animation2) =>
-                                                FilterLocationScreen(
-                                          map_loc: widget.loc_maps,
-                                          sports: _sportsToPass,
-                                        ),
+                                        pageBuilder: (context, animation1,
+                                                animation2) =>
+                                            FutureBuilder<
+                                                    List<
+                                                        Map<LocationModel,
+                                                            List<String>>>>(
+                                                future: LocationServices()
+                                                    .getMapOfLocationsBasedOfASport(
+                                                  sportName == ""
+                                                      ? "LIST"
+                                                      : sportName,
+                                                ),
+                                                builder: (BuildContext context,
+                                                    AsyncSnapshot<
+                                                            List<
+                                                                Map<
+                                                                    LocationModel,
+                                                                    List<
+                                                                        String>>>>
+                                                        snapshot) {
+                                                  if (snapshot.connectionState ==
+                                                          ConnectionState
+                                                              .waiting ||
+                                                      !snapshot.hasData) {
+                                                    return Center(
+                                                        child: SpinKitCircle(
+                                                      size: 80,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        final colors = [
+                                                          Colors.black,
+                                                          Colors.purple
+                                                        ];
+                                                        final color = colors[
+                                                            index %
+                                                                colors.length];
+                                                        return DecoratedBox(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                  color: color),
+                                                        );
+                                                      },
+                                                    ));
+                                                  }
+                                                  return MapScreen(
+                                                      loc_maps: snapshot.data!,
+                                                      filteredSport:
+                                                          sportName == ""
+                                                              ? "LIST"
+                                                              : sportName,
+                                                      listOfSports:
+                                                          widget.listOfSports);
+                                                }),
                                         transitionDuration: Duration(),
                                       ),
                                     );
                                   },
-                                  controller: _locationController,
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black),
-                                  cursorColor: kPrimaryColor,
-                                  decoration: InputDecoration(
-                                      hintText: 'Search in Timișoara',
-                                      hintStyle: const TextStyle(
-                                        fontFamily: "Netflix",
-                                        fontSize: 15,
-                                        letterSpacing: 0.0,
-                                        color: Colors.grey,
-                                      ),
-                                      border: InputBorder.none),
-                                ),
-                              ),
-                              InkWell(
-                                child: Icon(Icons.filter_list,
-                                    color: kPrimaryLightColor, size: 25),
-                                onTap: () {
-                                  Navigator.of(context).pushReplacement(
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation1,
-                                              animation2) =>
-                                          FutureBuilder<
-                                                  List<
-                                                      Map<LocationModel,
-                                                          List<String>>>>(
-                                              future: LocationServices()
-                                                  .getMapOfLocationsBasedOfASport(
-                                                sportName == ""
-                                                    ? "LIST"
-                                                    : sportName,
-                                              ),
-                                              builder: (BuildContext context,
-                                                  AsyncSnapshot<
-                                                          List<
-                                                              Map<
-                                                                  LocationModel,
-                                                                  List<
-                                                                      String>>>>
-                                                      snapshot) {
-                                                if (snapshot.connectionState ==
-                                                        ConnectionState
-                                                            .waiting ||
-                                                    !snapshot.hasData) {
-                                                  return Center(
-                                                      child:
-                                                          CircularProgressIndicator());
-                                                }
-                                                return MapScreen(
-                                                    loc_maps: snapshot.data!,
-                                                    filteredSport:
-                                                        sportName == ""
-                                                            ? "LIST"
-                                                            : sportName,
-                                                    listOfSports:
-                                                        widget.listOfSports);
-                                              }),
-                                      transitionDuration: Duration(),
-                                    ),
-                                  );
-                                },
-                              )
-                            ],
+                                )
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(top: 13, left: 10),
-                        height: 40,
-                        width: 100,
-                        decoration: BoxDecoration(
-                            // gradient: LinearGradient(
-                            //   colors: [
-                            //     Colors.white,
-                            //     Color.fromRGBO(255, 188, 143, 1),
-                            //   ],
-                            //   begin: Alignment.centerLeft,
-                            //   end: Alignment.centerRight,
-                            // ),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                            border: Border.all(color: Colors.grey.shade300),
-                            color: Colors.white.withOpacity(0.85),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                spreadRadius: 2,
-                                blurRadius: 7,
-                                offset: Offset(0, 1),
-                              )
-                            ]),
-                        child: Center(
-                          child: Container(
-                            child: PopupMenuButton<String>(
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(15.0))),
-                              offset: Offset(48, 32),
-                              itemBuilder: (context) {
-                                return widget.listOfSports.map((str) {
-                                  return PopupMenuItem(
-                                    value: str.name,
-                                    child: Row(
-                                      // mainAxisAlignment:
-                                      //     MainAxisAlignment.center,
-                                      children: [
-                                        convertSportToIcon(str.name,
-                                            widget.filteredSport, Colors.grey),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Text(
-                                          str.name,
-                                          style: TextStyle(
-                                            color: Colors.grey,
+                        Container(
+                          margin: EdgeInsets.only(top: 13, left: 10),
+                          height: 40,
+                          width: 100,
+                          decoration: BoxDecoration(
+                              // gradient: LinearGradient(
+                              //   colors: [
+                              //     Colors.white,
+                              //     Color.fromRGBO(255, 188, 143, 1),
+                              //   ],
+                              //   begin: Alignment.centerLeft,
+                              //   end: Alignment.centerRight,
+                              // ),
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(10.0),
+                              ),
+                              border: Border.all(color: Colors.grey.shade300),
+                              color: Colors.white.withOpacity(0.85),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  spreadRadius: 2,
+                                  blurRadius: 7,
+                                  offset: Offset(0, 1),
+                                )
+                              ]),
+                          child: Center(
+                            child: Container(
+                              child: PopupMenuButton<String>(
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(15.0))),
+                                offset: Offset(48, 32),
+                                itemBuilder: (context) {
+                                  return widget.listOfSports.map((str) {
+                                    return PopupMenuItem(
+                                      value: str.name,
+                                      child: Row(
+                                        // mainAxisAlignment:
+                                        //     MainAxisAlignment.center,
+                                        children: [
+                                          convertSportToIcon(
+                                              str.name,
+                                              widget.filteredSport,
+                                              Colors.grey),
+                                          SizedBox(
+                                            width: 5,
                                           ),
-                                        )
-                                      ],
+                                          Text(
+                                            str.name,
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    );
+                                  }).toList();
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.format_list_bulleted,
+                                      size: 25,
+                                      color: Colors.grey,
                                     ),
-                                  );
-                                }).toList();
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.format_list_bulleted,
-                                    size: 25,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  convertSportToIcon(
-                                    // sportName != widget.filteredSport ? sportName : widget.filteredSport,
-                                    widget.filteredSport,
-                                    widget.filteredSport,
-                                    Colors.grey,
-                                  ),
-                                  // Text(
-                                  //   widget.filteredSport,
-                                  //   textAlign: TextAlign.left,
-                                  //   style: TextStyle(
-                                  //     fontFamily: "Netflix",
-                                  //     // fontWeight: FontWeight.w600,
-                                  //     fontWeight: ui.FontWeight.bold,
-                                  //     fontSize: 15,
-                                  //     letterSpacing: 0.0,
-                                  //     color: Colors.black,
-                                  //   ),
-                                  // ),
-                                ],
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    convertSportToIcon(
+                                      // sportName != widget.filteredSport ? sportName : widget.filteredSport,
+                                      widget.filteredSport,
+                                      widget.filteredSport,
+                                      Colors.grey,
+                                    ),
+                                    // Text(
+                                    //   widget.filteredSport,
+                                    //   textAlign: TextAlign.left,
+                                    //   style: TextStyle(
+                                    //     fontFamily: "Netflix",
+                                    //     // fontWeight: FontWeight.w600,
+                                    //     fontWeight: ui.FontWeight.bold,
+                                    //     fontSize: 15,
+                                    //     letterSpacing: 0.0,
+                                    //     color: Colors.black,
+                                    //   ),
+                                    // ),
+                                  ],
+                                ),
+                                onSelected: (v) {
+                                  setState(() {
+                                    sportName = v;
+                                  });
+                                },
                               ),
-                              onSelected: (v) {
-                                setState(() {
-                                  sportName = v;
-                                });
-                              },
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   AnimatedPositioned(
                     duration: const Duration(milliseconds: 300),
@@ -442,13 +512,13 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  startQuery(Position myPos) async {
+  startQuery(LatLng myPos) async {
     _sportsToPass = await SportServices().getListOfSports();
     getMarkers(myPos, widget.loc_maps);
   }
 
   void getMarkers(
-      Position myPos, List<Map<LocationModel, List<String>>> documentList) {
+      LatLng myPos, List<Map<LocationModel, List<String>>> documentList) {
     documentList.forEach((Map<LocationModel, List<String>> location) {
       _locationsToPass.add(location.keys.first);
       GeoPoint geoPoint = location.keys.first.geopoint;

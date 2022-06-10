@@ -12,7 +12,7 @@ class UserModel {
   final List sports_configured;
   final List sports_not_configured;
   final List notifications;
-  final String token;
+  final String? token;
 
   const UserModel({
     required this.age,

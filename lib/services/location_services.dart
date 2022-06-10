@@ -10,15 +10,25 @@ class LocationServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String> getLocationSports(String s) async {
+    print("Let me try:");
     String result = "";
     LocationModel location = LocationModel.fromSnap(
         await _firestore.collection('locations').doc(s).get());
 
     List locationSports = location.sports;
+    if (locationSports.length == 0) {
+      result = "No sport are being played here at the moment!";
+    }
     for (int i = 0; i < locationSports.length; i++) {
-      SportModel sport = SportModel.fromSnap(
-          await _firestore.collection('sports').doc(locationSports[i]).get());
-      result = result + '${sport.name}, ';
+      SportModel sport = SportModel.fromSnap(await _firestore
+          .collection('sports')
+          .doc(locationSports[i]["sport"])
+          .get());
+      locationSports.forEach((element) {
+        if (element["sport"] == sport.sportId && element["matches"] > 0) {
+          result = result + '${sport.name}, ';
+        }
+      });
     }
 
     return result;
@@ -99,7 +109,7 @@ class LocationServices {
     List<String> sportz = [];
 
     String sportId = await SportServices().getSportIdBasedOfName(sport);
-
+    String sp = "";
     List<Map<LocationModel, List<String>>> my_locations = [];
 
     if (sport == "LIST") {
@@ -107,8 +117,8 @@ class LocationServices {
     } else {
       for (var loc in locations) {
         if (loc.sports.contains(sportId)) {
-          for (var sp in loc.sports) {
-            sp = await SportServices().getSportNameBasedOfId(sp);
+          for (var sport in loc.sports) {
+            sp = await SportServices().getSportNameBasedOfId(sport.keys.first);
             sportz.add(sp);
           }
           Map<LocationModel, List<String>> map = {
@@ -129,11 +139,11 @@ class LocationServices {
         .get();
     List<DocumentSnapshot> locationList = ref.docs;
     List<LocationModel> locations = [];
-
+    print("Not blocat!");
     locationList.forEach((DocumentSnapshot snap) {
       locations.add(LocationModel.fromSnap(snap));
     });
-
+    print("AJUNGH");
     return locations;
   }
 
@@ -145,8 +155,11 @@ class LocationServices {
     String sp = "";
 
     for (var loc in locations) {
-      for (var sp in loc.sports) {
-        sp = await SportServices().getSportNameBasedOfId(sp);
+      print("ENTERING WITH: Location ${loc.name}");
+      for (var sport in loc.sports) {
+        // print("ENTERING - id is : ${sport["sport"]}");
+        sp = await SportServices().getSportNameBasedOfId(sport["sport"]);
+        // print("ENTERING - name is $sp");
         sports.add(sp);
       }
 
@@ -156,6 +169,7 @@ class LocationServices {
       myWanted.add(map);
       sports = [];
     }
+    print("ENTERING: ${myWanted.length}");
     return myWanted;
   }
 

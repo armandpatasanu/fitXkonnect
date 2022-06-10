@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/screens/signup_screen.dart';
@@ -40,9 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void logInUser() async {
-    setState(() {
-      _isLoading = true;
-    });
+    // setState(() {
+    //   _isLoading = true;
+    // });
 
     String result = await AuthMethods().logInUser(
       email: _emailController.text.trim(),
@@ -57,9 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomePage()));
     }
-    setState(() {
-      _isLoading = false;
-    });
+    // setState(() {
+    //   _isLoading = false;
+    // });
   }
 
   @override
