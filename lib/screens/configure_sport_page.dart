@@ -333,7 +333,7 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                   )),
             ),
             SizedBox(
-              height: 25,
+              height: 10,
             ),
             Container(
               alignment: Alignment.center,
@@ -403,7 +403,7 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.only(top: 10),
+              padding: EdgeInsets.only(top: 0),
               height: 30,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -419,8 +419,8 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
               ),
             ),
             Container(
-              height: 170,
-              padding: EdgeInsets.only(top: 5, bottom: 10, left: 8, right: 8),
+              height: 175,
+              padding: EdgeInsets.only(top: 0, bottom: 0, left: 8, right: 8),
               child: ListView.builder(
                 itemCount: snapshot.data!["sports_configured"].length,
                 itemBuilder: (context, index) {
@@ -460,6 +460,9 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                 },
               ),
             ),
+            SizedBox(
+              height: 5,
+            ),
             Container(
               padding: EdgeInsets.only(bottom: 5),
               height: 48,
@@ -492,7 +495,7 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
         duration: Duration(seconds: 0),
         // color: Colors.red,
         height: _isSecondContainerVisible
-            ? MediaQuery.of(context).size.height * 0.3
+            ? MediaQuery.of(context).size.height * 0.36
             : 0.0,
         width: _isSecondContainerVisible
             ? MediaQuery.of(context).size.width * 0.8

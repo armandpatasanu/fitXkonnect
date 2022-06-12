@@ -82,21 +82,29 @@ class _MapScreenState extends State<MapScreen> {
     setSourceAndDestinationMarkerIcons();
     super.initState();
     getCurrentLocation();
-    checkPermission();
   }
 
-  void checkPermission() async {
-    permission = await Geolocator.checkPermission();
-  }
+  // void checkPermission() async {
+  //   permission = await Geolocator.checkPermission();
+  // }
 
   // get current location
   void getCurrentLocation() async {
-    await Geolocator.getCurrentPosition().then((currLocation) {
-      setState(() {
-        currentLatLng =
-            new LatLng(currLocation.latitude, currLocation.longitude);
+    LocationPermission permission;
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error('Location Not Available');
+      }
+    } else {
+      await Geolocator.getCurrentPosition().then((currLocation) {
+        setState(() {
+          currentLatLng =
+              new LatLng(currLocation.latitude, currLocation.longitude);
+        });
       });
-    });
+    }
   }
 
   void _currentLocation() async {
@@ -113,9 +121,7 @@ class _MapScreenState extends State<MapScreen> {
 
   //Check permission status and currentPosition before render the map
   bool checkReady(LatLng? x, LocationPermission? y) {
-    if (x == initPosition ||
-        y == LocationPermission.denied ||
-        y == LocationPermission.deniedForever) {
+    if (x == initPosition) {
       return true;
     } else {
       return false;
@@ -185,6 +191,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     // final applicationBloc = Provider.of<AppBloc>(context);
+    print("LMAO ${currentLatLng.latitude},  ${currentLatLng.longitude}");
     return Scaffold(
       bottomNavigationBar: NaviBar(index: 1),
       body: Container(
@@ -422,6 +429,7 @@ class _MapScreenState extends State<MapScreen> {
                           child: Center(
                             child: Container(
                               child: PopupMenuButton<String>(
+                                initialValue: widget.filteredSport,
                                 color: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(
@@ -465,23 +473,10 @@ class _MapScreenState extends State<MapScreen> {
                                       width: 5,
                                     ),
                                     convertSportToIcon(
-                                      // sportName != widget.filteredSport ? sportName : widget.filteredSport,
                                       widget.filteredSport,
-                                      widget.filteredSport,
+                                      sportName == "" ? 'LIST' : sportName,
                                       Colors.grey,
                                     ),
-                                    // Text(
-                                    //   widget.filteredSport,
-                                    //   textAlign: TextAlign.left,
-                                    //   style: TextStyle(
-                                    //     fontFamily: "Netflix",
-                                    //     // fontWeight: FontWeight.w600,
-                                    //     fontWeight: ui.FontWeight.bold,
-                                    //     fontSize: 15,
-                                    //     letterSpacing: 0.0,
-                                    //     color: Colors.black,
-                                    //   ),
-                                    // ),
                                   ],
                                 ),
                                 onSelected: (v) {

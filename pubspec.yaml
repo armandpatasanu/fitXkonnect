@@ -28,6 +28,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   animations: ^2.0.2
+  awesome_notifications: ^0.6.21
   bottom_navy_bar: ^6.0.0
   cloud_firestore: ^3.1.13
   country_picker: ^2.0.14
@@ -61,6 +62,7 @@ dependencies:
   material_design_icons_flutter: ^5.0.6595
   multi_stream_builder: ^0.0.1
   network_image_to_byte: ^0.0.1
+  open_file: ^3.2.1
   provider: ^6.0.1
   simple_animations: ^4.0.1
   toggle_switch: ^2.0.1
@@ -82,6 +84,7 @@ flutter_icons:
 flutter:
   assets:
     - assets/images/
+    - assets/images/notif_screen/
     - assets/images/period_images/
     - assets/images/sport_icons/
     - assets/images/time_icons/

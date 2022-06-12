@@ -1,30 +1,35 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitxkonnect/models/notification_model.dart';
+import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/services/user_services.dart';
+import 'package:flutter/material.dart';
 
-class NotificationServices {
-  static final _notifications = FlutterLocalNotificationsPlugin();
+class NotifSerivces {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  static Future _notificationDetails() async {
-    return NotificationDetails(
-      android: AndroidNotificationDetails(
-        'channel id',
-        'channel name',
-        importance: Importance.max,
-      ),
-      iOS: IOSNotificationDetails(),
-    );
+  Future<void> handleNotif(String? notifId, String? title, String? text,
+      String? currentUser, int type) async {
+    print("oke ajung?");
+    Notif notif = Notif(
+        notifId: notifId!,
+        notifTitle: title!,
+        notifText: text!,
+        receiver: currentUser!,
+        type: type);
+    _firestore.collection('notifications').doc(notifId).set(
+          notif.toJson(),
+        );
+
+    UserModel u = await UserServices().getSpecificUser(currentUser);
+    List<String> notifications = [];
+
+    notifications.add(notifId);
+
+    _firestore
+        .collection('users')
+        .doc(currentUser)
+        .update({'notifications': FieldValue.arrayUnion(notifications)});
   }
-
-  static Future showNotification({
-    int id = 2,
-    String? title,
-    String? body,
-    String? payload,
-  }) async =>
-      _notifications.show(
-        id,
-        title,
-        body,
-        await _notificationDetails(),
-        payload: payload,
-      );
 }

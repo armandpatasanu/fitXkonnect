@@ -174,7 +174,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                             PageRouteBuilder(
                               pageBuilder: (context, animation1, animation2) =>
                                   MapScreen(
-                                loc_maps: widget.map_loc,
+                                loc_maps: _locations,
                                 filteredSport: "LIST",
                                 listOfSports: widget.sports,
                               ),
@@ -223,102 +223,114 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                 // color: Colors.amber,
                 width: MediaQuery.of(context).size.width,
                 child: TabBarView(controller: _tabController, children: [
-                  ListView.builder(
-                    itemCount: _locations.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                          trailing: SizedBox(
-                            width: 90,
-                            height: 25,
-                            child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                shrinkWrap: true,
-                                itemCount:
-                                    _locations[index].values.first.length,
-                                itemBuilder: (context, indecs) {
-                                  return convertSportToIcon(
-                                      _locations[index].values.first[indecs],
-                                      '',
-                                      Colors.grey);
-                                }),
-                          ),
-                          leading: Column(
-                            children: [
-                              const Icon(
-                                Icons.social_distance,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                _locations[index].keys.first.distance + " km",
-                                style: TextStyle(
+                  RefreshIndicator(
+                    strokeWidth: 3,
+                    displacement: 0,
+                    color: Colors.black,
+                    backgroundColor: Colors.grey.withOpacity(0.2),
+                    onRefresh: () async {
+                      _locations = await LocationServices().getMapOfLocations();
+                      setState(() {});
+                      return Future.value(false);
+                    },
+                    child: ListView.builder(
+                      itemCount: _locations.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                            trailing: SizedBox(
+                              width: 90,
+                              height: 25,
+                              child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  itemCount:
+                                      _locations[index].values.first.length,
+                                  itemBuilder: (context, indecs) {
+                                    return convertSportToIcon(
+                                        _locations[index].values.first[indecs],
+                                        '',
+                                        Colors.grey);
+                                  }),
+                            ),
+                            leading: Column(
+                              children: [
+                                const Icon(
+                                  Icons.social_distance,
                                   color: Colors.grey,
                                 ),
-                              ),
-                            ],
-                          ),
-                          title: Text(
-                            _locations[index].keys.first.name,
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                          subtitle: Text(
-                            _locations[index].keys.first.contact[0],
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
-                          ),
-                          onTap: () => {
-                                Navigator.of(context).pushReplacement(
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation1,
-                                            animation2) =>
-                                        FutureBuilder(
-                                            future: Future.wait([
-                                              FirebaseStorage.instance
-                                                  .ref()
-                                                  .child(
-                                                      "locationPics/backgroundPics/${_locations[index].keys.first.locationId}.jpg")
-                                                  .getDownloadURL(),
-                                              FirebaseStorage.instance
-                                                  .ref()
-                                                  .child(
-                                                      "locationPics/profilePics/${_locations[index].keys.first.locationId}.jpg")
-                                                  .getDownloadURL(),
-                                              LocationServices()
-                                                  .getCertainLocation(
-                                                      _locations[index]
-                                                          .keys
-                                                          .first
-                                                          .locationId),
-                                            ]),
-                                            builder: (BuildContext context,
-                                                AsyncSnapshot<List<dynamic>>
-                                                    snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.waiting) {
-                                                return const Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                );
-                                              }
-                                              return DetailPage(
-                                                  backIcon: true,
-                                                  bkg: snapshot.data![0],
-                                                  profile: snapshot.data![1],
-                                                  location: snapshot.data![2],
-                                                  map_loc: widget.map_loc,
-                                                  sports: widget.sports,
-                                                  locationId: _locations[index]
-                                                      .keys
-                                                      .first
-                                                      .locationId);
-                                            }),
-                                    transitionDuration: Duration(),
+                                Text(
+                                  _locations[index].keys.first.distance + " km",
+                                  style: TextStyle(
+                                    color: Colors.grey,
                                   ),
-                                )
-                              });
-                    },
+                                ),
+                              ],
+                            ),
+                            title: Text(
+                              _locations[index].keys.first.name,
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                            subtitle: Text(
+                              _locations[index].keys.first.contact[0],
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            onTap: () => {
+                                  Navigator.of(context).pushReplacement(
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation1,
+                                              animation2) =>
+                                          FutureBuilder(
+                                              future: Future.wait([
+                                                FirebaseStorage.instance
+                                                    .ref()
+                                                    .child(
+                                                        "locationPics/backgroundPics/${_locations[index].keys.first.locationId}.jpg")
+                                                    .getDownloadURL(),
+                                                FirebaseStorage.instance
+                                                    .ref()
+                                                    .child(
+                                                        "locationPics/profilePics/${_locations[index].keys.first.locationId}.jpg")
+                                                    .getDownloadURL(),
+                                                LocationServices()
+                                                    .getCertainLocation(
+                                                        _locations[index]
+                                                            .keys
+                                                            .first
+                                                            .locationId),
+                                              ]),
+                                              builder: (BuildContext context,
+                                                  AsyncSnapshot<List<dynamic>>
+                                                      snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  );
+                                                }
+                                                return DetailPage(
+                                                    backIcon: true,
+                                                    bkg: snapshot.data![0],
+                                                    profile: snapshot.data![1],
+                                                    location: snapshot.data![2],
+                                                    map_loc: widget.map_loc,
+                                                    sports: widget.sports,
+                                                    locationId:
+                                                        _locations[index]
+                                                            .keys
+                                                            .first
+                                                            .locationId);
+                                              }),
+                                      transitionDuration: Duration(),
+                                    ),
+                                  )
+                                });
+                      },
+                    ),
                   ),
                   // Container(height: 600, child: EditPr()),
                   Container(

@@ -107,28 +107,39 @@ class LocationServices {
     List<LocationModel> locations =
         await LocationServices().getListOfLocations();
     List<String> sportz = [];
+    print("@@@@Am intrat cu $sport");
 
     String sportId = await SportServices().getSportIdBasedOfName(sport);
     String sp = "";
     List<Map<LocationModel, List<String>>> my_locations = [];
+    bool isFound = false;
 
     if (sport == "LIST") {
       my_locations = await getMapOfLocations();
     } else {
       for (var loc in locations) {
-        if (loc.sports.contains(sportId)) {
+        for (var map in loc.sports) {
+          if (map["sport"] == sportId && map["matches"] > 0) {
+            isFound = true;
+          }
+        }
+        if (isFound == true) {
           for (var sport in loc.sports) {
-            sp = await SportServices().getSportNameBasedOfId(sport.keys.first);
-            sportz.add(sp);
+            if (sport["matches"] > 0) {
+              sp = await SportServices().getSportNameBasedOfId(sport["sport"]);
+              sportz.add(sp);
+            }
           }
           Map<LocationModel, List<String>> map = {
             loc: sportz,
           };
           sportz = [];
           my_locations.add(map);
+          isFound = false;
         }
       }
     }
+    print("@@@@@Length is ${my_locations.length}");
     return my_locations;
   }
 
@@ -158,9 +169,11 @@ class LocationServices {
       print("ENTERING WITH: Location ${loc.name}");
       for (var sport in loc.sports) {
         // print("ENTERING - id is : ${sport["sport"]}");
-        sp = await SportServices().getSportNameBasedOfId(sport["sport"]);
+        if (sport["matches"] > 0) {
+          sp = await SportServices().getSportNameBasedOfId(sport["sport"]);
+          sports.add(sp);
+        }
         // print("ENTERING - name is $sp");
-        sports.add(sp);
       }
 
       Map<LocationModel, List<String>> map = {

@@ -72,7 +72,7 @@ class _FilterPageState extends State<FilterPage> {
             ],
           ),
           Positioned(
-            top: 620,
+            top: MediaQuery.of(context).size.height * 0.70,
             left: 80,
             child: Row(
               children: [

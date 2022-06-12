@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,13 +40,40 @@ class _ProfilePageState extends State<ProfilePage> {
   late double pinPillPosition = PIN_INVISIBLE_POSITION;
   bool isEditVisible = false;
   Color? _sportsColor;
+  @override
+  void initState() {
+    print("WTF?");
+    super.initState();
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      print("APELEZ?");
+      if (!isAllowed) {
+        print("APALEZE2?");
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: const Text("Permiteți notificări"),
+                  content:
+                      const Text("Aplicația vrea să vă trimită notificări"),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Nu")),
+                    TextButton(
+                        onPressed: () {
+                          AwesomeNotifications()
+                              .requestPermissionToSendNotifications()
+                              .then((_) => Navigator.pop(context));
+                        },
+                        child: const Text("OK"))
+                  ],
+                ));
+      }
+    });
+  }
 
   Widget build(BuildContext context) {
-    @override
-    void initState() {
-      super.initState();
-    }
-
     return FutureBuilder(
         future: Future.wait([
           UserServices()
@@ -81,6 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
           return Stack(children: [
             Scaffold(
               appBar: AppBar(
+                automaticallyImplyLeading: false,
                 flexibleSpace: Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(

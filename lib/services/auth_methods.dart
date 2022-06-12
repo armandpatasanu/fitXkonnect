@@ -30,7 +30,6 @@ class AuthMethods {
     required String? country,
     required List matches,
     required List sports,
-    required List notifications,
     required String? token,
   }) async {
     String result = 'success';
@@ -73,7 +72,7 @@ class AuthMethods {
           sports: sports,
           sports_configured: [],
           sports_not_configured: notConfiguredSports,
-          notifications: notifications,
+          notifications: [],
           token: token,
         );
 

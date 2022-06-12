@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/models/dp_match_model.dart';
 import 'package:fitxkonnect/models/full_match_model.dart';
@@ -9,6 +10,7 @@ import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/services/user_services.dart';
+import 'package:fitxkonnect/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class MatchServices {
@@ -340,11 +342,25 @@ class MatchServices {
         'You will face ${u2.fullName} in a match of ${m.sport}',
         'Get ready! You have a new match!',
         u.token!);
-    // collection.doc(matchId) // <-- Doc ID where data should be updated.
-    //     .update({
-    //   'player2': player2Id,
-    //   'status': 'matched',
-    // });
+    collection.doc(matchId) // <-- Doc ID where data should be updated.
+        .update({
+      'player2': player2Id,
+      'status': 'matched',
+    });
+    int id = createUniqueId();
+    String timezone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
+    await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: 3,
+          channelKey: 'scheduled_channel',
+          title: 'SPORT',
+          body: "E timpul pentru medicamente!",
+          notificationLayout: NotificationLayout.Default,
+        ),
+        schedule: NotificationInterval(
+          interval: 10,
+          timeZone: timezone,
+        ));
   }
 
   Future<MatchModel> getCertainMatch(String matchId) async {

@@ -267,8 +267,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(color: Colors.purple, fontSize: 16)),
             ),
             Container(
-              // color: Colors.amber,
-              height: MediaQuery.of(context).size.height - 316,
+              height: MediaQuery.of(context).size.height - 350,
               padding: EdgeInsets.only(top: 20),
               child: FutureBuilder(
                   future: MatchServices().getActualHomePageMatches(
@@ -311,32 +310,43 @@ class _HomePageState extends State<HomePage> {
                         ]),
                       );
                     }
-                    return Container(
-                      child: Column(children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 10,
-                            child: RefreshIndicator(
-                              strokeWidth: 3,
-                              displacement: 0,
-                              color: Colors.black,
-                              backgroundColor: Colors.grey.withOpacity(0.2),
-                              onRefresh: () {
-                                setState(() {});
-                                return Future.value(false);
-                              },
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: snapshot.data!.length,
-                                  itemBuilder: (context, index) =>
-                                      SpecialMatchCard(
-                                          snap: snapshot.data![index],
-                                          callbackFunction: callback)),
+                    return snapshot.data!.length == 0
+                        ? Center(
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                  left: 55, right: 40, bottom: 100),
+                              width: MediaQuery.of(context).size.width,
+                              child: Image.asset('assets/images/empty_list.png',
+                                  fit: BoxFit.cover),
                             ),
-                          ),
-                        ),
-                      ]),
-                    );
+                          )
+                        : Container(
+                            child: Column(children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 10,
+                                  child: RefreshIndicator(
+                                    strokeWidth: 3,
+                                    displacement: 0,
+                                    color: Colors.black,
+                                    backgroundColor:
+                                        Colors.grey.withOpacity(0.2),
+                                    onRefresh: () {
+                                      setState(() {});
+                                      return Future.value(false);
+                                    },
+                                    child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: snapshot.data!.length,
+                                        itemBuilder: (context, index) =>
+                                            SpecialMatchCard(
+                                                snap: snapshot.data![index],
+                                                callbackFunction: callback)),
+                                  ),
+                                ),
+                              ),
+                            ]),
+                          );
                   }),
             ),
           ],

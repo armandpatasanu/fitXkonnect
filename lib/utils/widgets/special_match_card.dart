@@ -122,12 +122,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     child: IconButton(
                       icon: Icon(Icons.cancel),
                       onPressed: () async {
-                        // UserModel user = await UserServices().getSpecificUser(
-                        //     FirebaseAuth.instance.currentUser!.uid);
-                        //     print("WTF? ${user.token}");
-                        // UserServices()
-                        //     .sendPushMessage('Nu mere', 'Soto', user.token!);
-                        // await MatchServices().cancelMatch(widget.snap.matchId);
+                        await MatchServices().cancelMatch(widget.snap.matchId);
                         setState(() {});
                         widget.callbackFunction(widget.snap.locationName);
                       },
@@ -186,7 +181,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                       ),
                       Text(
                         widget.snap.p1Name + ', ' + widget.snap.p1Age,
-                        style: TextStyle(fontSize: 18, color: kPrimaryColor),
+                        style: TextStyle(fontSize: 15, color: kPrimaryColor),
                       ),
                       SizedBox(
                         height: 5,

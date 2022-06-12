@@ -162,6 +162,10 @@ String getDifFromValue(int v) {
   }
 }
 
+int createUniqueId() {
+  return DateTime.now().millisecondsSinceEpoch.remainder(10);
+}
+
 String getDayFromValue(int v) {
   switch (v) {
     case 1:

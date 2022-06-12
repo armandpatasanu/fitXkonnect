@@ -16,6 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'dart:ui' as ui;
 
+import '../utils/widgets/navi_bar.dart';
+
 class DetailPage extends StatefulWidget {
   final bool backIcon;
   final String bkg;
@@ -59,10 +61,24 @@ class _DetailPageState extends State<DetailPage> {
                         Navigator.of(context).pushReplacement(
                           PageRouteBuilder(
                             pageBuilder: (context, animation1, animation2) =>
-                                FilterLocationScreen(
-                              map_loc: widget.map_loc,
-                              sports: widget.sports,
-                            ),
+                                FutureBuilder(
+                                    future:
+                                        LocationServices().getMapOfLocations(),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Scaffold(
+                                          bottomNavigationBar: NaviBar(
+                                            index: 1,
+                                          ),
+                                        );
+                                      }
+                                      return FilterLocationScreen(
+                                        map_loc: snapshot.data!,
+                                        sports: widget.sports,
+                                      );
+                                    }),
                             transitionDuration: Duration(),
                           ),
                         );

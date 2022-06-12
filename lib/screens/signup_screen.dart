@@ -37,6 +37,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _age;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _hidePass = true;
 
   void selectImage() async {
     Uint8List im = await pickImage(ImageSource.gallery);
@@ -44,6 +45,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() {
       _image = im;
     });
+  }
+
+  @override
+  void initState() {
+    _hidePass = true;
   }
 
   void signUpUser() async {
@@ -62,7 +68,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       file: _image,
       matches: [],
       sports: [],
-      notifications: [],
       token: token,
     );
 
@@ -168,6 +173,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             RoundedPasswordField(
                               controller: _passwordController,
+                              passwordVisible: true,
                             ),
                             Padding(
                               padding:

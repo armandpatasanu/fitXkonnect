@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/services/auth_methods.dart';
@@ -6,6 +7,7 @@ import 'package:fitxkonnect/utils/user_greeting/page_title_bar.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/user_greeting/under_part.dart';
 import 'package:fitxkonnect/utils/utils.dart';
+import 'package:fitxkonnect/utils/widgets/notifications_page.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_button.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_icon.dart';
 import 'package:fitxkonnect/utils/widgets/rounded_input_field.dart';
@@ -26,11 +28,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool isResetPressed = false;
+  bool _hidePass = false;
 
   void resetPassword() async {
     String result = await AuthMethods().resetPassword(
       email: _emailController.text.trim(),
     );
+
+    @override
+    void initState() {
+      _hidePass = true;
+    }
 
     if (result != 'success') {
       showSnackBar(result, context);
@@ -213,11 +221,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                     RoundedPasswordField(
                                       controller: _passwordController,
+                                      passwordVisible: true,
                                     ),
                                     RoundedButton(
                                       isLoading: _isLoading,
                                       text: 'LOGIN',
-                                      press: logInUser,
+                                      press: () {
+                                        logInUser();
+                                      },
                                     ),
                                     const SizedBox(
                                       height: 10,
