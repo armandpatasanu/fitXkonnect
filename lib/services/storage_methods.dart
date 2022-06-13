@@ -24,6 +24,10 @@ class StorageMethods {
     return downloadUrl;
   }
 
+  Future<String> getDownloadUrl(String userId) {
+    return _storage.ref().child('profilePics').child(userId).getDownloadURL();
+  }
+
   LocationModel getEmptyLocation() {
     return LocationModel(
       schedule: "",

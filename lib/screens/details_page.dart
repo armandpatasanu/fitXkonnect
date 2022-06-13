@@ -20,6 +20,7 @@ import '../utils/widgets/navi_bar.dart';
 
 class DetailPage extends StatefulWidget {
   final bool backIcon;
+  final String password;
   final String bkg;
   final String profile;
   final LocationModel location;
@@ -35,6 +36,7 @@ class DetailPage extends StatefulWidget {
     required this.profile,
     required this.location,
     required this.backIcon,
+    required this.password,
   }) : super(key: key);
 
   @override
@@ -70,11 +72,13 @@ class _DetailPageState extends State<DetailPage> {
                                           ConnectionState.waiting) {
                                         return Scaffold(
                                           bottomNavigationBar: NaviBar(
+                                            password: widget.password,
                                             index: 1,
                                           ),
                                         );
                                       }
                                       return FilterLocationScreen(
+                                        password: widget.password,
                                         map_loc: snapshot.data!,
                                         sports: widget.sports,
                                       );

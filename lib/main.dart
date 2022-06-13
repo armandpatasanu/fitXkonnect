@@ -5,12 +5,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fitxkonnect/blocs/app_bloc.dart';
+import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/screens/home_page.dart';
 import 'package:fitxkonnect/screens/login_screen.dart';
+import 'package:fitxkonnect/services/auth_methods.dart';
 import 'package:fitxkonnect/services/local_push_notif.dart';
+import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/notif_services.dart';
+import 'package:fitxkonnect/services/storage_methods.dart';
+import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/colors.dart';
+import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/notifications_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,13 +30,19 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
+  UserModel sender =
+      await UserServices().getSpecificUser(message.data['sender']);
   print("SENDER IS: ${message.senderId}");
-  await NotifSerivces().handleNotif(
+  NotifSerivces().storeNotif(
       (message.notification.hashCode).toString(),
       message.notification!.title,
       message.notification!.body,
       FirebaseAuth.instance.currentUser!.uid,
-      1);
+      1,
+      sender,
+      MatchServices().getEmptyMatch());
+  print("TRIMIT O ASTEPTATA");
+  NotifSerivces().sendSchedule(25);
 }
 
 late AndroidNotificationChannel channel;
@@ -67,20 +79,51 @@ void requestPermission() async {
   }
 }
 
+void listenScheduled() {
+  AwesomeNotifications()
+      .createdStream
+      .asBroadcastStream()
+      .listen((notification) {
+    print("AM AJUNS AICI PT SCHEDULED");
+    Future.delayed(Duration(seconds: 25)).then((value) {
+      int id = createUniqueId();
+      NotifSerivces().storeNotif(
+          id.toString(),
+          notification.title,
+          notification.body,
+          FirebaseAuth.instance.currentUser!.uid,
+          3,
+          StorageMethods().getEmptyUser(),
+          MatchServices().getEmptyMatch());
+    });
+  });
+}
+
 void listenFCM() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    if (message.senderId != null) {
+      print("HAGI ${message.senderId}");
+    }
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
     if (notification != null && android != null && !kIsWeb) {
+      if (message.messageId != null) {
+        print("HAGI ${message.messageId}");
+      }
       print("NOTIF ${notification.title}");
-      print("NOTIF ${notification.body}");
+      print("CE PLM ${message.data['sender']}");
+      UserModel sender =
+          await UserServices().getSpecificUser(message.data['sender']);
+      print("uhm ${notification.body}");
       print("NOTIF ${notification.hashCode}");
-      await NotifSerivces().handleNotif(
+      await NotifSerivces().storeNotif(
           (notification.hashCode).toString(),
           notification.title,
           notification.body,
           FirebaseAuth.instance.currentUser!.uid,
-          1);
+          1,
+          sender,
+          MatchServices().getEmptyMatch());
       flutterLocalNotificationsPlugin.show(
         notification.hashCode,
         notification.title,
@@ -95,6 +138,8 @@ void listenFCM() async {
           ),
         ),
       );
+      print("AM PRIMIT CA AM FOST MATCHUIT SI TRIMIT O ASTEPTATA");
+      NotifSerivces().sendSchedule(15);
     }
   });
 }
@@ -130,21 +175,6 @@ void loadFCM() async {
   }
 }
 
-listenActionStream(BuildContext context) {
-  AwesomeNotifications().actionStream.listen((receivedAction) {
-    var payload = receivedAction.payload;
-
-    if (receivedAction.channelKey == 'scheduled_channel') {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => NotificationsPage(),
-          transitionDuration: Duration(),
-        ),
-      );
-    }
-  });
-}
-
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -170,6 +200,8 @@ void main() async {
       locked: true,
     )
   ]);
+
+  listenScheduled();
 
   runApp(const MyApp());
 }
@@ -216,11 +248,13 @@ class _MyAppState extends State<MyApp> {
           scaffoldBackgroundColor: mobileBackgroundColor,
         ),
         home: StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
+          stream: FirebaseAuth.instance.authStateChanges().asBroadcastStream(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.active) {
               if (snapshot.hasData) {
-                return const HomePage();
+                return HomePage(
+                  password: '',
+                );
               } else if (snapshot.hasError) {
                 return Center(
                   child: Text('${snapshot.error}'),

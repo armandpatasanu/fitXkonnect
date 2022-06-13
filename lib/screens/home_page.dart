@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:fitxkonnect/models/hp_match_model.dart';
 import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
@@ -5,14 +6,17 @@ import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/home_match_skelet.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
+import 'package:fitxkonnect/utils/widgets/notifications_page.dart';
 import 'package:fitxkonnect/utils/widgets/special_match_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class HomePage extends StatefulWidget {
-  // final snapshot;
-  const HomePage({
+  // final snapshot;]
+  final String password;
+  HomePage({
     Key? key,
+    required this.password,
     // this.snapshot,
   }) : super(key: key);
 
@@ -34,9 +38,82 @@ class _HomePageState extends State<HomePage> {
   String callbeck = "not changed";
   @override
   void initState() {
-    // TODO: implement initState
     _getTaskAsync = SportServices().getButtonsSports();
     super.initState();
+
+    AwesomeNotifications().isNotificationAllowed().then(
+      (isAllowed) {
+        if (!isAllowed) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Allow Notifications'),
+              content: Text('Our app would like to send you notifications'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Don\'t Allow',
+                    style: TextStyle(color: Colors.grey, fontSize: 18),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => AwesomeNotifications()
+                      .requestPermissionToSendNotifications()
+                      .then((_) => Navigator.pop(context)),
+                  child: Text(
+                    'Allow',
+                    style: TextStyle(
+                      color: Colors.teal,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+    // AwesomeNotifications()
+    //     .createdStream
+    //     .asBroadcastStream()
+    //     .listen((notification) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text('Notification Created on ${notification.channelKey}'),
+    //     ),
+    //   );
+    // });
+    // AwesomeNotifications()
+    //     .actionStream
+    //     .asBroadcastStream()
+    //     .listen((notification) {
+    //   if (notification.channelKey == 'basic_channel') {
+    //     AwesomeNotifications().getGlobalBadgeCounter().then(
+    //           (value) =>
+    //               AwesomeNotifications().setGlobalBadgeCounter(value - 1),
+    //         );
+    //   }
+    //   Navigator.pushAndRemoveUntil(
+    //       context,
+    //       MaterialPageRoute(
+    //         builder: (_) => NotificationsPage(
+    //           password: widget.password,
+    //         ),
+    //       ),
+    //       (route) => route.isFirst);
+    // });
+  }
+
+  @override
+  void dispose() {
+    // AwesomeNotifications().actionSink.close();
+    // AwesomeNotifications().createdSink.close();
+    super.dispose();
   }
 
   callback(String value) {
@@ -51,6 +128,7 @@ class _HomePageState extends State<HomePage> {
     print("LMAO $callbeck");
     return Scaffold(
       bottomNavigationBar: NaviBar(
+        password: widget.password,
         index: 0,
       ),
       appBar: AppBar(

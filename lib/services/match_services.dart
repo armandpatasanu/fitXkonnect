@@ -1,5 +1,6 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/dp_match_model.dart';
 import 'package:fitxkonnect/models/full_match_model.dart';
 import 'package:fitxkonnect/models/hp_match_model.dart';
@@ -8,6 +9,7 @@ import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
+import 'package:fitxkonnect/services/notif_services.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/utils.dart';
@@ -27,6 +29,21 @@ class MatchServices {
       }
     });
     return wantedMatches;
+  }
+
+  MatchModel getEmptyMatch() {
+    return MatchModel(
+      matchId: "",
+      location: "",
+      player1: "",
+      player2: "",
+      matchDate: "",
+      startingTime: "",
+      datePublished: DateTime.now(),
+      sport: "",
+      difficulty: "",
+      status: "",
+    );
   }
 
   Future<List<MatchModel>> getMatchesBasedOnSport(String sportName) async {
@@ -338,29 +355,28 @@ class MatchServices {
     UserModel u2 = await UserServices().getSpecificUser(player2Id);
     MatchModel m = await MatchServices().getCertainMatch(matchId);
     UserModel u = await UserServices().getSpecificUser(m.player1);
+    LocationModel location =
+        await LocationServices().getCertainLocation(m.location);
+    print("Am trimis");
+    // the notification I send to the user I matched with
     UserServices().sendPushMessage(
-        'You will face ${u2.fullName} in a match of ${m.sport}',
+        'Opponent: ${u2.fullName} in a match of ${m.sport}.\nLocation: ${location.name}\nDate: ${m.matchDate}\nStarting at: ${m.startingTime}',
         'Get ready! You have a new match!',
-        u.token!);
+        u.token!,
+        player2Id);
+
     collection.doc(matchId) // <-- Doc ID where data should be updated.
         .update({
       'player2': player2Id,
       'status': 'matched',
     });
-    int id = createUniqueId();
-    String timezone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
-    await AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: 3,
-          channelKey: 'scheduled_channel',
-          title: 'SPORT',
-          body: "E timpul pentru medicamente!",
-          notificationLayout: NotificationLayout.Default,
-        ),
-        schedule: NotificationInterval(
-          interval: 10,
-          timeZone: timezone,
-        ));
+    //creating local notification for myself that I matched him
+
+    UserServices().sendPushMessage(
+        "Get ready for a match of ${m.sport}.\nLocation: ${location.name}\nDate: ${m.matchDate}\nStarting at: ${m.startingTime}",
+        'You matched with ${u.fullName}',
+        u2.token!,
+        player2Id);
   }
 
   Future<MatchModel> getCertainMatch(String matchId) async {

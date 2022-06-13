@@ -47,6 +47,7 @@ class UserServices {
       String email,
       String actualEmail,
       String pass,
+      String actualPass,
       String country,
       Uint8List file,
       bool modifyPicture) async {
@@ -54,6 +55,13 @@ class UserServices {
     String result = "success";
 
     try {
+      print("hmm 2 $pass");
+      print("hmm 3 $actualPass");
+      print("$fullName");
+      print("$email");
+      print(" hmm ? $actualEmail");
+      print("$country");
+      print("MOD $modifyPicture");
       if (pass.isEmpty) {
         result = "Please enter your password!";
       } else if (email != actualEmail && pass.isEmpty) {
@@ -61,26 +69,31 @@ class UserServices {
       } else if (!regExp.hasMatch(email)) {
         result = 'Email format is not valid!';
       } else {
-        await _firestore.collection('users').doc(userId).update({
-          'fullName': fullName,
-          'email': email,
-          'country': country,
-        });
+        // if (email != actualEmail) {
+        //   await user.updateEmail(email);
+        //   UserCredential result = await user
+        //       .reauthenticateWithCredential(EmailAuthProvider.credential(
+        //     email: email,
+        //     password: pass,
+        //   ));
+        // } else {
+        //   if (actualPass == pass) {
+        //     await _firestore.collection('users').doc(userId).update({
+        //       'fullName': fullName,
+        //       'email': email,
+        //       'country': country,
+        //     });
+        //   } else {
+        //     result = 'Password is wrong';
+        //   }
+        // }
 
-        if (modifyPicture == true) {
-          await StorageMethods().uploadImageToStorage('profilePics', file);
-        }
-
-        if (counter % 2 == 0 && email != actualEmail) {
-          counter++;
-          await user.updateEmail(email);
-          UserCredential result = await user
-              .reauthenticateWithCredential(EmailAuthProvider.credential(
-            email: email,
-            password: pass,
-          ));
+        if (modifyPicture == true && actualPass == pass) {
+          String url =
+              await StorageMethods().uploadImageToStorage('profilePics', file);
+          print("url $url");
         } else {
-          result = "Log in again in order to change the email!";
+          result = 'Incorrect password!';
         }
       }
     } catch (error) {
@@ -97,7 +110,8 @@ class UserServices {
         .map((snapshot) => UserModel.fromSnap(snapshot));
   }
 
-  void sendPushMessage(String body, String title, String token) async {
+  void sendPushMessage(
+      String body, String title, String token, String sender) async {
     try {
       await http.post(
         Uri.parse('https://fcm.googleapis.com/fcm/send'),
@@ -111,9 +125,11 @@ class UserServices {
             'notification': <String, dynamic>{
               'body': body,
               'title': title,
+              'sender': sender,
             },
             'priority': 'high',
             'data': <String, dynamic>{
+              'sender': sender,
               'click_action': 'FLUTTER_NOTIFICATION_CLICK',
               'id': '1',
               'status': 'done'

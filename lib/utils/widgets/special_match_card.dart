@@ -150,9 +150,11 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     ),
                     child: IconButton(
                       icon: Icon(Icons.play_circle),
-                      onPressed: () {
-                        MatchServices().matchPlayers(widget.snap.matchId,
+                      onPressed: () async {
+                        await MatchServices().matchPlayers(widget.snap.matchId,
                             FirebaseAuth.instance.currentUser!.uid);
+                        setState(() {});
+                        widget.callbackFunction(widget.snap.locationName);
                       },
                     ),
                   ),

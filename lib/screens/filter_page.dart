@@ -6,12 +6,14 @@ import 'package:fitxkonnect/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class FilterPage extends StatefulWidget {
+  final String password;
   final List<Map<LocationModel, List<String>>> map_loc;
   final List<SportModel> sports;
   FilterPage({
     Key? key,
     required this.sports,
     required this.map_loc,
+    required this.password,
   }) : super(key: key);
 
   @override
@@ -122,6 +124,7 @@ class _FilterPageState extends State<FilterPage> {
                                       );
                                     }
                                     return FilterLocationScreen(
+                                      password: widget.password,
                                       map_loc: snapshot.data!,
                                       sports: widget.sports,
                                     );

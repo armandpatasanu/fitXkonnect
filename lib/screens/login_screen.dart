@@ -63,8 +63,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result != 'success') {
       showSnackBar(result, context);
     } else {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomePage()));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) =>
+              HomePage(password: _passwordController.text.trim())));
     }
     // setState(() {
     //   _isLoading = false;

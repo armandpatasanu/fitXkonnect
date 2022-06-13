@@ -26,10 +26,14 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class AddMatchPage extends StatefulWidget {
+  final String password;
+  final List<LocationModel> locations;
   @override
   _AddMatchPageState createState() => _AddMatchPageState();
   AddMatchPage({
     Key? key,
+    required this.password,
+    required this.locations,
   }) : super(key: key);
 }
 
@@ -41,6 +45,9 @@ class _AddMatchPageState extends State<AddMatchPage> {
   bool _isLoading = false;
   List<bool> _isSelected = [false, false, false];
   String? selectedValue;
+  List<LocationModel> _locations = [];
+  List<LocationModel> _initialLocations = [];
+  List<Map<LocationModel, List<String>>> lol = [];
 
   bool isSignupScreen = true;
   bool isMale = true;
@@ -52,6 +59,8 @@ class _AddMatchPageState extends State<AddMatchPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _initialLocations = widget.locations;
+    _locations = widget.locations;
   }
 
   @override
@@ -59,6 +68,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
     print("$selectedValue");
     return Scaffold(
       bottomNavigationBar: NaviBar(
+        password: widget.password,
         index: 2,
       ),
       backgroundColor: Colors.white,
@@ -68,7 +78,6 @@ class _AddMatchPageState extends State<AddMatchPage> {
                 .getSpecificUser(FirebaseAuth.instance.currentUser!.uid),
             SportServices()
                 .getUsersSportsPlayed(FirebaseAuth.instance.currentUser!.uid),
-            LocationServices().getListOfLocations(),
           ]),
           builder:
               (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
@@ -112,8 +121,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          buildSignupSection(
-                              snapshot.data![1], snapshot.data![2]),
+                          buildSignupSection(snapshot.data![1], _locations),
                         ],
                       ),
                     ),
@@ -187,6 +195,10 @@ class _AddMatchPageState extends State<AddMatchPage> {
                     borderRadius: BorderRadius.circular(20)),
 
                 child: DateTimeField(
+                  resetIcon: Icon(
+                    Icons.restore,
+                    color: Colors.purple,
+                  ),
                   textAlign: TextAlign.center,
                   controller: _dateTimeController,
                   style: TextStyle(fontSize: 16, color: textColor1),
@@ -196,7 +208,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
                     hintText: 'Day/Month/Year - Time',
                     hintStyle: TextStyle(fontSize: 16, color: textColor1),
                   ),
-                  format: DateFormat('MM/dd/yyyy HH:mm'),
+                  format: DateFormat('yyyy-MM-dd HH:mm::ss'),
                   onShowPicker: (context, currentValue) async {
                     final date = await showDatePicker(
                       context: context,
@@ -351,6 +363,10 @@ class _AddMatchPageState extends State<AddMatchPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                convertSportToIcon(whatdeactual['sport'], '', Colors.grey),
+                SizedBox(
+                  width: 5,
+                ),
                 Text(
                   "${whatdeactual['sport']}",
                   style: TextStyle(color: Colors.black),
@@ -368,13 +384,18 @@ class _AddMatchPageState extends State<AddMatchPage> {
         color: Colors.white,
       ),
       // dropdownElevation: 8,
-      offset: Offset(-20, 10),
-      dropdownWidth: 180,
+      offset: Offset(-40, 0),
+      dropdownWidth: 220,
       scrollbarRadius: const Radius.circular(40),
-      onChanged: (value) {
-        debugPrint('selected onchange: $value');
+      onChanged: (value) async {
+        print("am ales $value");
+
+        List<LocationModel> lmao = await LocationServices()
+            .getLocationsWhereSportIsPlayed(value.toString());
+
         setState(
           () {
+            _locations = lmao;
             sportName = value.toString();
             for (var m in snap) {
               if (m['sport'] == sportName) {
@@ -420,14 +441,14 @@ class _AddMatchPageState extends State<AddMatchPage> {
           ],
         ),
         items: locations
-            .map<DropdownMenuItem<String>>((item) => DropdownMenuItem<String>(
+            .map((item) => DropdownMenuItem<String>(
                   value: item.name,
                   child: Row(
                     children: [
                       Icon(
                         Icons.location_on,
                         size: 18,
-                        color: textColor1,
+                        color: Colors.purple,
                       ),
                       SizedBox(
                         width: 5,
@@ -455,11 +476,11 @@ class _AddMatchPageState extends State<AddMatchPage> {
           borderRadius: BorderRadius.circular(14),
           color: Colors.white,
         ),
-        dropdownWidth: 200,
+        dropdownWidth: 220,
         iconSize: 15,
         iconEnabledColor: Colors.purple,
         buttonHeight: 50,
-        buttonWidth: 200,
+        buttonWidth: 250,
         buttonPadding: const EdgeInsets.only(left: 14, right: 14),
         buttonDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
@@ -513,6 +534,7 @@ class _AddMatchPageState extends State<AddMatchPage> {
     if (result == 'success') {
       showSnackBar('succesfully created a match!', context);
       clearTextFields();
+      _locations = _initialLocations;
     } else {
       showSnackBar(result, context);
     }

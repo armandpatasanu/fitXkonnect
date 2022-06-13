@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ConfigureSportPage extends StatefulWidget {
+  final String password;
   final List<String> not_conf_sports;
   final List<dynamic> conf_sports;
   final UserModel user;
@@ -20,7 +21,8 @@ class ConfigureSportPage extends StatefulWidget {
       {Key? key,
       required this.user,
       required this.not_conf_sports,
-      required this.conf_sports})
+      required this.conf_sports,
+      required this.password})
       : super(key: key);
 
   @override
@@ -56,23 +58,27 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
     if (result == 'success') {
       _diffValuez.add(getIntFromDifficulty(dif));
       clearFields();
-      showSnackBar('succesfully created a match!', context);
+      showSnackBar('$sport has been configured!', context);
     } else {
       showSnackBar(result, context);
     }
   }
 
-  saveSports() {
+  saveSports(String userId) async {
+    showSnackBar('Succesfully updated the sports!', context);
     for (int i = 0; i < _diffValuez.length; i++) {
       print("Found a way ${_diffValuez[i]}");
+      print("lel");
     }
+
+    await SportServices().saveSportsConfiguration(userId, _diffValuez);
   }
 
-  void deleteSport(String uid, String sport, int ind) {
+  void deleteSport(String uid, String sport, int ind) async {
+    await SportServices().deleteSport(uid, sport);
     _diffValuez.removeAt(ind);
-    SportServices().deleteSport(uid, sport);
-    setState() {}
-    showSnackBar("The sport has been added!", context);
+
+    showSnackBar("$sport has been deleted!", context);
   }
 
   Future<String> getNameFromId(String id) async {
@@ -81,23 +87,24 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(widget.user.uid)
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (!snapshot.hasData)
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: Scaffold(
-              bottomNavigationBar: NaviBar(
-                index: 3,
-              ),
-              body: Material(
+    return Scaffold(
+      bottomNavigationBar: NaviBar(
+        password: widget.password,
+        index: 3,
+      ),
+      body: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.user.uid)
+              .snapshots(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (!snapshot.hasData)
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              home: Material(
                 color: Colors.white,
                 child: Container(
                   child: Column(
@@ -206,9 +213,9 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                   ),
                 ),
               ),
-            ),
-          );
-        });
+            );
+          }),
+    );
   }
 
   @override
@@ -344,7 +351,6 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                     label: Text('Configure'),
                     icon: Icon(Icons.settings),
                     onPressed: () {
-                      showSnackBar('LMAO', context);
                       addSport(widget.user.uid, _diffFilter, sportName);
                     },
                   ),
@@ -429,13 +435,15 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                     title: Row(
                       children: [
                         InkWell(
-                          child: Icon(Icons.delete),
-                          onTap: () => deleteSport(
-                              widget.user.uid,
-                              snapshot.data!["sports_configured"][index].values
-                                  .last,
-                              index),
-                        ),
+                            child: Icon(Icons.delete),
+                            onTap: () {
+                              deleteSport(
+                                  widget.user.uid,
+                                  snapshot.data!["sports_configured"][index]
+                                      .values.last,
+                                  index);
+                              setState(() {});
+                            }),
                         Text(
                           snapshot
                               .data!["sports_configured"][index].values.last,
@@ -476,7 +484,7 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                 child: IconButton(
                   icon: Icon(Icons.save, color: Colors.green),
                   onPressed: () {
-                    saveSports();
+                    saveSports(FirebaseAuth.instance.currentUser!.uid);
                   },
                 ),
               ),

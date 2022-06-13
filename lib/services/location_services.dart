@@ -9,6 +9,20 @@ import 'package:flutter/material.dart';
 class LocationServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  Future<List<LocationModel>> getLocationsWhereSportIsPlayed(
+      String sportName) async {
+    List<LocationModel> wanted = [];
+    SportModel sport =
+        await SportServices().getSpecificSportFromName(sportName);
+    List locationIds = sport.playedAt;
+
+    for (var loc in locationIds) {
+      wanted.add(await LocationServices().getCertainLocation(loc));
+    }
+    print("DID IT? ${wanted.length}");
+    return wanted;
+  }
+
   Future<String> getLocationSports(String s) async {
     print("Let me try:");
     String result = "";

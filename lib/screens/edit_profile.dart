@@ -8,6 +8,7 @@ import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/providers/user_provider.dart';
 import 'package:fitxkonnect/screens/profile_page.dart';
 import 'package:fitxkonnect/services/firestore_methods.dart';
+import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/user_greeting/page_title_bar.dart';
@@ -24,11 +25,13 @@ import 'package:provider/provider.dart';
 
 class EditProfilePage extends StatefulWidget {
   @override
+  final String password;
   final UserModel snap;
 
-  const EditProfilePage({
+  EditProfilePage({
     Key? key,
     required this.snap,
+    required this.password,
   }) : super(key: key);
   _EditProfilePageState createState() => _EditProfilePageState();
 }
@@ -40,10 +43,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool _isLoading = false;
   String sportName = "Tenis";
   String? _country;
-  Uint8List? _image;
+  Uint8List _image = Uint8List.fromList([]);
+  bool _passwordVisible = true;
 
   void initState() {
     addData();
+    _image = Uint8List.fromList([]);
     _country = widget.snap.country;
   }
 
@@ -129,15 +134,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ],
                   shape: BoxShape.circle,
                 ),
-                child: _image != null
+                child: _image != Uint8List.fromList([])
                     ? CircleAvatar(
                         radius: 64,
-                        backgroundImage: MemoryImage(_image!),
+                        backgroundImage: MemoryImage(_image),
                       )
                     : CircleAvatar(
                         radius: 64,
                         backgroundImage: NetworkImage(
-                          user.profilePhoto,
+                          widget.snap.profilePhoto,
                         ),
                       ),
               ),
@@ -181,7 +186,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           SizedBox(height: 10),
           buildTextField(Icons.email, user.email, _emailController),
           SizedBox(height: 10),
-          buildTextField(Icons.lock, 'enter password', _passwordController),
+          buildPassField(Icons.lock, 'enter password', _passwordController),
           SizedBox(
             height: 8,
           ),
@@ -305,8 +310,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
       child: Center(
         child: InkWell(
           child: Icon(Icons.arrow_back_ios, color: Colors.green),
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const ProfilePage())),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ProfilePage(
+                        password: widget.password,
+                      ))),
         ),
       ),
     );
@@ -392,6 +401,48 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
+  Widget buildPassField(
+      IconData icon, String hintText, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: TextFormField(
+        obscureText: _passwordVisible,
+        style: TextStyle(color: kPrimaryColor),
+        controller: controller,
+        decoration: InputDecoration(
+          prefixIcon: Icon(
+            icon,
+            color: iconColor,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: textColor1),
+            borderRadius: BorderRadius.all(Radius.circular(35.0)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: textColor1),
+            borderRadius: BorderRadius.all(Radius.circular(35.0)),
+          ),
+          contentPadding: EdgeInsets.all(10),
+          hintText: hintText,
+          hintStyle: TextStyle(fontSize: 14, color: textColor1),
+          suffixIcon: IconButton(
+            onPressed: () {
+              print("HELLO?");
+              // Update the state i.e. toogle the state of passwordVisible variable
+              setState(() {
+                _passwordVisible = !_passwordVisible;
+              });
+            },
+            icon: Icon(_passwordVisible == false
+                ? Icons.visibility
+                : Icons.visibility_off),
+            color: kPrimaryColor,
+          ),
+        ),
+      ),
+    );
+  }
+
   addData() async {
     UserProvider _userProvider = Provider.of(context, listen: false);
     await _userProvider.refreshUser();
@@ -406,7 +457,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void resetFields(UserModel user) {
     clearTextFields();
     _country = user.country;
-    _image = null;
+    _image = Uint8List.fromList([]);
     setState(() {});
   }
 
@@ -434,13 +485,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
               _fullNameController.text != ''
                   ? _fullNameController.text
                   : user.fullName,
-              _emailController.text != ''
-                  ? _emailController.text
-                  : ' user.email',
+              _emailController.text != '' ? _emailController.text : user.email,
               user.email,
               _passwordController.text,
+              widget.password,
               _country!,
-              _image!,
+              _image,
               true,
             )
           : result = result = await UserServices().updateUser(
@@ -452,8 +502,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               _emailController.text != '' ? _emailController.text : user.email,
               user.email,
               _passwordController.text,
+              widget.password,
               _country!,
-              _image!,
+              _image,
               false,
             );
 
@@ -466,6 +517,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             .getSpecificUser(FirebaseAuth.instance.currentUser!.uid);
         Navigator.of(context).pushReplacement(MaterialPageRoute(
             builder: (context) => EditProfilePage(
+                  password: widget.password,
                   snap: user2,
                 )));
         // clearTextFields();

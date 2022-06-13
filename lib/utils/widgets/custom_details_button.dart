@@ -6,8 +6,10 @@ import 'package:fitxkonnect/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class CustomDetailsButton extends StatefulWidget {
+  final String password;
   final String selectedLocation;
-  const CustomDetailsButton({Key? key, required this.selectedLocation})
+  const CustomDetailsButton(
+      {Key? key, required this.selectedLocation, required this.password})
       : super(key: key);
 
   @override
@@ -41,6 +43,7 @@ class _CustomDetailsButtonState extends State<CustomDetailsButton> {
               );
             }
             return DetailPage(
+              password: widget.password,
               backIcon: false,
               bkg: snapshot.data![0],
               profile: snapshot.data![1],

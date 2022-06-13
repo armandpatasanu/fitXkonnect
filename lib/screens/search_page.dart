@@ -11,7 +11,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({Key? key}) : super(key: key);
+  final String password;
+  const SearchPage({Key? key, required this.password}) : super(key: key);
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -38,6 +39,7 @@ class _SearchPageState extends State<SearchPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Scaffold(
                         bottomNavigationBar: NaviBar(
+                          password: widget.password,
                           index: 1,
                         ),
                         body: Container(
@@ -76,6 +78,7 @@ class _SearchPageState extends State<SearchPage> {
                         ));
                   }
                   return MapScreen(
+                    password: widget.password,
                     filteredSport: "LIST",
                     loc_maps: snapshot.data![0],
                     listOfSports: snapshot.data![1],

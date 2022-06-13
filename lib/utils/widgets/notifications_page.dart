@@ -7,7 +7,8 @@ import 'package:fitxkonnect/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({Key? key}) : super(key: key);
+  final String password;
+  const NotificationsPage({Key? key, required this.password}) : super(key: key);
 
   @override
   State<NotificationsPage> createState() => _NotificationsPageState();
@@ -63,6 +64,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('notifications')
+            // .where('receiver',
+            //     isEqualTo: FirebaseAuth.instance.currentUser!.uid)
             .where('receiver',
                 isEqualTo: FirebaseAuth.instance.currentUser!.uid)
             .snapshots(),
@@ -76,7 +79,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           return Scaffold(
             body: snapshot.data.docs.length == 0
                 ? Container(
-                    // color: Colors.grey[100],
+                    color: Colors.white,
                     height: MediaQuery.of(context).size.height,
                     width: MediaQuery.of(context).size.width,
                     child: Stack(
@@ -109,8 +112,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                const ProfilePage())),
+                                            builder: (context) => ProfilePage(
+                                                  password: widget.password,
+                                                ))),
                                   },
                                 ),
                               ),
@@ -123,6 +127,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 : Container(
                     height: MediaQuery.of(context).size.height,
                     width: MediaQuery.of(context).size.width,
+                    padding: EdgeInsets.only(top: 40),
                     color: Colors.white,
                     child: Stack(
                       children: [
@@ -133,6 +138,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Container(
+                                height: 150,
                                 padding: EdgeInsets.only(left: 10, right: 10),
                                 child: Row(
                                   children: [
@@ -168,7 +174,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                             style: TextStyle(
                                                 color: Colors.black,
                                                 fontFamily: 'OpenSans',
-                                                fontSize: 18),
+                                                fontSize: 16),
                                           ),
                                           Divider(
                                             color: Colors.black,
@@ -190,13 +196,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 decoration: BoxDecoration(
                                     border: Border.all(color: Colors.black),
                                     borderRadius: BorderRadius.circular(20)),
-                                height: 100,
                               ),
                             );
                           },
                         ),
                         Positioned(
-                          top: MediaQuery.of(context).size.height * 0.9,
+                          top: MediaQuery.of(context).size.height * 0.85,
                           right: 20,
                           child: Material(
                             shape: CircleBorder(),
@@ -214,8 +219,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                const ProfilePage())),
+                                            builder: (context) => ProfilePage(
+                                                  password: widget.password,
+                                                ))),
                                   },
                                 ),
                               ),

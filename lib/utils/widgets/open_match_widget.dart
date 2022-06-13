@@ -16,10 +16,12 @@ import 'package:geolocator/geolocator.dart';
 
 class OpenMatchCard extends StatefulWidget {
   final HomePageMatch match;
+  final String password;
 
   OpenMatchCard({
     Key? key,
     required this.match,
+    required this.password,
   }) : super(key: key);
 
   @override
@@ -182,7 +184,8 @@ class _OpenMatchCardState extends State<OpenMatchCard> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const ProfilePage())),
+                            builder: (context) =>
+                                ProfilePage(password: widget.password))),
                   },
                 ),
               ),

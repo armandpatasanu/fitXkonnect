@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/main.dart';
 import 'package:fitxkonnect/models/full_match_model.dart';
 import 'package:fitxkonnect/models/hp_match_model.dart';
+import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/screens/add_match_page.dart';
@@ -20,11 +21,15 @@ import 'package:fitxkonnect/utils/widgets/open_match_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 class MyMatchesPage extends StatefulWidget {
+  final String password;
   final UserModel user;
   const MyMatchesPage({
     Key? key,
     required this.user,
+    required this.password,
   }) : super(key: key);
 
   @override
@@ -147,7 +152,9 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const ProfilePage())),
+                              builder: (context) => ProfilePage(
+                                    password: widget.password,
+                                  ))),
                     },
                   ),
                 ),
@@ -242,7 +249,37 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                     onTap: () => Navigator.of(context).pushReplacement(
                       PageRouteBuilder(
                         pageBuilder: (context, animation1, animation2) =>
-                            AddMatchPage(),
+                            FutureBuilder<List<LocationModel>>(
+                                future: LocationServices().getListOfLocations(),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<LocationModel>>
+                                        snapshot) {
+                                  if (snapshot.connectionState ==
+                                          ConnectionState.waiting ||
+                                      !snapshot.hasData) {
+                                    return Center(
+                                      child: SpinKitCircle(
+                                        size: 50,
+                                        itemBuilder: (context, index) {
+                                          final colors = [
+                                            Colors.black,
+                                            Colors.purple
+                                          ];
+                                          final color =
+                                              colors[index % colors.length];
+                                          return DecoratedBox(
+                                            decoration:
+                                                BoxDecoration(color: color),
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  }
+                                  return AddMatchPage(
+                                    password: widget.password,
+                                    locations: snapshot.data!,
+                                  );
+                                }),
                         transitionDuration: Duration(),
                       ),
                     ),
@@ -256,7 +293,8 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
             itemCount: values.length,
             itemBuilder: (BuildContext context, int index) {
               return values.isNotEmpty
-                  ? OpenMatchCard(match: values[index])
+                  ? OpenMatchCard(
+                      password: widget.password, match: values[index])
                   : CircularProgressIndicator();
             },
           );

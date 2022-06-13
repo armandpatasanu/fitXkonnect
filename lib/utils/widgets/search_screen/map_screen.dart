@@ -37,6 +37,7 @@ const double PIN_VISIBLE_POSITION = 20;
 const double PIN_INVISIBLE_POSITION = -920;
 
 class MapScreen extends StatefulWidget {
+  final String password;
   final List<Map<LocationModel, List<String>>> loc_maps;
   final String filteredSport;
   final List<SportModel> listOfSports;
@@ -44,7 +45,8 @@ class MapScreen extends StatefulWidget {
       {Key? key,
       required this.filteredSport,
       required this.listOfSports,
-      required this.loc_maps})
+      required this.loc_maps,
+      required this.password})
       : super(key: key);
 
   @override
@@ -193,9 +195,12 @@ class _MapScreenState extends State<MapScreen> {
     // final applicationBloc = Provider.of<AppBloc>(context);
     print("LMAO ${currentLatLng.latitude},  ${currentLatLng.longitude}");
     return Scaffold(
-      bottomNavigationBar: NaviBar(index: 1),
+      bottomNavigationBar: NaviBar(
+        index: 1,
+        password: widget.password,
+      ),
       body: Container(
-        padding: EdgeInsets.only(top: 30),
+        padding: EdgeInsets.only(top: 24),
         child: checkReady(currentLatLng, permission)
             ? Stack(children: [
                 Container(
@@ -310,6 +315,7 @@ class _MapScreenState extends State<MapScreen> {
                                           pageBuilder: (context, animation1,
                                                   animation2) =>
                                               FilterLocationScreen(
+                                            password: widget.password,
                                             map_loc: widget.loc_maps,
                                             sports: _sportsToPass,
                                           ),
@@ -383,6 +389,7 @@ class _MapScreenState extends State<MapScreen> {
                                                     ));
                                                   }
                                                   return MapScreen(
+                                                      password: widget.password,
                                                       loc_maps: snapshot.data!,
                                                       filteredSport:
                                                           sportName == ""
@@ -498,6 +505,7 @@ class _MapScreenState extends State<MapScreen> {
                     right: 0,
                     bottom: pinPillPosition,
                     child: LocationInfo(
+                      password: widget.password,
                       selectedLocation: _selectedLocation,
                     ),
                   ),

@@ -30,7 +30,8 @@ const double PIN_VISIBLE_POSITION = 20;
 const double PIN_INVISIBLE_POSITION = -220;
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  final String password;
+  ProfilePage({Key? key, required this.password}) : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -44,33 +45,6 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     print("WTF?");
     super.initState();
-    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      print("APELEZ?");
-      if (!isAllowed) {
-        print("APALEZE2?");
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: const Text("Permiteți notificări"),
-                  content:
-                      const Text("Aplicația vrea să vă trimită notificări"),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text("Nu")),
-                    TextButton(
-                        onPressed: () {
-                          AwesomeNotifications()
-                              .requestPermissionToSendNotifications()
-                              .then((_) => Navigator.pop(context));
-                        },
-                        child: const Text("OK"))
-                  ],
-                ));
-      }
-    });
   }
 
   Widget build(BuildContext context) {
@@ -88,7 +62,10 @@ class _ProfilePageState extends State<ProfilePage> {
           if (user.connectionState == ConnectionState.waiting ||
               !user.hasData) {
             return Scaffold(
-              bottomNavigationBar: NaviBar(index: 3),
+              bottomNavigationBar: NaviBar(
+                index: 3,
+                password: widget.password,
+              ),
               body: Container(
                 color: Colors.black,
                 child: Center(
@@ -137,7 +114,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   IconButton(
                     onPressed: () {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => NotificationsPage()));
+                          builder: (context) => NotificationsPage(
+                                password: widget.password,
+                              )));
                     },
                     icon: Icon(
                       Icons.notifications,
@@ -291,6 +270,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               .pushReplacement(PageRouteBuilder(
                             pageBuilder: (context, animation1, animation2) =>
                                 ConfigureSportPage(
+                              password: widget.password,
                               user: user.data![0],
                               not_conf_sports: user.data![1],
                               conf_sports: user.data![2],
@@ -317,8 +297,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                         if (snapshot.connectionState ==
                                             ConnectionState.waiting) {
                                           return Scaffold(
-                                            bottomNavigationBar:
-                                                NaviBar(index: 3),
+                                            bottomNavigationBar: NaviBar(
+                                                index: 3,
+                                                password: widget.password),
                                             body: Container(
                                               color: Colors.black,
                                               child: Center(
@@ -343,6 +324,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           );
                                         }
                                         return EditProfilePage(
+                                            password: widget.password,
                                             snap: snapshot.data!);
                                       })));
                         },
@@ -355,6 +337,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           Navigator.of(context)
                               .pushReplacement(MaterialPageRoute(
                                   builder: (context) => MyMatchesPage(
+                                        password: widget.password,
                                         user: user.data![0],
                                       )));
                         },
@@ -364,6 +347,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               bottomNavigationBar: NaviBar(
+                password: widget.password,
                 index: 3,
               ),
             ),

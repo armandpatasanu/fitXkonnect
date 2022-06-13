@@ -12,12 +12,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class LocationInfo extends StatefulWidget {
+  final String password;
   // final String name;
   // final List<String> contact;
   final LocationModel selectedLocation;
   const LocationInfo({
     Key? key,
     required this.selectedLocation,
+    required this.password,
     // required this.contact,
     // required this.name,
   }) : super(key: key);
@@ -77,6 +79,7 @@ class _LocationInfoState extends State<LocationInfo> {
                 return Stack(
                   children: [
                     Container(
+                      height: 500,
                       margin: EdgeInsets.all(20),
                       padding: EdgeInsets.all(15),
                       decoration: BoxDecoration(
@@ -156,6 +159,7 @@ class _LocationInfoState extends State<LocationInfo> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SizedBox(
+                                      height: 200,
                                       width: 200,
                                       child: Text(
                                         snapshot.data![1] ?? '',
@@ -195,6 +199,7 @@ class _LocationInfoState extends State<LocationInfo> {
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: CustomDetailsButton(
+                            password: widget.password,
                             selectedLocation:
                                 widget.selectedLocation.locationId),
                       ),

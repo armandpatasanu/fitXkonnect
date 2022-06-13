@@ -17,11 +17,13 @@ import 'dart:ui' as ui;
 
 class FilterLocationScreen extends StatefulWidget {
   final List<Map<LocationModel, List<String>>> map_loc;
+  final String password;
   final List<SportModel> sports;
   FilterLocationScreen({
     Key? key,
     required this.sports,
     required this.map_loc,
+    required this.password,
   }) : super(key: key);
 
   @override
@@ -174,6 +176,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                             PageRouteBuilder(
                               pageBuilder: (context, animation1, animation2) =>
                                   MapScreen(
+                                password: widget.password,
                                 loc_maps: _locations,
                                 filteredSport: "LIST",
                                 listOfSports: widget.sports,
@@ -313,6 +316,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                                                   );
                                                 }
                                                 return DetailPage(
+                                                    password: widget.password,
                                                     backIcon: true,
                                                     bkg: snapshot.data![0],
                                                     profile: snapshot.data![1],
@@ -336,7 +340,9 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                   Container(
                     color: Colors.white,
                     child: FilterPage(
-                        map_loc: widget.map_loc, sports: widget.sports),
+                        password: widget.password,
+                        map_loc: widget.map_loc,
+                        sports: widget.sports),
                   ),
                 ]),
               ),

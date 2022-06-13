@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
 import 'package:fitxkonnect/services/user_services.dart';
+import 'package:fitxkonnect/utils/utils.dart';
 
 class SportServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -135,7 +136,7 @@ class SportServices {
 
   Future<String> addSport(String uid, String dif, String sport) async {
     UserModel user = await UserServices().getSpecificUser(uid);
-    List<dynamic> users_sports = [];
+    List<dynamic> users_sports = user.sports_configured;
     String result = "success";
 
     if (sport == "Choose a sport") {
@@ -149,11 +150,15 @@ class SportServices {
         'difficulty': dif,
         'sport': sport,
       };
+
       users_sports.add(map);
+      users_sports.sort((a, b) =>
+          a['sport'].toLowerCase().compareTo(b['sport'].toLowerCase()));
+
       _firestore
           .collection('users')
           .doc(uid)
-          .update({'sports_configured': FieldValue.arrayUnion(users_sports)});
+          .update({'sports_configured': users_sports});
 
       _firestore.collection('users').doc(uid).update({
         'sports_not_configured': FieldValue.arrayRemove([sport])
@@ -189,5 +194,21 @@ class SportServices {
         .collection('users')
         .doc(uid)
         .update({'sports_configured': to_be_added});
+  }
+
+  Future<void> saveSportsConfiguration(
+      String uid, List<int> difficulties) async {
+    UserModel user = await UserServices().getSpecificUser(uid);
+    List<dynamic> sports_configured = await getUsersSportsPlayed(uid);
+    int i = 0;
+
+    for (var map in sports_configured) {
+      map["difficulty"] = getDifFromValue(difficulties[i]);
+      i++;
+    }
+    _firestore
+        .collection('users')
+        .doc(uid)
+        .update({'sports_configured': sports_configured});
   }
 }

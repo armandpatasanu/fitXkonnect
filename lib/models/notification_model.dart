@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Notif {
   // final String sender;
   final String notifId;
+  final DateTime datePublished;
   final String notifTitle;
   final String notifText;
   final String receiver;
@@ -10,6 +11,7 @@ class Notif {
 
   const Notif({
     // required this.sender,
+    required this.datePublished,
     required this.notifId,
     required this.notifTitle,
     required this.notifText,
@@ -22,6 +24,7 @@ class Notif {
 
     return Notif(
       // sender: snapshot["sender"],
+      datePublished: snapshot["datePublished"],
       notifId: snapshot["notifId"],
       notifText: snapshot["notifText"],
       notifTitle: snapshot["notifTitle"],
@@ -32,6 +35,7 @@ class Notif {
 
   Map<String, dynamic> toJson() => {
         // "sender": sender,
+        "datePublished": datePublished,
         "notifId": notifId,
         "notifText": notifText,
         "notifTitle": notifTitle,
