@@ -67,12 +67,18 @@ class _ProfilePageState extends State<ProfilePage> {
                 password: widget.password,
               ),
               body: Container(
-                color: Colors.black,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [
+                    Colors.white,
+                    Colors.purple,
+                    Colors.black,
+                  ], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+                ),
                 child: Center(
                   child: SpinKitCircle(
                     size: 50,
                     itemBuilder: (context, index) {
-                      final colors = [Colors.white, Colors.purple];
+                      final colors = [Colors.black, Colors.white];
                       final color = colors[index % colors.length];
                       return DecoratedBox(
                         decoration: BoxDecoration(color: color),
@@ -134,7 +140,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 height: MediaQuery.of(context).size.height,
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.only(top: 30),
+                  padding: EdgeInsets.only(top: 80),
                   child: Column(
                     // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -203,9 +209,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       Text(user.data![0].email,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 14,
+                            fontSize: 16,
                             fontFamily: 'OpenSans',
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           )),
                       SizedBox(height: 2),
                       Container(
@@ -218,7 +224,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               'Sports Played:',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontFamily: 'OpenSans',
                                 fontWeight: FontWeight.w600,
                               ),
@@ -263,7 +269,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         height: 15,
                       ),
                       ProfileMenu(
-                        text: "Sports configuration",
+                        text: "Sports Configuration",
                         icon: 'assets/images/profile_screen/edit_sport.png',
                         press: () {
                           Navigator.of(context)
@@ -301,7 +307,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 index: 3,
                                                 password: widget.password),
                                             body: Container(
-                                              color: Colors.black,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.white,
+                                                      Colors.purple,
+                                                      Colors.black,
+                                                    ],
+                                                    begin:
+                                                        Alignment.bottomCenter,
+                                                    end: Alignment.topCenter),
+                                              ),
                                               child: Center(
                                                 child: SpinKitCircle(
                                                   size: 50,

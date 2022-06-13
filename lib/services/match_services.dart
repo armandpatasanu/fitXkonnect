@@ -139,7 +139,7 @@ class MatchServices {
     documentList.forEach((DocumentSnapshot snap) {
       MatchModel m = MatchModel.fromSnap((snap));
 
-      if (m.status == 'decided') {
+      if (m.status == 'played') {
         wantedMatches.add(m);
       }
     });
@@ -301,7 +301,7 @@ class MatchServices {
         await MatchServices().getActualFullMatches();
     List<FullMatch> endedMatches = [];
     generalMatches.forEach((element) async {
-      if ((element.status == 'decided' || element.status == 'abandoned') &&
+      if ((element.status == 'played' || element.status == 'abandoned') &&
           (element.p1uid == userId || element.p2uid == userId)) {
         endedMatches.add(element);
       }
@@ -350,6 +350,15 @@ class MatchServices {
     return myRes;
   }
 
+  Future<void> abandonMatch(String matchId) async {
+    await FirebaseFirestore.instance
+        .collection('matches')
+        .doc(matchId) // <-- Doc ID where data should be updated.
+        .update({
+      'status': 'abandoned',
+    });
+  }
+
   Future<void> matchPlayers(String matchId, String player2Id) async {
     var collection = FirebaseFirestore.instance.collection('matches');
     UserModel u2 = await UserServices().getSpecificUser(player2Id);
@@ -357,7 +366,37 @@ class MatchServices {
     UserModel u = await UserServices().getSpecificUser(m.player1);
     LocationModel location =
         await LocationServices().getCertainLocation(m.location);
+
+    MatchModel match = await MatchServices().getCertainMatch(matchId);
+
+    print("DEBUG: Avem locatia ${location.name}");
+    print("DEBUG: ----------------------");
+    List locations_sports = location.sports;
+    locations_sports.forEach((element) {
+      print("DEBUG SPORT: {${element["sport"]} , ${element["matches"]}}");
+    });
+    print("DEBUG: ----------------------");
+    SportModel matchSport =
+        await SportServices().getSpecificSportFromName(match.sport);
+    print("DEBUG: ID-UL SPORTULUI: ${matchSport.sportId}");
+    int numberOfMatches;
+    locations_sports.forEach((element) {
+      if (element["sport"] == matchSport.sportId) {
+        print("DEBUG: MATCHED WITH ${element["sport"]}");
+        numberOfMatches = element["matches"];
+        if (numberOfMatches > 0) {
+          numberOfMatches = element["matches"] - 1;
+        }
+        print("DEBUG : THE NEW NUMBER: ${numberOfMatches}");
+        element.update("matches", (value) => numberOfMatches);
+      }
+    });
+    await _firestore
+        .collection('locations')
+        .doc(match.location)
+        .update({'sports': locations_sports});
     print("Am trimis");
+
     // the notification I send to the user I matched with
     UserServices().sendPushMessage(
         'Opponent: ${u2.fullName} in a match of ${m.sport}.\nLocation: ${location.name}\nDate: ${m.matchDate}\nStarting at: ${m.startingTime}',
@@ -391,21 +430,28 @@ class MatchServices {
       MatchModel match = await MatchServices().getCertainMatch(matchId);
       LocationModel location =
           await LocationServices().getCertainLocation(match.location);
+      print("DEBUG: Avem locatia ${location.name}");
+      print("DEBUG: ----------------------");
       List locations_sports = location.sports;
-      SportModel wohoo =
+      locations_sports.forEach((element) {
+        print("DEBUG SPORT: {${element["sport"]} , ${element["matches"]}}");
+      });
+      print("DEBUG: ----------------------");
+      SportModel matchSport =
           await SportServices().getSpecificSportFromName(match.sport);
-      print("WTF ${wohoo.sportId}");
+      print("DEBUG: ID-UL SPORTULUI: ${matchSport.sportId}");
       int numberOfMatches;
-      print("WTF LENGTH: ${locations_sports.length}");
-      for (var element in locations_sports) {
-        if (element["sport"] == wohoo.sportId) {
-          print("WTF: MATCHED");
-          numberOfMatches = element["matches"] - 1;
-          print("WTF : THE NEW NUMBER: ${numberOfMatches}");
-          print("WTF : $numberOfMatches");
+      locations_sports.forEach((element) {
+        if (element["sport"] == matchSport.sportId) {
+          print("DEBUG: MATCHED WITH ${element["sport"]}");
+          numberOfMatches = element["matches"];
+          if (numberOfMatches > 0) {
+            numberOfMatches = element["matches"] - 1;
+          }
+          print("DEBUG : THE NEW NUMBER: ${numberOfMatches}");
           element.update("matches", (value) => numberOfMatches);
         }
-      }
+      });
 
       await _firestore
           .collection('locations')

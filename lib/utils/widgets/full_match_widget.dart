@@ -1,18 +1,22 @@
 import 'package:fitxkonnect/models/full_match_model.dart';
+import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/utils/components/profile_page/profile_pic.dart';
+import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class FullMatchCard extends StatefulWidget {
   final FullMatch match;
-  FullMatchCard({Key? key, required this.match}) : super(key: key);
+  final Function callbackFunction;
+  FullMatchCard({Key? key, required this.match, required this.callbackFunction})
+      : super(key: key);
 
   @override
   State<FullMatchCard> createState() => _FullMatchCardState();
 }
 
 class _FullMatchCardState extends State<FullMatchCard> {
-  List<String> statuses = ["decided", "abandoned"];
+  List<String> statuses = ["played", "abandoned"];
 
   @override
   Widget build(BuildContext context) {
@@ -22,23 +26,64 @@ class _FullMatchCardState extends State<FullMatchCard> {
       child: Stack(
         children: <Widget>[
           Container(
-            padding: EdgeInsets.all(16),
-            height: 180,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: LinearGradient(
-                  colors: [Color(0xff6DC8F3), Color(0xff73A1F9)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight),
-              boxShadow: [
-                BoxShadow(
-                  color: Color.fromARGB(255, 208, 85, 112),
-                  blurRadius: 12,
-                  offset: Offset(0, 6),
-                ),
-              ],
-            ),
-          ),
+              padding: EdgeInsets.all(16),
+              height: 180,
+              decoration: widget.match.status == 'matched'
+                  ? BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                          colors: [Color(0xff6DC8F3), Color(0xff73A1F9)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.shade200,
+                          blurRadius: 22,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
+                    )
+                  : widget.match.status == 'abandoned'
+                      ? BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          gradient: LinearGradient(
+                              colors: [
+                                Colors.grey.shade300,
+                                Colors.grey.shade500,
+                                Colors.grey.shade800,
+                                Colors.grey.shade500,
+                                Colors.grey.shade300,
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade600,
+                              blurRadius: 12,
+                              offset: Offset(0, 6),
+                            ),
+                          ],
+                        )
+                      : BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          gradient: LinearGradient(
+                              colors: [
+                                Colors.green.shade300,
+                                Colors.green.shade500,
+                                Colors.green.shade800,
+                                Colors.green.shade500,
+                                Colors.green.shade300,
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade600,
+                              blurRadius: 12,
+                              offset: Offset(0, 6),
+                            ),
+                          ],
+                        )),
           Positioned(
               left: 95,
               top: 10,
@@ -63,10 +108,13 @@ class _FullMatchCardState extends State<FullMatchCard> {
                                 showDialog(
                                   context: context,
                                   builder: (context) => Dialog(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(20))),
                                     child: Container(
                                       height: 200,
                                       decoration: BoxDecoration(
-                                          color: Colors.red,
+                                          color: Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(20)),
                                       child: SizedBox.expand(
@@ -78,6 +126,36 @@ class _FullMatchCardState extends State<FullMatchCard> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
+                                              widget.match.status == 'abandoned'
+                                                  ? Column(
+                                                      children: [
+                                                        Text(
+                                                          "ABANDONED",
+                                                          style: TextStyle(
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 20,
+                                                        ),
+                                                      ],
+                                                    )
+                                                  : Container(),
+                                              widget.match.status == 'played'
+                                                  ? Column(
+                                                      children: [
+                                                        Text(
+                                                          "PLAYED",
+                                                          style: TextStyle(
+                                                            color: Colors.green,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 20,
+                                                        ),
+                                                      ],
+                                                    )
+                                                  : Container(),
                                               Text(
                                                 "Sport played: ${widget.match.sport}",
                                                 style: TextStyle(
@@ -93,7 +171,7 @@ class _FullMatchCardState extends State<FullMatchCard> {
                                               ),
                                               SizedBox(height: 5),
                                               Text(
-                                                "Location address: ${widget.match.locationAddress}",
+                                                "Location: ${widget.match.locationAddress}",
                                                 style: TextStyle(
                                                   color: Colors.black,
                                                 ),
@@ -184,7 +262,18 @@ class _FullMatchCardState extends State<FullMatchCard> {
                                                                       .all(Colors
                                                                           .black)),
                                                           child: Text('Yes'),
-                                                          onPressed: () => {},
+                                                          onPressed: () async {
+                                                            await MatchServices()
+                                                                .abandonMatch(
+                                                                    widget.match
+                                                                        .matchId);
+                                                            widget
+                                                                .callbackFunction(
+                                                                    'callback');
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
                                                         ),
                                                         SizedBox(
                                                           width: 15,

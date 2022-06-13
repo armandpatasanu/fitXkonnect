@@ -79,7 +79,6 @@ class _LocationInfoState extends State<LocationInfo> {
                 return Stack(
                   children: [
                     Container(
-                      height: 500,
                       margin: EdgeInsets.all(20),
                       padding: EdgeInsets.all(15),
                       decoration: BoxDecoration(
@@ -159,7 +158,6 @@ class _LocationInfoState extends State<LocationInfo> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SizedBox(
-                                      height: 200,
                                       width: 200,
                                       child: Text(
                                         snapshot.data![1] ?? '',

@@ -370,7 +370,7 @@ class _HomePageState extends State<HomePage> {
                                   size: 50,
                                   itemBuilder: (context, index) {
                                     final colors = [
-                                      Colors.white,
+                                      Colors.black,
                                       Colors.purple
                                     ];
                                     final color = colors[index % colors.length];

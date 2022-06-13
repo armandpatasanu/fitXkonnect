@@ -66,7 +66,7 @@ class _SearchPageState extends State<SearchPage> {
                               child: SpinKitCircle(
                                 size: 50,
                                 itemBuilder: (context, index) {
-                                  final colors = [Colors.white, Colors.purple];
+                                  final colors = [Colors.black, Colors.purple];
                                   final color = colors[index % colors.length];
                                   return DecoratedBox(
                                     decoration: BoxDecoration(color: color),

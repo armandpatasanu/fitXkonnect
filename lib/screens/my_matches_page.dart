@@ -38,6 +38,14 @@ class MyMatchesPage extends StatefulWidget {
 
 class _MyMatchesPageState extends State<MyMatchesPage> {
   UserModel _userData = StorageMethods().getEmptyUser();
+  String callbeck = "";
+
+  callback(String value) {
+    setState(() {
+      callbeck = value;
+    });
+    print("LMAO $callbeck");
+  }
 
   @override
   Widget build(BuildContext context) => FutureBuilder(
@@ -180,7 +188,8 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
             itemCount: values.length,
             itemBuilder: (BuildContext context, int index) {
               return values.isNotEmpty
-                  ? FullMatchCard(match: values[index])
+                  ? FullMatchCard(
+                      match: values[index], callbackFunction: callback)
                   : CircularProgressIndicator();
             },
           );
@@ -215,7 +224,8 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
             itemCount: values.length,
             itemBuilder: (BuildContext context, int index) {
               return values.isNotEmpty
-                  ? FullMatchCard(match: values[index])
+                  ? FullMatchCard(
+                      match: values[index], callbackFunction: callback)
                   : CircularProgressIndicator();
             },
           );
@@ -294,7 +304,9 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
             itemBuilder: (BuildContext context, int index) {
               return values.isNotEmpty
                   ? OpenMatchCard(
-                      password: widget.password, match: values[index])
+                      password: widget.password,
+                      match: values[index],
+                      callbackFunction: callback)
                   : CircularProgressIndicator();
             },
           );

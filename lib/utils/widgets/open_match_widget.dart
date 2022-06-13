@@ -17,11 +17,13 @@ import 'package:geolocator/geolocator.dart';
 class OpenMatchCard extends StatefulWidget {
   final HomePageMatch match;
   final String password;
+  final Function callbackFunction;
 
   OpenMatchCard({
     Key? key,
     required this.match,
     required this.password,
+    required this.callbackFunction,
   }) : super(key: key);
 
   @override
@@ -40,7 +42,6 @@ class _OpenMatchCardState extends State<OpenMatchCard> {
       child: Stack(
         children: <Widget>[
           Container(
-            padding: EdgeInsets.all(16),
             height: 180,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
@@ -72,15 +73,28 @@ class _OpenMatchCardState extends State<OpenMatchCard> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Expanded(
-                  child: Image.network(widget.match.p1Profile,
-                      height: 68, width: 68, fit: BoxFit.cover),
-                  flex: 2,
+                  child: Container(
+                    height: 115,
+                    width: 115,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      clipBehavior: Clip.none,
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(
+                            widget.match.p1Profile,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  flex: 3,
                 ),
                 SizedBox(
-                  width: 3,
+                  width: 5,
                 ),
                 Expanded(
-                  flex: 3,
+                  flex: 4,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,14 +192,12 @@ class _OpenMatchCardState extends State<OpenMatchCard> {
                   shape: CircleBorder(),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.home),
+                  icon: const Icon(Icons.delete_forever_outlined),
                   color: Colors.white,
-                  onPressed: () => {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ProfilePage(password: widget.password))),
+                  onPressed: () async {
+                    await MatchServices().cancelMatch(widget.match.matchId);
+                    setState(() {});
+                    widget.callbackFunction('callback');
                   },
                 ),
               ),

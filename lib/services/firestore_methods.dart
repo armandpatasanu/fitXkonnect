@@ -45,34 +45,37 @@ class FirestoreMethods {
 
         LocationModel matchLocation =
             await LocationServices().getCertainLocation(locationId);
+
+        print("DEBUG: Avem locatia ${matchLocation.name}");
         List locations_sports = matchLocation.sports;
+        print("DEBUG: ----------------------");
+        locations_sports.forEach((element) {
+          print("DEBUG SPORT: {${element["sport"]} , ${element["matches"]}}");
+        });
+        print("DEBUG: ----------------------");
         bool found = false;
         int numberOfMatches;
-        print("WTF : MY SPORT ${sportId}");
+        print("DEBUG : MY SPORT ${sportId}");
+        print("DEBUG: ----------------------");
         locations_sports.forEach((element) {
-          print("WTF : COMING SPORTS : ${element.values.last}");
-          if (element.values.last == sportId) {
-            print("WTF: I MATCHED");
+          if (element["sport"] == sportId) {
+            print("DEBUG: MATCHED WITH ${element["sport"]}");
             found = true;
             numberOfMatches = element["matches"] + 1;
-            print("WTF : THE NEW NUMBER: ${numberOfMatches}");
+            print("DEBUG : THE NEW NUMBER: ${numberOfMatches}");
             element.update("matches", (value) => numberOfMatches);
-            // Map<String, dynamic> map = {
-            //   'sport': sportId,
-            //   'matches': element.values.first + 1,
-            // };
-            // locations_sports.add(map);
-            // numberOfMatches = int.parse(element.values.first) + 1;
           }
         });
 
+        print("DEBUG: ----------------------");
         if (found == true) {
+          print("DEBUG: AM GASIT SPORTUL SI AM INTRAT AICI");
           _firestore
               .collection('locations')
               .doc(locationId)
               .update({'sports': locations_sports});
         } else {
-          print("MJ got here");
+          print("DEBUG: SPORT NOU");
           Map<String, dynamic> map = {
             'sport': sportId,
             'matches': 1,

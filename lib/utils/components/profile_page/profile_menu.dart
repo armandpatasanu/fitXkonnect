@@ -44,12 +44,17 @@ class ProfileMenu extends StatelessWidget {
           child: Row(
             children: [
               Image.asset(icon,
-                  width: 35,
-                  height: 35,
+                  width: 25,
+                  height: 25,
                   fit: BoxFit.cover,
                   color: Colors.white),
               SizedBox(width: 20),
-              Expanded(child: Text(text)),
+              Expanded(
+                  child: Text(
+                text,
+                style: TextStyle(
+                    fontFamily: 'OpenSans', fontWeight: FontWeight.bold),
+              )),
               Icon(Icons.arrow_forward_ios),
             ],
           ),

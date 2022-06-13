@@ -44,16 +44,23 @@ class _NaviBarState extends State<NaviBar> {
                         AsyncSnapshot<List<LocationModel>> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting ||
                           !snapshot.hasData) {
-                        return Center(
-                          child: SpinKitCircle(
-                            size: 50,
-                            itemBuilder: (context, index) {
-                              final colors = [Colors.black, Colors.purple];
-                              final color = colors[index % colors.length];
-                              return DecoratedBox(
-                                decoration: BoxDecoration(color: color),
-                              );
-                            },
+                        return Scaffold(
+                          bottomNavigationBar:
+                              NaviBar(index: 2, password: widget.password),
+                          body: Container(
+                            color: Colors.white,
+                            child: Center(
+                              child: SpinKitCircle(
+                                size: 50,
+                                itemBuilder: (context, index) {
+                                  final colors = [Colors.black, Colors.purple];
+                                  final color = colors[index % colors.length];
+                                  return DecoratedBox(
+                                    decoration: BoxDecoration(color: color),
+                                  );
+                                },
+                              ),
+                            ),
                           ),
                         );
                       }
@@ -110,21 +117,21 @@ class _NaviBarState extends State<NaviBar> {
           icon: Icon(
             Icons.home,
           ),
-          title: Text('Home'),
-          textAlign: TextAlign.center,
+          title: Text('Feed'),
+          textAlign: TextAlign.start,
           activeColor: Colors.purple,
           inactiveColor: Colors.grey,
         ),
         BottomNavyBarItem(
           icon: Icon(Icons.search),
-          title: Text('Search'),
+          title: Text('Explore'),
           textAlign: TextAlign.center,
           activeColor: Colors.purple,
           inactiveColor: Colors.grey,
         ),
         BottomNavyBarItem(
           icon: Icon(Icons.add),
-          title: Text('Create'),
+          title: Text('MatchUp'),
           textAlign: TextAlign.center,
           activeColor: Colors.purple,
           inactiveColor: Colors.grey,

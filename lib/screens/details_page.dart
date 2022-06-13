@@ -46,6 +46,7 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
+    print("A VENIT CU ${widget.backIcon}");
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kPrimaryLightColor,
@@ -137,13 +138,13 @@ class _DetailPageState extends State<DetailPage> {
                   Row(
                     children: <Widget>[
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: 50,
+                        height: 50,
                         decoration: BoxDecoration(
                           shape: BoxShape.rectangle,
                           image: DecorationImage(
                               image: NetworkImage(widget.profile),
-                              fit: BoxFit.cover),
+                              fit: BoxFit.fitWidth),
                         ),
                       ),
                       SizedBox(
