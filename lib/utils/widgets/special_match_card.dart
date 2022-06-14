@@ -6,6 +6,7 @@ import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/services/user_services.dart';
+import 'package:fitxkonnect/utils/components/profile_page/profile_pic.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/icon_text_widget.dart';
@@ -37,8 +38,9 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.white),
-      height: 250,
+      padding: EdgeInsets.only(bottom: 20),
+      // decoration: BoxDecoration(color: Colors.red),
+      height: 240,
       width: MediaQuery.of(context).size.width,
       child: Stack(
         children: [
@@ -47,28 +49,43 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
             margin: EdgeInsets.only(left: 20, right: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              color: Colors.white,
-              image: DecorationImage(
-                colorFilter: new ColorFilter.mode(
-                    Colors.black.withOpacity(0.8), BlendMode.dstATop),
-                image: new ExactAssetImage(
-                    'assets/images/period_images/night.jpg'),
-                fit: BoxFit.cover,
-              ),
+              color: Color(0xff7fcbd7),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  offset: Offset(0.0, 14),
+                  blurRadius: 7,
+                ),
+              ],
+              // image: DecorationImage(
+              //   colorFilter: new ColorFilter.mode(
+              //       Colors.black.withOpacity(0.8), BlendMode.dstATop),
+              //   image: (widget.snap.startingTime.substring(0, 2) <= 13 &&
+              //           widget.snap.startingTime.substring(0, 2) >= 8)
+              //       ? new ExactAssetImage(
+              //           'assets/images/period_images/night.jpg')
+              //       : (widget.snap.startingTime.substring(0, 2) <= 19 &&
+              //               widget.snap.startingTime.substring(0, 2) > 13)
+              //           ? new ExactAssetImage(
+              //               'assets/images/period_images/night.jpg')
+              //           : new ExactAssetImage(
+              //               'assets/images/period_images/night.jpg'),
+              //   fit: BoxFit.cover,
+              // ),
             ),
           ),
           Positioned(
-            left: 192,
+            right: 20,
             top: 0,
             child: Container(
-              height: 135,
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              height: 115,
+              padding: EdgeInsets.only(top: 15, bottom: 15, left: 10),
               child: Column(
                 children: [
                   IconAndTextWidget(
                     icon: Icons.location_on,
                     text: widget.snap.locationName,
-                    iconColor: Colors.purple,
+                    iconColor: Color.fromARGB(255, 66, 62, 100),
                     color: kPrimaryColor,
                   ),
                   SizedBox(
@@ -77,7 +94,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   IconAndTextWidget(
                     icon: Icons.calendar_month,
                     text: widget.snap.matchDate,
-                    iconColor: Colors.purple,
+                    iconColor: Color.fromARGB(255, 66, 62, 100),
                     color: kPrimaryColor,
                   ),
                   SizedBox(
@@ -86,41 +103,67 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   IconAndTextWidget(
                     icon: Icons.access_alarm,
                     text: widget.snap.startingTime,
-                    iconColor: Colors.purple,
+                    iconColor: Color.fromARGB(255, 66, 62, 100),
                     color: kPrimaryColor,
                   ),
                 ],
                 crossAxisAlignment: CrossAxisAlignment.center,
               ),
 
-              width: 200,
+              width: 180,
               // margin: EdgeInsets.only(left: 40, right: 40),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30), color: Colors.white),
+                gradient: LinearGradient(colors: [
+                  kPrimaryLightColor,
+                  Color(0xff7fcbd7),
+                ], begin: Alignment.topRight, end: Alignment.bottomLeft),
+                // color: Colors.purple[200],
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                      spreadRadius: 1,
+                      blurRadius: 6,
+                      color: Color.fromARGB(255, 96, 155, 164),
+                      offset: Offset(-3, 8))
+                ],
+              ),
+              // decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(30),
+              //     color: Color.fromARGB(56, 202, 157, 215)),
             ),
           ),
           widget.snap.p1uid == FirebaseAuth.instance.currentUser!.uid
               ? Positioned(
-                  right: 20,
-                  top: 90,
+                  right: 50,
+                  top: 150,
                   child: Container(
                     width: 85,
-                    height: 45,
+                    height: 40,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       gradient: LinearGradient(
-                        colors: <Color>[Colors.white, Colors.purple],
+                        colors: <Color>[
+                          Color.fromARGB(255, 51, 132, 145),
+                          Color.fromARGB(255, 66, 62, 100)
+                        ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.purple,
+                          color: Colors.grey,
                           offset: Offset(0.0, 1.5),
                           blurRadius: 1.5,
                         ),
                       ],
                     ),
                     child: IconButton(
-                      icon: Icon(Icons.cancel),
+                      icon: Text(
+                        'Cancel',
+                        style: TextStyle(
+                            letterSpacing: 1,
+                            color: Colors.white,
+                            fontFamily: 'OpenSans',
+                            fontWeight: FontWeight.normal),
+                      ),
                       onPressed: () async {
                         await MatchServices().cancelMatch(widget.snap.matchId);
                         setState(() {});
@@ -130,11 +173,11 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   ),
                 )
               : Positioned(
-                  right: 20,
-                  top: 90,
+                  right: 50,
+                  top: 150,
                   child: Container(
                     width: 85,
-                    height: 45,
+                    height: 40,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       gradient: LinearGradient(
@@ -142,7 +185,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey,
+                          color: Colors.green,
                           offset: Offset(0.0, 1.5),
                           blurRadius: 1.5,
                         ),
@@ -166,49 +209,70 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
               ),
               Positioned(
                 top: 132,
-                left: 5,
+                left: 0,
+                bottom: 0,
                 child: Container(
                   height: 70,
                   width: 210,
                   margin: EdgeInsets.only(left: 15, right: 20, bottom: 15),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.white,
-                  ),
+                      gradient: LinearGradient(colors: [
+                        kPrimaryLightColor,
+                        Color(0xff7fcbd7),
+                      ], begin: Alignment.bottomLeft, end: Alignment.topRight),
+                      // color: Colors.purple[200],
+                      borderRadius: BorderRadius.circular(100),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Color.fromARGB(255, 96, 155, 164),
+                            blurRadius: 7,
+                            spreadRadius: 2,
+                            offset: Offset(4, 0)),
+                      ]),
+                  // decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(30),
+                  //     // border:
+                  //     //     Border.all(color: Color.fromARGB(176, 250, 203, 211)),
+                  //     color: Color.fromARGB(80, 202, 157, 215)),
                   child: Container(
                     padding: EdgeInsets.only(top: 10, left: 15, right: 15),
                     child: Column(children: [
-                      SizedBox(
-                        height: 5,
-                      ),
+                      // SizedBox(
+                      //   height: 5,
+                      // ),
                       Text(
                         widget.snap.p1Name + ', ' + widget.snap.p1Age,
-                        style: TextStyle(fontSize: 15, color: kPrimaryColor),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            // color: Color.fromARGB(255, 93, 58, 157),
+                            color: Color.fromARGB(255, 32, 114, 127),
+                            fontFamily: 'OpenSans'),
                       ),
                       SizedBox(
                         height: 5,
                       ),
                       Container(
                           height: 25,
-                          width: 160,
+                          width: 200,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 widget.snap.sport,
-                                style: TextStyle(color: kPrimaryColor),
+                                style: TextStyle(color: Colors.black),
                               ),
                               SizedBox(
                                 width: 10,
                               ),
-                              convertSportToIcon(
-                                  widget.snap.sport, '', Colors.black),
+                              convertSportToIcon(widget.snap.sport, '',
+                                  Color.fromARGB(255, 66, 62, 100)),
                               SizedBox(
                                 width: 2,
                               ),
                               Text(
                                 ' -  ${widget.snap.difficulty}',
-                                style: TextStyle(color: kPrimaryColor),
+                                style: TextStyle(color: Colors.black),
                               ),
                             ],
                           )),
@@ -218,15 +282,28 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
               ),
               Positioned(
                 top: 20,
-                left: 65,
+                left: 60,
                 child: Container(
                     width: 120.0,
                     height: 120.0,
-                    decoration: new BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: new DecorationImage(
-                            fit: BoxFit.cover,
-                            image: new NetworkImage(widget.snap.p1Profile)))),
+                    padding: EdgeInsets.all(5),
+                    child: ProfilePic(profilePhoto: widget.snap.p1Profile),
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            colors: [
+                              kPrimaryLightColor,
+                              Color.fromARGB(255, 130, 68, 141),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight),
+                        // color: Colors.purple[200],
+                        borderRadius: BorderRadius.circular(100),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey.withOpacity(0.45),
+                              blurRadius: 15,
+                              spreadRadius: 5),
+                        ])),
               ),
               Positioned(
                 top: 20,

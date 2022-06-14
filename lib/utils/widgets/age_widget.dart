@@ -32,28 +32,13 @@ class DateOfBirthField extends StatelessWidget {
           SizedBox(
             width: 10,
           ),
-          // TextFieldContainer(
-          //   child: TextFormField(
-          //     controller: controller,
-          //     cursorColor: kPrimaryColor,
-          //     decoration: InputDecoration(
-          //         icon: Icon(
-          //           icon,
-          //           color: kPrimaryColor,
-          //         ),
-          //         hintText: hintText,
-          //         hintStyle: const TextStyle(
-          //             fontFamily: 'OpenSans', color: kPrimaryColor),
-          //         border: InputBorder.none),
-          //   ),
-          // ),
           Flexible(
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 10),
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 5),
               width: 190,
               decoration: BoxDecoration(
-                color: kPrimaryLightColor,
+                color: Color.fromARGB(255, 207, 157, 216),
                 borderRadius: BorderRadius.circular(29),
               ),
               child: DateTimeField(
@@ -63,11 +48,10 @@ class DateOfBirthField extends StatelessWidget {
                 decoration: InputDecoration(
                   fillColor: Colors.amber,
                   hintText: 'Pick Date',
-                  hintStyle: TextStyle(
-                      fontFamily: 'OpenSans',
-                      color: kPrimaryColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold),
+                  hintStyle: const TextStyle(
+                    fontFamily: 'OpenSans',
+                    color: kPrimaryColor,
+                  ),
                 ),
                 format: DateFormat('MM/dd/yyyy'),
                 onShowPicker: (context, currentValue) async {

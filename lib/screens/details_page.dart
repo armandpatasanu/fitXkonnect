@@ -13,6 +13,7 @@ import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/rating_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'dart:ui' as ui;
 
@@ -281,7 +282,25 @@ class _DetailPageState extends State<DetailPage> {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return Center(
-                              child: CircularProgressIndicator(),
+                              child: Container(
+                                color: Colors.white,
+                                child: Center(
+                                  child: SpinKitCircle(
+                                    size: 50,
+                                    itemBuilder: (context, index) {
+                                      final colors = [
+                                        Colors.black,
+                                        Colors.purple
+                                      ];
+                                      final color =
+                                          colors[index % colors.length];
+                                      return DecoratedBox(
+                                        decoration: BoxDecoration(color: color),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
                             );
                           }
                           return createMatchesListView(context, snapshot.data!);
@@ -318,19 +337,13 @@ class _DetailPageState extends State<DetailPage> {
                             padding: EdgeInsets.all(16),
                             height: 180,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              gradient: LinearGradient(
-                                  colors: [
-                                    Color(0xff6DC8F3),
-                                    Color(0xff73A1F9)
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight),
+                              borderRadius: BorderRadius.circular(30),
+                              color: Color.fromARGB(255, 128, 210, 223),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Color.fromARGB(255, 208, 85, 112),
-                                  blurRadius: 12,
-                                  offset: Offset(0, 6),
+                                  color: Colors.grey,
+                                  offset: Offset(0.0, 14),
+                                  blurRadius: 7,
                                 ),
                               ],
                             ),
@@ -349,10 +362,20 @@ class _DetailPageState extends State<DetailPage> {
                             child: Row(
                               children: <Widget>[
                                 Expanded(
-                                  child: Image.network(
-                                    values[index].p1Profile,
-                                    height: 88,
-                                    width: 88,
+                                  child: Container(
+                                    height: 85,
+                                    width: 85,
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                            values[index].p1Profile,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                   flex: 2,
                                 ),
@@ -360,7 +383,7 @@ class _DetailPageState extends State<DetailPage> {
                                   width: 3,
                                 ),
                                 Expanded(
-                                  flex: 3,
+                                  flex: 4,
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment:
@@ -374,14 +397,39 @@ class _DetailPageState extends State<DetailPage> {
                                             fontWeight: FontWeight.w700,
                                             fontSize: 18),
                                       ),
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              '${values[index].p1Age}, ',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Avenir',
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 5),
+                                          Flexible(
+                                            child: Text(
+                                              values[index]
+                                                  .p1Country
+                                                  .substring(2),
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Avenir',
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 16),
                                       Text(
-                                        '${values[index].sport} · Casual ·',
+                                        '${values[index].sport} · ${values[index].difficulty} ·',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontFamily: 'Avenir',
                                         ),
                                       ),
-                                      SizedBox(height: 16),
                                       Row(
                                         children: <Widget>[
                                           Icon(
@@ -403,48 +451,6 @@ class _DetailPageState extends State<DetailPage> {
                                           ),
                                         ],
                                       ),
-                                      Row(
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              values[index].p1Age,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'Avenir',
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 5),
-                                          Flexible(
-                                            child: Text(
-                                              values[index]
-                                                  .p1Country
-                                                  .substring(2),
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'Avenir',
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Text(
-                                        values[index].difficulty,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'Avenir',
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                      RatingBar(rating: 3),
                                     ],
                                   ),
                                 ),
@@ -454,8 +460,8 @@ class _DetailPageState extends State<DetailPage> {
                           values[index].p1uid ==
                                   FirebaseAuth.instance.currentUser!.uid
                               ? Positioned(
-                                  left: 200,
-                                  top: 120,
+                                  bottom: 10,
+                                  right: 10,
                                   child: Container(
                                     width: 85,
                                     height: 45,
@@ -487,8 +493,8 @@ class _DetailPageState extends State<DetailPage> {
                                   ),
                                 )
                               : Positioned(
-                                  left: 200,
-                                  top: 120,
+                                  bottom: 10,
+                                  right: 10,
                                   child: Container(
                                     width: 85,
                                     height: 45,
@@ -522,7 +528,21 @@ class _DetailPageState extends State<DetailPage> {
                         ],
                       ),
                     )
-                  : CircularProgressIndicator();
+                  : Container(
+                      color: Colors.white,
+                      child: Center(
+                        child: SpinKitCircle(
+                          size: 50,
+                          itemBuilder: (context, index) {
+                            final colors = [Colors.black, Colors.purple];
+                            final color = colors[index % colors.length];
+                            return DecoratedBox(
+                              decoration: BoxDecoration(color: color),
+                            );
+                          },
+                        ),
+                      ),
+                    );
             },
           )
         : Text(

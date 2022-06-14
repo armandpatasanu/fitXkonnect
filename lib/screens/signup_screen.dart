@@ -60,9 +60,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     String result = await AuthMethods().registerValidation(
       email: _emailController.text,
       password: _passwordController.text,
-      age: (DateTime.now().year -
-              int.parse(_dateTimeController.text.substring(6, 10)))
-          .toString(),
+      age: _dateTimeController.text != ''
+          ? (DateTime.now().year -
+                  int.parse(_dateTimeController.text.substring(6, 10)))
+              .toString()
+          : '',
       fullName: _fullNameController.text,
       country: _country,
       file: _image,
@@ -79,6 +81,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (result != 'success') {
       showSnackBar(result, context);
     } else {
+      showSnackBar('Your account has been successfully created!', context);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LoginScreen()));
     }
@@ -97,8 +100,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Stack(
             children: [
               Container(
+                padding: EdgeInsets.only(bottom: 180),
                 width: size.width,
-                height: size.height / 3,
+                height: size.height / 2,
                 decoration: BoxDecoration(
                   color: kPrimaryColor,
                 ),
@@ -111,10 +115,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               backgroundImage: MemoryImage(_image!),
                             )
                           : const CircleAvatar(
+                              backgroundColor: Colors.white,
                               radius: 64,
-                              backgroundImage: NetworkImage(
-                                'https://spng.pngfind.com/pngs/s/110-1102775_download-empty-profile-hd-png-download.png',
-                              ),
+                              backgroundImage: AssetImage(
+                                  'assets/images/reg_log/default_profile.png'),
                             ),
                       Positioned(
                         bottom: -10,
@@ -123,7 +127,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: selectImage,
                           icon: const Icon(
                             Icons.add_a_photo,
-                            color: kPrimaryLightColor,
+                            color: Color.fromARGB(255, 207, 157, 216),
                           ),
                         ),
                       ),
@@ -132,11 +136,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
               const PageTitleBar(
-                topPadding: 220,
+                topPadding: 200,
                 title: 'Create New Account',
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 275.0),
+                padding: const EdgeInsets.only(top: 255.0),
                 child: Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(
@@ -167,7 +171,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               controller: _fullNameController,
                             ),
                             DateOfBirthField(
-                              hintText: "Email",
+                              hintText: "Age",
                               icon: Icons.email,
                               controller: _dateTimeController,
                             ),
@@ -228,6 +232,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       : Container(),
                                 ],
                               ),
+                            ),
+                            const SizedBox(
+                              height: 10,
                             ),
                             RoundedButton(
                               isLoading: _isLoading,

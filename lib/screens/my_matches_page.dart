@@ -53,8 +53,22 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
           .getSpecificUser(FirebaseAuth.instance.currentUser!.uid),
       builder: (BuildContext context, AsyncSnapshot<UserModel> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Center(
+            child: Container(
+              color: Colors.white,
+              child: Center(
+                child: SpinKitCircle(
+                  size: 50,
+                  itemBuilder: (context, index) {
+                    final colors = [Colors.black, Colors.purple];
+                    final color = colors[index % colors.length];
+                    return DecoratedBox(
+                      decoration: BoxDecoration(color: color),
+                    );
+                  },
+                ),
+              ),
+            ),
           );
         }
         return Stack(children: [
@@ -101,8 +115,20 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                         if (snapshot.connectionState ==
                                 ConnectionState.waiting ||
                             !snapshot.hasData) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
+                          return Container(
+                            color: Colors.white,
+                            child: Center(
+                              child: SpinKitCircle(
+                                size: 50,
+                                itemBuilder: (context, index) {
+                                  final colors = [Colors.black, Colors.purple];
+                                  final color = colors[index % colors.length];
+                                  return DecoratedBox(
+                                    decoration: BoxDecoration(color: color),
+                                  );
+                                },
+                              ),
+                            ),
                           );
                         }
                         return createMatchesListView(context, snapshot);
@@ -116,8 +142,25 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                         if (snapshot.connectionState ==
                                 ConnectionState.waiting ||
                             !snapshot.hasData) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
+                          return Center(
+                            child: Container(
+                              color: Colors.white,
+                              child: Center(
+                                child: SpinKitCircle(
+                                  size: 50,
+                                  itemBuilder: (context, index) {
+                                    final colors = [
+                                      Colors.black,
+                                      Colors.purple
+                                    ];
+                                    final color = colors[index % colors.length];
+                                    return DecoratedBox(
+                                      decoration: BoxDecoration(color: color),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
                           );
                         }
                         return createOpenMatchesListView(context, snapshot);
@@ -131,8 +174,25 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                         if (snapshot.connectionState ==
                                 ConnectionState.waiting ||
                             !snapshot.hasData) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
+                          return Center(
+                            child: Container(
+                              color: Colors.white,
+                              child: Center(
+                                child: SpinKitCircle(
+                                  size: 50,
+                                  itemBuilder: (context, index) {
+                                    final colors = [
+                                      Colors.black,
+                                      Colors.purple
+                                    ];
+                                    final color = colors[index % colors.length];
+                                    return DecoratedBox(
+                                      decoration: BoxDecoration(color: color),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
                           );
                         }
                         return createDecidedMatchesListView(context, snapshot);
@@ -190,7 +250,23 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
               return values.isNotEmpty
                   ? FullMatchCard(
                       match: values[index], callbackFunction: callback)
-                  : CircularProgressIndicator();
+                  : Center(
+                      child: Container(
+                        color: Colors.white,
+                        child: Center(
+                          child: SpinKitCircle(
+                            size: 50,
+                            itemBuilder: (context, index) {
+                              final colors = [Colors.black, Colors.purple];
+                              final color = colors[index % colors.length];
+                              return DecoratedBox(
+                                decoration: BoxDecoration(color: color),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
             },
           );
   }
@@ -226,7 +302,23 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
               return values.isNotEmpty
                   ? FullMatchCard(
                       match: values[index], callbackFunction: callback)
-                  : CircularProgressIndicator();
+                  : Center(
+                      child: Container(
+                        color: Colors.white,
+                        child: Center(
+                          child: SpinKitCircle(
+                            size: 50,
+                            itemBuilder: (context, index) {
+                              final colors = [Colors.black, Colors.purple];
+                              final color = colors[index % colors.length];
+                              return DecoratedBox(
+                                decoration: BoxDecoration(color: color),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
             },
           );
   }
@@ -307,7 +399,23 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
                       password: widget.password,
                       match: values[index],
                       callbackFunction: callback)
-                  : CircularProgressIndicator();
+                  : Center(
+                      child: Container(
+                        color: Colors.white,
+                        child: Center(
+                          child: SpinKitCircle(
+                            size: 50,
+                            itemBuilder: (context, index) {
+                              final colors = [Colors.black, Colors.purple];
+                              final color = colors[index % colors.length];
+                              return DecoratedBox(
+                                decoration: BoxDecoration(color: color),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
             },
           );
   }

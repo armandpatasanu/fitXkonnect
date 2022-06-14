@@ -17,7 +17,16 @@ pickImage(ImageSource source) async {
 
 showSnackBar(String content, BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(content),
+    elevation: 10.0,
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(20))),
+    backgroundColor: Color.fromARGB(255, 207, 157, 216),
+    behavior: SnackBarBehavior.floating,
+    content: Text(
+      content,
+      style: TextStyle(color: Colors.white, fontSize: 15),
+      textAlign: TextAlign.center,
+    ),
   ));
 }
 
@@ -55,9 +64,9 @@ Widget convertSportToIcon(String sport, String text, Color color) {
         fit: BoxFit.cover,
         color: color,
       );
-    case 'Golf':
+    case 'Bowling':
       return Image.asset(
-        'assets/images/sport_icons/golf.png',
+        'assets/images/sport_icons/bowling.png',
         width: 25,
         height: 25,
         fit: BoxFit.cover,
@@ -152,11 +161,11 @@ class CustomCardShapePainter extends CustomPainter {
 String getDifFromValue(int v) {
   switch (v) {
     case 1:
-      return 'Easy';
+      return 'Beginner';
     case 2:
-      return 'Medium';
+      return 'Ocasional';
     case 3:
-      return 'Hard';
+      return 'Advanced';
     default:
       return 'all';
   }

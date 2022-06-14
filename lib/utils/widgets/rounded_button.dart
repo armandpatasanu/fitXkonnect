@@ -1,6 +1,7 @@
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class RoundedButton extends StatelessWidget {
   const RoundedButton(
@@ -29,26 +30,31 @@ class RoundedButton extends StatelessWidget {
   }
 
   Widget newElevatedButton(bool isLoading) {
-    return ElevatedButton(
-      child: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
+    return SizedBox(
+      width: 200,
+      height: 55,
+      child: ElevatedButton(
+        child: isLoading
+            ? const Center(
+                child: SpinKitCircle(
+                  size: 24,
+                  color: Colors.white,
+                ),
+              )
+            : Text(
+                text,
               ),
-            )
-          : Text(
-              text,
-            ),
-      onPressed: press,
-      style: ElevatedButton.styleFrom(
-          primary: kPrimaryColor,
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-          textStyle: TextStyle(
-              letterSpacing: 2,
-              color: textColor,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'OpenSans')),
+        onPressed: press,
+        style: ElevatedButton.styleFrom(
+            primary: kPrimaryColor,
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+            textStyle: TextStyle(
+                letterSpacing: 2,
+                color: textColor,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'OpenSans')),
+      ),
     );
   }
 }

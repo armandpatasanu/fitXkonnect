@@ -115,10 +115,10 @@ class _NaviBarState extends State<NaviBar> {
       items: <BottomNavyBarItem>[
         BottomNavyBarItem(
           icon: Icon(
-            Icons.home,
+            Icons.feed,
           ),
-          title: Text('Feed'),
-          textAlign: TextAlign.start,
+          title: Text('Home'),
+          textAlign: TextAlign.center,
           activeColor: Colors.purple,
           inactiveColor: Colors.grey,
         ),
@@ -138,7 +138,7 @@ class _NaviBarState extends State<NaviBar> {
         ),
         BottomNavyBarItem(
           icon: Icon(Icons.people),
-          title: Text('My Account'),
+          title: Text('Profile'),
           textAlign: TextAlign.center,
           activeColor: Colors.purple,
           inactiveColor: Colors.grey,

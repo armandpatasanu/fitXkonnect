@@ -15,7 +15,7 @@ class PageTitleBar extends StatelessWidget {
         width: double.infinity,
         height: MediaQuery.of(context).size.height / 4,
         decoration: const BoxDecoration(
-          color: kPrimaryLightColor,
+          color: Color.fromARGB(255, 207, 157, 216),
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(50),
             topRight: Radius.circular(50),
@@ -31,7 +31,7 @@ class PageTitleBar extends StatelessWidget {
                 fontSize: 20,
                 letterSpacing: 1,
                 fontWeight: FontWeight.bold,
-                color: Color(0xfff575861)),
+                color: Colors.black),
           ),
         ),
       ),

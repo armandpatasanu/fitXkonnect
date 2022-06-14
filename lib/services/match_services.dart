@@ -14,6 +14,7 @@ import 'package:fitxkonnect/services/sport_services.dart';
 import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class MatchServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -73,6 +74,86 @@ class MatchServices {
         wantedMatches.add(element);
       }
     });
+    return wantedMatches;
+  }
+
+  List<MatchModel> getMatchesBasedOnStartingAndFinal(
+      String st, String fi, List<MatchModel> list) {
+    print("PROBLEM ${st.substring(0, 4)}");
+    print("PROBLEM ${st.substring(5, 7)}");
+    print("PROBLEM ${st.substring(8, 10)}");
+
+    print("ROMANIA ST IS $st");
+    print("ROMANIA FI IS $fi");
+
+    var dateFormat = DateFormat('y-MM-dd');
+    List<MatchModel> wantedMatches = [];
+    if (st != "" && fi != "") {
+      print("ROMANIA HELO1?");
+      DateTime start = DateTime(
+        int.parse(st.substring(0, 4)),
+        int.parse(st.substring(6, 7)),
+        int.parse(st.substring(8, 10)),
+      );
+      DateTime finalmente = DateTime(
+        int.parse(fi.substring(0, 4)),
+        int.parse(fi.substring(6, 7)),
+        int.parse(fi.substring(8, 10)),
+      );
+      list.forEach((element) {
+        print("am intrat");
+        print("${element.startingTime}");
+        DateTime date = DateTime(
+          int.parse(element.matchDate.substring(0, 4)),
+          int.parse(element.matchDate.substring(6, 7)),
+          int.parse(element.matchDate.substring(8, 10)),
+        );
+        if (start.isBefore(date) && finalmente.isAfter(date)) {
+          print("meh");
+          wantedMatches.add(element);
+        }
+      });
+    } else if (st != "" && fi == "") {
+      {
+        print("ROMANIA HELO2?");
+        DateTime start = DateTime(
+          int.parse(st.substring(0, 4)),
+          int.parse(st.substring(6, 7)),
+          int.parse(st.substring(8, 10)),
+        );
+        list.forEach((element) {
+          DateTime date = DateTime(
+            int.parse(element.matchDate.substring(0, 4)),
+            int.parse(element.matchDate.substring(6, 7)),
+            int.parse(element.matchDate.substring(8, 10)),
+          );
+          if (start.isBefore(date)) {
+            print("meh");
+            wantedMatches.add(element);
+          }
+        });
+      }
+    } else if (st == "" && fi != "") {
+      {
+        print("ROMANIA HELO3?");
+        DateTime finalmente = DateTime(
+          int.parse(fi.substring(0, 4)),
+          int.parse(fi.substring(6, 7)),
+          int.parse(fi.substring(8, 10)),
+        );
+        list.forEach((element) {
+          DateTime date = DateTime(
+            int.parse(element.matchDate.substring(0, 4)),
+            int.parse(element.matchDate.substring(6, 7)),
+            int.parse(element.matchDate.substring(8, 10)),
+          );
+          if (finalmente.isAfter(date)) {
+            print("meh");
+            wantedMatches.add(element);
+          }
+        });
+      }
+    }
     return wantedMatches;
   }
 
@@ -148,7 +229,11 @@ class MatchServices {
   }
 
   Future<List<HomePageMatch>> getActualHomePageMatches(
-      String sportFilter, String diffFilter, String dayFilter) async {
+      String sportFilter,
+      String diffFilter,
+      String dayFilter,
+      String startingTime,
+      String finalTime) async {
     List<MatchModel> filteredOnce = [];
     if (sportFilter == "all") {
       filteredOnce = await MatchServices().getAllHomePageMatches();
@@ -169,9 +254,19 @@ class MatchServices {
       filteredThird =
           MatchServices().getMatchesBasedOnDay(dayFilter, filteredTwice);
     }
+    List<MatchModel> filtered4 = [];
+    if (startingTime == "" && finalTime == "") {
+      filtered4 = filteredThird;
+    } else {
+      print("ROMANIA UHM!?");
+      print("ROMANIA UHM $startingTime");
+      print("ROMANIA UHM $finalTime");
+      filtered4 = MatchServices().getMatchesBasedOnStartingAndFinal(
+          startingTime, finalTime, filteredThird);
+    }
     List<HomePageMatch> neededMatches = [];
 
-    for (var match in filteredThird) {
+    for (var match in filtered4) {
       UserModel user = await UserServices().getSpecificUser(match.player1);
       LocationModel location =
           await LocationServices().getCertainLocation(match.location);
@@ -310,8 +405,8 @@ class MatchServices {
   }
 
   Future<List<HomePageMatch>> getUserOpenMatches(String userId) async {
-    List<HomePageMatch> generalMatches =
-        await MatchServices().getActualHomePageMatches("all", "all", "all");
+    List<HomePageMatch> generalMatches = await MatchServices()
+        .getActualHomePageMatches("all", "all", "all", "", "");
 
     List<HomePageMatch> matchesToCome = [];
     generalMatches.forEach((element) async {

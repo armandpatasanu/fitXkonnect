@@ -30,7 +30,8 @@ class _LoadingMatchCardState extends State<LoadingMatchCard> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: Colors.white),
-      height: 250,
+      padding: EdgeInsets.only(bottom: 20),
+      height: 240,
       width: MediaQuery.of(context).size.width,
       child: Stack(
         children: [
@@ -43,12 +44,12 @@ class _LoadingMatchCardState extends State<LoadingMatchCard> {
             ),
           ),
           Positioned(
-            left: 190,
-            top: 30,
+            left: 192,
+            top: 0,
             child: Container(
-              height: 100,
-              // padding: EdgeInsets.only(left: 40, top: 30),
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              height: 115,
+              // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.only(top: 15, bottom: 15, left: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -63,7 +64,7 @@ class _LoadingMatchCardState extends State<LoadingMatchCard> {
                   Skeleton(),
                 ],
               ),
-              width: 200,
+              width: 180,
               // margin: EdgeInsets.only(left: 40, right: 40),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),

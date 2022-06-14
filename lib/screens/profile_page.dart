@@ -238,13 +238,13 @@ class _ProfilePageState extends State<ProfilePage> {
                               itemCount: user.data![2].length,
                               itemBuilder: (context, index) {
                                 switch (user.data![2][index]['difficulty']) {
-                                  case 'Easy':
+                                  case 'Beginner':
                                     _sportsColor = Colors.green;
                                     break;
-                                  case 'Medium':
+                                  case 'Ocasional':
                                     _sportsColor = Colors.amber;
                                     break;
-                                  case 'Hard':
+                                  case 'Advanced':
                                     _sportsColor = Colors.red;
                                     break;
                                 }

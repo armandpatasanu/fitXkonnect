@@ -4,6 +4,7 @@ import 'package:fitxkonnect/screens/location_filter_screen.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class FilterPage extends StatefulWidget {
   final String password;
@@ -119,8 +120,27 @@ class _FilterPageState extends State<FilterPage> {
                                           snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.waiting) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
+                                      return Center(
+                                        child: Container(
+                                          color: Colors.white,
+                                          child: Center(
+                                            child: SpinKitCircle(
+                                              size: 50,
+                                              itemBuilder: (context, index) {
+                                                final colors = [
+                                                  Colors.black,
+                                                  Colors.purple
+                                                ];
+                                                final color = colors[
+                                                    index % colors.length];
+                                                return DecoratedBox(
+                                                  decoration: BoxDecoration(
+                                                      color: color),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
                                       );
                                     }
                                     return FilterLocationScreen(

@@ -30,16 +30,13 @@ class _FullMatchCardState extends State<FullMatchCard> {
               height: 180,
               decoration: widget.match.status == 'matched'
                   ? BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      gradient: LinearGradient(
-                          colors: [Color(0xff6DC8F3), Color(0xff73A1F9)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight),
+                      borderRadius: BorderRadius.circular(30),
+                      color: Color.fromARGB(255, 128, 210, 223),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.blue.shade200,
-                          blurRadius: 22,
-                          offset: Offset(0, 6),
+                          color: Colors.grey,
+                          offset: Offset(0.0, 14),
+                          blurRadius: 7,
                         ),
                       ],
                     )
@@ -388,7 +385,13 @@ class _FullMatchCardState extends State<FullMatchCard> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      ProfilePic(profilePhoto: widget.match.p1Profile),
+                      Container(
+                          color: Colors.white,
+                          padding: EdgeInsets.all(5),
+                          height: 115,
+                          width: 115,
+                          child:
+                              ProfilePic(profilePhoto: widget.match.p1Profile)),
                       Text(
                         widget.match.p1Name.split(' ').first +
                             ' , ' +

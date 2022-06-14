@@ -38,14 +38,16 @@ class AuthMethods {
         result = 'Email field cannot be empty!';
       } else if (!regExp.hasMatch(email)) {
         result = 'Email format is not valid!';
+      } else if (fullName.isEmpty) {
+        result = 'Full name field cannot be empty!';
+      } else if (age == '') {
+        result = 'Please select your datebirth!';
       } else if (password.isEmpty) {
         result = 'Password field cannot be empty!';
       } else if (password.length < 6) {
         result = 'Password length too short!';
       } else if (country == null) {
         result = 'Please select your country!';
-      } else if (age == null) {
-        result = 'Please select your datebirth!';
       } else if (file == null) {
         result = 'Please select a picture!';
       } else {
@@ -62,7 +64,7 @@ class AuthMethods {
             await SportServices().getListOfSportsName();
 
         UserModel user = UserModel(
-          age: age,
+          age: age!,
           fullName: fullName,
           uid: credential.user!.uid,
           profilePhoto: photoUrl,
@@ -122,9 +124,10 @@ class AuthMethods {
       } else {
         await _auth.sendPasswordResetEmail(email: email);
       }
-    } catch (error) {
-      result = error.toString();
+    } on FirebaseAuthException catch (error) {
+      result = error.message.toString();
     }
+
     return result;
   }
 

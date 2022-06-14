@@ -15,6 +15,8 @@ import 'package:fitxkonnect/utils/widgets/search_screen/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 class FilterLocationScreen extends StatefulWidget {
   final List<Map<LocationModel, List<String>>> map_loc;
   final String password;
@@ -310,9 +312,32 @@ class _FilterLocationScreenState extends State<FilterLocationScreen>
                                                       snapshot) {
                                                 if (snapshot.connectionState ==
                                                     ConnectionState.waiting) {
-                                                  return const Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
+                                                  return Center(
+                                                    child: Container(
+                                                      color: Colors.white,
+                                                      child: Center(
+                                                        child: SpinKitCircle(
+                                                          size: 50,
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            final colors = [
+                                                              Colors.black,
+                                                              Colors.purple
+                                                            ];
+                                                            final color =
+                                                                colors[index %
+                                                                    colors
+                                                                        .length];
+                                                            return DecoratedBox(
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                      color:
+                                                                          color),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
                                                   );
                                                 }
                                                 return DetailPage(

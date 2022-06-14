@@ -35,23 +35,25 @@ class _LoginScreenState extends State<LoginScreen> {
       email: _emailController.text.trim(),
     );
 
-    @override
-    void initState() {
-      _hidePass = true;
-    }
-
     if (result != 'success') {
       showSnackBar(result, context);
     } else {
+      showSnackBar(
+          'Check your email in order to reset your password!', context);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LoginScreen()));
     }
   }
 
+  @override
+  void initState() {
+    _hidePass = true;
+  }
+
   void logInUser() async {
-    // setState(() {
-    //   _isLoading = true;
-    // });
+    setState(() {
+      _isLoading = true;
+    });
 
     String result = await AuthMethods().logInUser(
       email: _emailController.text.trim(),
@@ -67,9 +69,9 @@ class _LoginScreenState extends State<LoginScreen> {
           builder: (context) =>
               HomePage(password: _passwordController.text.trim())));
     }
-    // setState(() {
-    //   _isLoading = false;
-    // });
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -204,13 +206,26 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(
                                 height: 15,
                               ),
-                              const Text(
-                                "use your email account",
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'OpenSans',
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    "Welcome to",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: 'OpenSans',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  const Text(
+                                    " FitXKonnekt",
+                                    style: TextStyle(
+                                        color: Colors.purple,
+                                        fontFamily: 'OpenSans',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
                               ),
                               Form(
                                 child: Column(
@@ -225,6 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       passwordVisible: true,
                                     ),
                                     RoundedButton(
+                                      textColor: Colors.black,
                                       isLoading: _isLoading,
                                       text: 'LOGIN',
                                       press: () {
@@ -255,7 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               color: kPrimaryColor,
                                               fontFamily: 'OpenSans',
                                               fontWeight: FontWeight.w600,
-                                              fontSize: 13),
+                                              fontSize: 15),
                                         ),
                                         onTap: () => setState(() {
                                               isResetPressed = true;

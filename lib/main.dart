@@ -22,6 +22,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
 
@@ -262,10 +263,23 @@ class _MyAppState extends State<MyApp> {
               }
             }
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                  child: CircularProgressIndicator(
-                color: primaryColor,
-              ));
+              return Center(
+                child: Container(
+                  color: Colors.white,
+                  child: Center(
+                    child: SpinKitCircle(
+                      size: 50,
+                      itemBuilder: (context, index) {
+                        final colors = [Colors.black, Colors.purple];
+                        final color = colors[index % colors.length];
+                        return DecoratedBox(
+                          decoration: BoxDecoration(color: color),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
             }
 
             return const LoginScreen();

@@ -9,6 +9,7 @@ import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/custom_details_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 class LocationInfo extends StatefulWidget {
@@ -54,8 +55,22 @@ class _LocationInfoState extends State<LocationInfo> {
             .snapshots(),
         builder: (context, AsyncSnapshot snep) {
           if (!snep.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Center(
+              child: Container(
+                color: Colors.white,
+                child: Center(
+                  child: SpinKitCircle(
+                    size: 50,
+                    itemBuilder: (context, index) {
+                      final colors = [Colors.black, Colors.purple];
+                      final color = colors[index % colors.length];
+                      return DecoratedBox(
+                        decoration: BoxDecoration(color: color),
+                      );
+                    },
+                  ),
+                ),
+              ),
             );
           }
           final documentSnapshotList = snep.data.docs;
@@ -72,8 +87,22 @@ class _LocationInfoState extends State<LocationInfo> {
                   AsyncSnapshot<List<dynamic>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting ||
                     !snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                  return Center(
+                    child: Container(
+                      // color: Colors.white,
+                      child: Center(
+                        child: SpinKitCircle(
+                          size: 50,
+                          itemBuilder: (context, index) {
+                            final colors = [Colors.black, Colors.purple];
+                            final color = colors[index % colors.length];
+                            return DecoratedBox(
+                              decoration: BoxDecoration(color: color),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
                   );
                 }
                 return Stack(

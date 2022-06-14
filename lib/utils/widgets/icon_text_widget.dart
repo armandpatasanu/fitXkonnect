@@ -22,13 +22,18 @@ class IconAndTextWidget extends StatelessWidget {
           color: iconColor,
         ),
         SizedBox(
-          width: 10,
+          width: 5,
         ),
-        Text(
-          text,
-          style: TextStyle(
-            color: color,
-            fontSize: 14,
+        FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 14,
+              fontFamily: 'OpenSans',
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],

@@ -10,6 +10,7 @@ import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
 import 'package:fitxkonnect/utils/widgets/navi_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 class ConfigureSportPage extends StatefulWidget {
@@ -99,8 +100,22 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
               .snapshots(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (!snapshot.hasData)
-              return const Center(
-                child: CircularProgressIndicator(),
+              return Center(
+                child: Container(
+                  color: Colors.white,
+                  child: Center(
+                    child: SpinKitCircle(
+                      size: 50,
+                      itemBuilder: (context, index) {
+                        final colors = [Colors.black, Colors.purple];
+                        final color = colors[index % colors.length];
+                        return DecoratedBox(
+                          decoration: BoxDecoration(color: color),
+                        );
+                      },
+                    ),
+                  ),
+                ),
               );
             return MaterialApp(
               debugShowCheckedModeBanner: false,
@@ -319,21 +334,21 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
                           buildDifficultyRadioText(
                               'assets/images/difficulty_icons/easy.png',
                               1,
-                              'Easy'),
+                              'Beginner'),
                           SizedBox(
                             width: 10,
                           ),
                           buildDifficultyRadioText(
                               'assets/images/difficulty_icons/medium.png',
                               2,
-                              'Medium'),
+                              'Ocasional'),
                           SizedBox(
                             width: 10,
                           ),
                           buildDifficultyRadioText(
                               'assets/images/difficulty_icons/hard.png',
                               3,
-                              'Hard'),
+                              'Advanced'),
                         ],
                       ),
                     ],
@@ -390,11 +405,11 @@ class _ConfigureSportPageState extends State<ConfigureSportPage> {
 
   int getIntFromDifficulty(String dif) {
     switch (dif) {
-      case 'Easy':
+      case 'Beginner':
         return 1;
-      case 'Medium':
+      case 'Ocasional':
         return 2;
-      case 'Hard':
+      case 'Advanced':
         return 3;
       default:
         return 9;

@@ -15,13 +15,13 @@ class SportIcon extends StatelessWidget {
     Color iconColor = Colors.grey;
     IconData iconD = Icons.disabled_by_default;
     switch (difficulty) {
-      case 'easy':
+      case 'Beginner':
         iconColor = Colors.green;
         break;
-      case 'medium':
+      case 'Ocasional':
         iconColor = Colors.yellow;
         break;
-      case 'hard':
+      case 'Advanced':
         iconColor = Colors.red;
         break;
       default:

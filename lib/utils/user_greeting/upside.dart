@@ -17,15 +17,15 @@ class Upside extends StatelessWidget {
           height: size.height / 2,
           color: kPrimaryColor,
           child: Padding(
-            padding: const EdgeInsets.only(top: 10.0),
+            padding: const EdgeInsets.only(bottom: 85),
             child: Image.asset(
               imgUrl,
               alignment: Alignment.topCenter,
-              scale: 8,
+              scale: 1,
             ),
           ),
         ),
-        iconBackButton(context),
+        // iconBackButton(context),
         Positioned(
           left: 0,
           top: 175,
@@ -47,13 +47,13 @@ class Upside extends StatelessWidget {
   }
 }
 
-iconBackButton(BuildContext context) {
-  return IconButton(
-    color: Colors.white,
-    iconSize: 28,
-    icon: const Icon(CupertinoIcons.arrow_left),
-    onPressed: () {
-      Navigator.pop(context);
-    },
-  );
-}
+// iconBackButton(BuildContext context) {
+//   return IconButton(
+//     color: Colors.white,
+//     iconSize: 28,
+//     icon: const Icon(CupertinoIcons.arrow_left),
+//     onPressed: () {
+//       Navigator.pop(context);
+//     },
+//   );
+// }

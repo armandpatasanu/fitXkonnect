@@ -42,18 +42,16 @@ class _OpenMatchCardState extends State<OpenMatchCard> {
       child: Stack(
         children: <Widget>[
           Container(
+            // padding: EdgeInsets.only(left: 10),
             height: 180,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: LinearGradient(
-                  colors: [Color(0xff6DC8F3), Color(0xff73A1F9)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight),
+              borderRadius: BorderRadius.circular(30),
+              color: Color.fromARGB(255, 128, 210, 223),
               boxShadow: [
                 BoxShadow(
-                  color: Color.fromARGB(255, 208, 85, 112),
-                  blurRadius: 12,
-                  offset: Offset(0, 6),
+                  color: Colors.grey,
+                  offset: Offset(0.0, 14),
+                  blurRadius: 7,
                 ),
               ],
             ),
@@ -74,8 +72,8 @@ class _OpenMatchCardState extends State<OpenMatchCard> {
               children: <Widget>[
                 Expanded(
                   child: Container(
-                    height: 115,
-                    width: 115,
+                    height: 95,
+                    width: 95,
                     child: Stack(
                       fit: StackFit.expand,
                       clipBehavior: Clip.none,
@@ -88,13 +86,13 @@ class _OpenMatchCardState extends State<OpenMatchCard> {
                       ],
                     ),
                   ),
-                  flex: 3,
+                  flex: 2,
                 ),
                 SizedBox(
                   width: 5,
                 ),
                 Expanded(
-                  flex: 4,
+                  flex: 5,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +148,7 @@ class _OpenMatchCardState extends State<OpenMatchCard> {
                           SizedBox(width: 5),
                           Flexible(
                             child: Text(
-                              'Country',
+                              widget.match.p1Country,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'Avenir',
@@ -159,23 +157,6 @@ class _OpenMatchCardState extends State<OpenMatchCard> {
                           ),
                         ],
                       )
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Text(
-                        widget.match.difficulty,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Avenir',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      RatingBar(rating: 3),
                     ],
                   ),
                 ),

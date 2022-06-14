@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fitxkonnect/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class LocationsDropDownList extends StatefulWidget {
   const LocationsDropDownList({Key? key}) : super(key: key);
@@ -23,8 +24,22 @@ class _LocationsDropDownListState extends State<LocationsDropDownList> {
           // Safety check to ensure that snapshot contains data
           // without this safety check, StreamBuilder dirty state warnings will be thrown
           if (!snapshot.hasData)
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Center(
+              child: Container(
+                color: Colors.white,
+                child: Center(
+                  child: SpinKitCircle(
+                    size: 50,
+                    itemBuilder: (context, index) {
+                      final colors = [Colors.black, Colors.purple];
+                      final color = colors[index % colors.length];
+                      return DecoratedBox(
+                        decoration: BoxDecoration(color: color),
+                      );
+                    },
+                  ),
+                ),
+              ),
             );
           return DropdownButtonHideUnderline(
             child: DropdownButton2(

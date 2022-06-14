@@ -384,8 +384,8 @@ class _AddMatchPageState extends State<AddMatchPage> {
         color: Colors.white,
       ),
       // dropdownElevation: 8,
-      offset: Offset(-40, 0),
-      dropdownWidth: 220,
+      offset: Offset(-20, 0),
+      dropdownWidth: 250,
       scrollbarRadius: const Radius.circular(40),
       onChanged: (value) async {
         print("am ales $value");
