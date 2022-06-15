@@ -22,43 +22,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   void initState() {
-    final firebaseMessaging = FCM();
-    firebaseMessaging.setNotifications();
-
-    firebaseMessaging.streamCtlr.stream.listen(_changeData);
-    firebaseMessaging.bodyCtlr.stream.listen(_changeBody);
-    firebaseMessaging.titleCtlr.stream.listen(_changeTitle);
-
     super.initState();
   }
-
-  // _changeData(String msg) {
-  //   if (this.mounted) {
-  //     setState(() {
-  //       notificationData = msg;
-  //     });
-  //   }
-  // }
-
-  // _changeBody(String msg) {
-  //   if (this.mounted) {
-  //     setState(() {
-  //       notificationBody = msg;
-  //     });
-  //   }
-  // }
-
-  // _changeTitle(String msg) {
-  //   if (this.mounted) {
-  //     setState(() {
-  //       notificationTitle = msg;
-  //     });
-  //   }
-  // }
-
-  _changeData(String msg) => setState(() => notificationData = msg);
-  _changeBody(String msg) => setState(() => notificationBody = msg);
-  _changeTitle(String msg) => setState(() => notificationTitle = msg);
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +107,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 : Container(
                     height: MediaQuery.of(context).size.height,
                     width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.only(top: 40),
+                    padding: EdgeInsets.only(
+                      top: 30,
+                    ),
                     color: Colors.white,
                     child: Stack(
                       children: [
@@ -160,14 +127,24 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                     Container(
                                       height: 60,
                                       width: 60,
-                                      child: Icon(
-                                        Icons.notification_add,
-                                        color: Colors.black,
-                                        size: 38,
-                                      ),
+                                      child: snapshot.data.docs[index]
+                                                  .get('type') ==
+                                              1
+                                          ? Icon(
+                                              Icons.notification_add,
+                                              color: Colors.black,
+                                              size: 38,
+                                            )
+                                          : Image.asset(
+                                              'assets/images/notif_screen/1hour_left.png'),
                                       decoration: BoxDecoration(
                                         // color: Colors.amber,
-                                        border: Border.all(color: Colors.black),
+                                        border: Border.all(
+                                            color: snapshot.data.docs[index]
+                                                        .get('type') ==
+                                                    1
+                                                ? Colors.black
+                                                : Colors.red),
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                     ),
@@ -192,14 +169,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                                 fontSize: 16),
                                           ),
                                           Divider(
-                                            color: Colors.black,
+                                            color: Colors.grey,
                                             thickness: 1,
                                           ),
                                           Text(
                                               snapshot.data.docs[index]
                                                   .get('notifText'),
                                               style: TextStyle(
-                                                  color: Colors.grey,
+                                                  color: Colors.black,
                                                   fontFamily: 'OpenSans',
                                                   fontSize: 12)),
                                         ],
@@ -209,7 +186,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   ],
                                 ),
                                 decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.black),
+                                    border: Border.all(
+                                        color: snapshot.data.docs[index]
+                                                    .get('type') ==
+                                                1
+                                            ? Colors.black
+                                            : Colors.orange),
                                     borderRadius: BorderRadius.circular(20)),
                               ),
                             );

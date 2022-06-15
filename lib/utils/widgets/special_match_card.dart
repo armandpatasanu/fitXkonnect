@@ -209,11 +209,11 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
               ),
               Positioned(
                 top: 132,
-                left: 0,
+                left: 5,
                 bottom: 0,
                 child: Container(
                   height: 70,
-                  width: 210,
+                  width: 230,
                   margin: EdgeInsets.only(left: 15, right: 20, bottom: 15),
                   decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [
@@ -235,7 +235,7 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                   //     //     Border.all(color: Color.fromARGB(176, 250, 203, 211)),
                   //     color: Color.fromARGB(80, 202, 157, 215)),
                   child: Container(
-                    padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                    padding: EdgeInsets.only(top: 10, left: 10, right: 10),
                     child: Column(children: [
                       // SizedBox(
                       //   height: 5,

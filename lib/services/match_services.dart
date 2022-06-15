@@ -44,6 +44,7 @@ class MatchServices {
       sport: "",
       difficulty: "",
       status: "",
+      notificationId: 0,
     );
   }
 
@@ -445,13 +446,54 @@ class MatchServices {
     return myRes;
   }
 
-  Future<void> abandonMatch(String matchId) async {
-    await FirebaseFirestore.instance
-        .collection('matches')
-        .doc(matchId) // <-- Doc ID where data should be updated.
-        .update({
-      'status': 'abandoned',
-    });
+  Future<void> abandonMatch(String matchId, String whoPressed) async {
+    MatchModel match = await MatchServices().getCertainMatch(matchId);
+    UserModel u2 = await UserServices().getSpecificUser(match.player2);
+    MatchModel m = await MatchServices().getCertainMatch(matchId);
+    UserModel u = await UserServices().getSpecificUser(m.player1);
+    LocationModel location =
+        await LocationServices().getCertainLocation(match.location);
+
+    if (u.uid == whoPressed) {
+      UserServices().sendPushMessage(
+          "Match of ${m.sport} from ${m.matchDate} is now abandoned!",
+          'You abandoned a match!',
+          u.token!,
+          match.player1,
+          2,
+          m.notificationId);
+
+      UserServices().sendPushMessage(
+          'Opponent: ${u.fullName} abandoned the match of ${m.sport} from ${m.matchDate}.',
+          'A match has been abandoned!',
+          u2.token!,
+          match.player1,
+          2,
+          m.notificationId);
+    } else {
+      UserServices().sendPushMessage(
+          "Match of ${m.sport} from ${m.matchDate} is now abandoned!",
+          'You abandoned a match!',
+          u2.token!,
+          match.player1,
+          2,
+          m.notificationId);
+
+      UserServices().sendPushMessage(
+          'Opponent: ${u.fullName} abandoned the match of ${m.sport} from ${m.matchDate}.',
+          'A match has been abandoned!',
+          u.token!,
+          match.player1,
+          2,
+          m.notificationId);
+    }
+
+    // await FirebaseFirestore.instance
+    //     .collection('matches')
+    //     .doc(matchId) // <-- Doc ID where data should be updated.
+    //     .update({
+    //   'status': 'abandoned',
+    // });
   }
 
   Future<void> matchPlayers(String matchId, String player2Id) async {
@@ -463,26 +505,16 @@ class MatchServices {
         await LocationServices().getCertainLocation(m.location);
 
     MatchModel match = await MatchServices().getCertainMatch(matchId);
-
-    print("DEBUG: Avem locatia ${location.name}");
-    print("DEBUG: ----------------------");
     List locations_sports = location.sports;
-    locations_sports.forEach((element) {
-      print("DEBUG SPORT: {${element["sport"]} , ${element["matches"]}}");
-    });
-    print("DEBUG: ----------------------");
     SportModel matchSport =
         await SportServices().getSpecificSportFromName(match.sport);
-    print("DEBUG: ID-UL SPORTULUI: ${matchSport.sportId}");
     int numberOfMatches;
     locations_sports.forEach((element) {
       if (element["sport"] == matchSport.sportId) {
-        print("DEBUG: MATCHED WITH ${element["sport"]}");
         numberOfMatches = element["matches"];
         if (numberOfMatches > 0) {
           numberOfMatches = element["matches"] - 1;
         }
-        print("DEBUG : THE NEW NUMBER: ${numberOfMatches}");
         element.update("matches", (value) => numberOfMatches);
       }
     });
@@ -497,7 +529,9 @@ class MatchServices {
         'Opponent: ${u2.fullName} in a match of ${m.sport}.\nLocation: ${location.name}\nDate: ${m.matchDate}\nStarting at: ${m.startingTime}',
         'Get ready! You have a new match!',
         u.token!,
-        player2Id);
+        player2Id,
+        1,
+        m.notificationId);
 
     collection.doc(matchId) // <-- Doc ID where data should be updated.
         .update({
@@ -510,7 +544,9 @@ class MatchServices {
         "Get ready for a match of ${m.sport}.\nLocation: ${location.name}\nDate: ${m.matchDate}\nStarting at: ${m.startingTime}",
         'You matched with ${u.fullName}',
         u2.token!,
-        player2Id);
+        player2Id,
+        1,
+        m.notificationId);
   }
 
   Future<MatchModel> getCertainMatch(String matchId) async {
@@ -525,25 +561,18 @@ class MatchServices {
       MatchModel match = await MatchServices().getCertainMatch(matchId);
       LocationModel location =
           await LocationServices().getCertainLocation(match.location);
-      print("DEBUG: Avem locatia ${location.name}");
-      print("DEBUG: ----------------------");
+
       List locations_sports = location.sports;
-      locations_sports.forEach((element) {
-        print("DEBUG SPORT: {${element["sport"]} , ${element["matches"]}}");
-      });
-      print("DEBUG: ----------------------");
+
       SportModel matchSport =
           await SportServices().getSpecificSportFromName(match.sport);
-      print("DEBUG: ID-UL SPORTULUI: ${matchSport.sportId}");
       int numberOfMatches;
       locations_sports.forEach((element) {
         if (element["sport"] == matchSport.sportId) {
-          print("DEBUG: MATCHED WITH ${element["sport"]}");
           numberOfMatches = element["matches"];
           if (numberOfMatches > 0) {
             numberOfMatches = element["matches"] - 1;
           }
-          print("DEBUG : THE NEW NUMBER: ${numberOfMatches}");
           element.update("matches", (value) => numberOfMatches);
         }
       });

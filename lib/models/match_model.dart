@@ -11,6 +11,7 @@ class MatchModel {
   final String sport;
   final String difficulty;
   final String status;
+  final int notificationId;
 
   const MatchModel({
     required this.matchId,
@@ -23,6 +24,7 @@ class MatchModel {
     required this.sport,
     required this.difficulty,
     required this.status,
+    required this.notificationId,
   });
 
   static MatchModel fromSnap(DocumentSnapshot snap) {
@@ -39,6 +41,7 @@ class MatchModel {
       sport: snapshot['sport'],
       difficulty: snapshot['difficulty'],
       status: snapshot['status'],
+      notificationId: snapshot['notificationId'],
     );
   }
 
@@ -53,5 +56,6 @@ class MatchModel {
         'sport': sport,
         'difficulty': difficulty,
         'status': status,
+        'notificationId': notificationId,
       };
 }

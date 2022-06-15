@@ -237,9 +237,7 @@ class _MyMatchesPageState extends State<MyMatchesPage> {
     var values = snapshot.data!;
     return values.length == 0
         ? Container(
-            color: Colors.grey[100],
-            width: 100,
-            height: 100,
+            color: Colors.white,
             child: Image.asset('assets/images/profile_screen/no_upcoming.jpg',
                 fit: BoxFit.scaleDown),
           )

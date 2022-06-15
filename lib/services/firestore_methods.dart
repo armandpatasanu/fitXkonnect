@@ -3,6 +3,7 @@ import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
+import 'package:fitxkonnect/utils/utils.dart';
 import 'package:uuid/uuid.dart';
 
 class FirestoreMethods {
@@ -27,6 +28,7 @@ class FirestoreMethods {
         result = "Select a valid match date!";
       } else {
         String matchId = const Uuid().v1();
+        int id = createUniqueId();
         String locationId =
             await LocationServices().getLocationId(locationName);
         String sportId = await SportServices().getSportIdBasedOfName(sport);
@@ -41,6 +43,7 @@ class FirestoreMethods {
           sport: sport,
           difficulty: difficulty,
           status: status,
+          notificationId: id,
         );
 
         LocationModel matchLocation =

@@ -43,12 +43,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool _isLoading = false;
   String sportName = "Tenis";
   String? _country;
-  Uint8List _image = Uint8List.fromList([]);
+  Uint8List? _image;
   bool _passwordVisible = true;
 
   void initState() {
     addData();
-    _image = Uint8List.fromList([]);
     _country = widget.snap.country;
   }
 
@@ -134,15 +133,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ],
                   shape: BoxShape.circle,
                 ),
-                child: _image != Uint8List.fromList([])
+                child: _image != null
                     ? CircleAvatar(
                         radius: 64,
-                        backgroundImage: MemoryImage(_image),
+                        backgroundImage: MemoryImage(_image!),
                       )
                     : CircleAvatar(
                         radius: 64,
                         backgroundImage: NetworkImage(
-                          widget.snap.profilePhoto,
+                          user.profilePhoto,
                         ),
                       ),
               ),
@@ -285,9 +284,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ],
                   ),
                   child: InkWell(
-                    onTap: () => updateUserData(
-                      user,
-                    ),
+                    onTap: () {
+                      updateUserData(
+                        user,
+                      );
+                      print(user.profilePhoto);
+                    },
                     child: Icon(
                       Icons.save_alt,
                       color: Colors.white,
@@ -457,7 +459,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void resetFields(UserModel user) {
     clearTextFields();
     _country = user.country;
-    _image = Uint8List.fromList([]);
+    _image = null;
     setState(() {});
   }
 
@@ -490,7 +492,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               _passwordController.text,
               widget.password,
               _country!,
-              _image,
+              _image ?? Uint8List.fromList([]),
               true,
             )
           : result = result = await UserServices().updateUser(
@@ -504,7 +506,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               _passwordController.text,
               widget.password,
               _country!,
-              _image,
+              _image ?? Uint8List.fromList([]),
               false,
             );
 
@@ -512,7 +514,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         setState(() {
           _isLoading = false;
         });
-        showSnackBar('succesfully edited !', context);
+        showSnackBar('successfully edited !', context);
         UserModel user2 = await UserServices()
             .getSpecificUser(FirebaseAuth.instance.currentUser!.uid);
         Navigator.of(context).pushReplacement(MaterialPageRoute(

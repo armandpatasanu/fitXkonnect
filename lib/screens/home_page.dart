@@ -130,8 +130,8 @@ class _HomePageState extends State<HomePage> {
             Container(
                 height: 50,
                 padding: EdgeInsets.only(
-                  left: 15,
-                  right: 5,
+                  left: 20,
+                  right: 20,
                 ),
                 child: Center(
                     child: Row(
@@ -488,7 +488,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Container(
-              height: MediaQuery.of(context).size.height - 295,
+              height: MediaQuery.of(context).size.height - 342,
               padding: EdgeInsets.only(top: 20),
               child: FutureBuilder(
                   future: MatchServices().getActualHomePageMatches(

@@ -220,7 +220,7 @@ class _LocationInfoState extends State<LocationInfo> {
                     ),
                     Positioned(
                       top: 75,
-                      left: 310,
+                      right: 25,
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),

@@ -77,24 +77,46 @@ class UserServices {
         //     password: pass,
         //   ));
         // } else {
-        //   if (actualPass == pass) {
-        //     await _firestore.collection('users').doc(userId).update({
-        //       'fullName': fullName,
-        //       'email': email,
-        //       'country': country,
-        //     });
-        //   } else {
-        //     result = 'Password is wrong';
-        //   }
+        //   result = "This email is already being used!";
         // }
 
-        if (modifyPicture == true && actualPass == pass) {
+        if (actualPass == pass && modifyPicture == true) {
+          await user.updateEmail(email);
+          UserCredential result = await user
+              .reauthenticateWithCredential(EmailAuthProvider.credential(
+            email: email,
+            password: pass,
+          ));
           String url =
               await StorageMethods().uploadImageToStorage('profilePics', file);
-          print("url $url");
+          await _firestore.collection('users').doc(userId).update({
+            'fullName': fullName,
+            'email': email,
+            'country': country,
+            'profilePhoto': url,
+          });
+        } else if (actualPass == pass && modifyPicture == false) {
+          await user.updateEmail(email);
+          UserCredential result = await user
+              .reauthenticateWithCredential(EmailAuthProvider.credential(
+            email: email,
+            password: pass,
+          ));
+          await _firestore.collection('users').doc(userId).update({
+            'fullName': fullName,
+            'email': email,
+            'country': country,
+          });
         } else {
-          result = 'Incorrect password!';
+          result = "Wrong password!";
         }
+
+        // if (modifyPicture == true && actualPass == pass) {
+        //
+        //   print("url $url");
+        // } else {
+        //   result = 'Incorrect password!';
+        // }
       }
     } catch (error) {
       result = error.toString();
@@ -110,8 +132,8 @@ class UserServices {
         .map((snapshot) => UserModel.fromSnap(snapshot));
   }
 
-  void sendPushMessage(
-      String body, String title, String token, String sender) async {
+  void sendPushMessage(String body, String title, String token, String sender,
+      int type, int matchNotifId) async {
     try {
       await http.post(
         Uri.parse('https://fcm.googleapis.com/fcm/send'),
@@ -131,8 +153,9 @@ class UserServices {
             'data': <String, dynamic>{
               'sender': sender,
               'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-              'id': '1',
-              'status': 'done'
+              'id': type,
+              'status': 'done',
+              'matchNotifId': matchNotifId,
             },
             "to": token,
           },

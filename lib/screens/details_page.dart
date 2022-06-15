@@ -469,20 +469,22 @@ class _DetailPageState extends State<DetailPage> {
                                       borderRadius: BorderRadius.circular(20),
                                       gradient: LinearGradient(
                                         colors: <Color>[
-                                          Colors.red,
-                                          Colors.black
+                                          Color.fromARGB(255, 87, 34, 93),
+                                          Color.fromARGB(255, 49, 19, 19)
                                         ],
                                       ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey,
-                                          offset: Offset(0.0, 1.5),
-                                          blurRadius: 1.5,
-                                        ),
-                                      ],
+                                      // boxShadow: [
+                                      //   BoxShadow(
+                                      //     color: Colors.grey,
+                                      //     offset: Offset(0.0, 1.5),
+                                      //     blurRadius: 1.5,
+                                      //   ),
+                                      // ],
                                     ),
                                     child: IconButton(
-                                      icon: Icon(Icons.cancel),
+                                      icon: Icon(Icons.delete,
+                                          color: Color.fromARGB(
+                                              255, 146, 142, 179)),
                                       onPressed: () async {
                                         await MatchServices()
                                             .cancelMatch(values[index].matchId);

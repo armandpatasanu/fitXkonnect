@@ -33,17 +33,21 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   UserModel sender =
       await UserServices().getSpecificUser(message.data['sender']);
-  print("SENDER IS: ${message.senderId}");
   NotifSerivces().storeNotif(
       (message.notification.hashCode).toString(),
       message.notification!.title,
       message.notification!.body,
       FirebaseAuth.instance.currentUser!.uid,
-      1,
+      message.data['id'],
       sender,
       MatchServices().getEmptyMatch());
-  print("TRIMIT O ASTEPTATA");
-  NotifSerivces().sendSchedule(25);
+  if (message.data['id'] == 1) {
+    NotifSerivces().sendSchedule(25, message.notification!.body!,
+        int.parse(message.data['matchNotifId']));
+  } else if (message.data['id'] == 2) {
+    AwesomeNotifications()
+        .cancelSchedule(int.parse(message.data['matchNotifId']));
+  }
 }
 
 late AndroidNotificationChannel channel;
@@ -102,21 +106,19 @@ void listenScheduled() {
 
 void listenFCM() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    if (message.senderId != null) {
-      print("HAGI ${message.senderId}");
-    }
     RemoteNotification? notification = message.notification;
+    print("hmm? : ${notification!.title}");
+    print("hmm?: ${message.data['id']}");
+    print("hmm?: ${message.data['status']}");
+
     AndroidNotification? android = message.notification?.android;
     if (notification != null && android != null && !kIsWeb) {
-      if (message.messageId != null) {
-        print("HAGI ${message.messageId}");
-      }
-      print("NOTIF ${notification.title}");
-      print("CE PLM ${message.data['sender']}");
       UserModel sender =
           await UserServices().getSpecificUser(message.data['sender']);
-      print("uhm ${notification.body}");
-      print("NOTIF ${notification.hashCode}");
+      print("hmm? : ${notification.title}");
+      print("hmm?: ${message.data['id']}");
+      print("hmm?: ${message.data['status']}");
+
       await NotifSerivces().storeNotif(
           (notification.hashCode).toString(),
           notification.title,
@@ -125,6 +127,7 @@ void listenFCM() async {
           1,
           sender,
           MatchServices().getEmptyMatch());
+
       flutterLocalNotificationsPlugin.show(
         notification.hashCode,
         notification.title,
@@ -139,8 +142,17 @@ void listenFCM() async {
           ),
         ),
       );
-      print("AM PRIMIT CA AM FOST MATCHUIT SI TRIMIT O ASTEPTATA");
-      NotifSerivces().sendSchedule(15);
+      print("hmm nu mai e ? ${message.data['id']}");
+      if (int.parse(message.data['id']) == 1) {
+        print("hmm intrai pe 1");
+        NotifSerivces().sendSchedule(25, message.notification!.body!,
+            int.parse(message.data['matchNotifId']));
+      } else if (int.parse(message.data['id']) == 2) {
+        print(
+            "hmm intrai pe 2 si anulez pe ${int.parse(message.data['matchNotifId'])}");
+        AwesomeNotifications()
+            .cancelSchedule(int.parse(message.data['matchNotifId']));
+      }
     }
   });
 }

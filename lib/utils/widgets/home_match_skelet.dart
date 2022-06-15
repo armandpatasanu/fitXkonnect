@@ -44,7 +44,7 @@ class _LoadingMatchCardState extends State<LoadingMatchCard> {
             ),
           ),
           Positioned(
-            left: 192,
+            left: 210,
             top: 0,
             child: Container(
               height: 115,
@@ -73,11 +73,11 @@ class _LoadingMatchCardState extends State<LoadingMatchCard> {
             ),
           ),
           Positioned(
-            left: 260,
-            top: 140,
+            right: 50,
+            top: 150,
             child: Container(
               width: 85,
-              height: 45,
+              height: 40,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 color: Colors.grey.withOpacity(0.1),
@@ -94,8 +94,8 @@ class _LoadingMatchCardState extends State<LoadingMatchCard> {
                 top: 132,
                 left: 5,
                 child: Container(
-                  height: 60,
-                  width: 210,
+                  height: 70,
+                  width: 230,
                   margin: EdgeInsets.only(left: 15, right: 20, bottom: 15),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),

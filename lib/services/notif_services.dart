@@ -27,15 +27,15 @@ class NotifSerivces {
         );
   }
 
-  void sendSchedule(int interval) async {
+  void sendSchedule(int interval, String? body, int matchNotifId) async {
     int id = createUniqueId();
     String timezone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
     AwesomeNotifications().createNotification(
         content: NotificationContent(
-          id: id,
+          id: matchNotifId,
           channelKey: 'scheduled_channel',
-          title: 'New match ahead! - 25 sec',
-          body: "This is scheduled",
+          title: 'New match ahead! - 1 hour left!',
+          body: body,
           notificationLayout: NotificationLayout.Default,
         ),
         schedule: NotificationInterval(
