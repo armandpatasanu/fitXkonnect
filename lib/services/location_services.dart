@@ -200,6 +200,28 @@ class LocationServices {
     return myWanted;
   }
 
+  Future<List<Map<LocationModel, List<String>>>> getMapOfALocation(
+      LocationModel loc) async {
+    List<Map<LocationModel, List<String>>> myWanted = [];
+    List<String> sports = [];
+    String sp = "";
+    for (var sport in loc.sports) {
+      // print("ENTERING - id is : ${sport["sport"]}");
+      if (sport["matches"] > 0) {
+        sp = await SportServices().getSportNameBasedOfId(sport["sport"]);
+        sports.add(sp);
+      }
+      // print("ENTERING - name is $sp");
+    }
+
+    Map<LocationModel, List<String>> map = {
+      loc: sports,
+    };
+    myWanted.add(map);
+
+    return myWanted;
+  }
+
   void updateDistance(String locationId, String distance) {
     FirebaseFirestore.instance
         .collection('locations')

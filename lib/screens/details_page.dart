@@ -5,6 +5,7 @@ import 'package:fitxkonnect/models/location_model.dart';
 import 'package:fitxkonnect/models/match_model.dart';
 import 'package:fitxkonnect/models/sport_model.dart';
 import 'package:fitxkonnect/models/user_model.dart';
+import 'package:fitxkonnect/screens/add_match_page.dart';
 import 'package:fitxkonnect/screens/location_filter_screen.dart';
 import 'package:fitxkonnect/services/location_services.dart';
 import 'package:fitxkonnect/services/match_services.dart';
@@ -12,6 +13,7 @@ import 'package:fitxkonnect/services/storage_methods.dart';
 import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/rating_bar.dart';
+import 'package:fitxkonnect/utils/widgets/search_screen/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
@@ -45,6 +47,15 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+  List<Map<LocationModel, List<String>>> _locations = [];
+  List<LocationModel> locationsToPassAdd = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     print("A VENIT CU ${widget.backIcon}");
@@ -170,7 +181,35 @@ class _DetailPageState extends State<DetailPage> {
                                 TextStyle(fontSize: 13, color: kPrimaryColor),
                           )
                         ],
-                      )
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Container(
+                        width: 50,
+                        height: 50,
+                        child: InkWell(
+                          child: Icon(Icons.directions,
+                              color: Colors.blue, size: 35),
+                          onTap: () async {
+                            _locations = await LocationServices()
+                                .getMapOfALocation(widget.location);
+                            Navigator.of(context).pushReplacement(
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation1, animation2) =>
+                                        MapScreen(
+                                  password: widget.password,
+                                  loc_maps: _locations,
+                                  filteredSport: "LIST",
+                                  listOfSports: widget.sports,
+                                ),
+                                transitionDuration: Duration(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(
@@ -179,11 +218,17 @@ class _DetailPageState extends State<DetailPage> {
                   Text(
                     "SCHEDULE",
                     style: TextStyle(
-                        fontSize: 20, height: 1.5, color: kPrimaryColor),
+                        fontSize: 20,
+                        height: 1.5,
+                        color: kPrimaryColor,
+                        fontFamily: 'Opensans'),
                   ),
                   Text(
                     widget.location.schedule,
-                    style: TextStyle(height: 1.6, color: kPrimaryColor),
+                    style: TextStyle(
+                        height: 1.6,
+                        color: kPrimaryColor,
+                        fontFamily: 'Opensans'),
                   ),
                   SizedBox(
                     height: 20,
@@ -191,7 +236,10 @@ class _DetailPageState extends State<DetailPage> {
                   Text(
                     "CONTACT",
                     style: TextStyle(
-                        fontSize: 20, height: 1.5, color: kPrimaryColor),
+                        fontSize: 20,
+                        height: 1.5,
+                        color: kPrimaryColor,
+                        fontFamily: 'Opensans'),
                   ),
                   SizedBox(
                     height: 5,
@@ -211,7 +259,8 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                             Text(
                               widget.location.contact[0],
-                              style: TextStyle(color: kPrimaryColor),
+                              style: TextStyle(
+                                  color: kPrimaryColor, fontFamily: 'Opensans'),
                             ),
                           ],
                         ),
@@ -251,7 +300,10 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                             Text(
                               widget.location.contact[2],
-                              style: TextStyle(color: kPrimaryColor),
+                              style: TextStyle(
+                                  color: kPrimaryColor, fontFamily: 'Opensans'),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
                           ],
                         ),
@@ -266,7 +318,10 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                   Text(
                     "MATCHES",
-                    style: TextStyle(fontSize: 18, color: kPrimaryColor),
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: kPrimaryColor,
+                        fontFamily: 'Opensans'),
                   ),
                   SizedBox(
                     height: 20,
@@ -315,11 +370,6 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   Widget createMatchesListView(
       BuildContext context, List<DetailsPageMatch> snapshot) {
     var values = snapshot;
@@ -363,8 +413,8 @@ class _DetailPageState extends State<DetailPage> {
                               children: <Widget>[
                                 Expanded(
                                   child: Container(
-                                    height: 85,
-                                    width: 85,
+                                    height: 95,
+                                    width: 95,
                                     child: Stack(
                                       fit: StackFit.expand,
                                       clipBehavior: Clip.none,
@@ -518,11 +568,12 @@ class _DetailPageState extends State<DetailPage> {
                                     ),
                                     child: IconButton(
                                       icon: Icon(Icons.play_circle),
-                                      onPressed: () {
-                                        MatchServices().matchPlayers(
+                                      onPressed: () async {
+                                        await MatchServices().matchPlayers(
                                             values[index].matchId,
                                             FirebaseAuth
                                                 .instance.currentUser!.uid);
+                                        setState(() {});
                                       },
                                     ),
                                   ),
@@ -547,9 +598,12 @@ class _DetailPageState extends State<DetailPage> {
                     );
             },
           )
-        : Text(
-            'No matches are being played',
-            style: TextStyle(color: kPrimaryColor),
+        : Align(
+            alignment: Alignment.topCenter,
+            child: Text(
+              'No matches are being played',
+              style: TextStyle(color: kPrimaryColor, fontFamily: 'Opensans'),
+            ),
           );
   }
 }

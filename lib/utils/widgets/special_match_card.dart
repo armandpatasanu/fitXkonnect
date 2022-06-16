@@ -15,12 +15,14 @@ import 'package:geolocator/geolocator.dart';
 
 class SpecialMatchCard extends StatefulWidget {
   final snap;
+  final user;
   final Function callbackFunction;
 
   SpecialMatchCard({
     Key? key,
     this.snap,
     required this.callbackFunction,
+    this.user,
   }) : super(key: key);
 
   @override
@@ -172,36 +174,41 @@ class _SpecialMatchCardState extends State<SpecialMatchCard> {
                     ),
                   ),
                 )
-              : Positioned(
-                  right: 50,
-                  top: 150,
-                  child: Container(
-                    width: 85,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: LinearGradient(
-                        colors: <Color>[Colors.green, Colors.black],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.green,
-                          offset: Offset(0.0, 1.5),
-                          blurRadius: 1.5,
+              : MatchServices().checkUsersMatchConditions(widget.snap.sport,
+                          widget.snap.difficulty, widget.user) ==
+                      true
+                  ? Positioned(
+                      right: 50,
+                      top: 150,
+                      child: Container(
+                        width: 85,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: LinearGradient(
+                            colors: <Color>[Colors.green, Colors.black],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.green,
+                              offset: Offset(0.0, 1.5),
+                              blurRadius: 1.5,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.play_circle),
-                      onPressed: () async {
-                        await MatchServices().matchPlayers(widget.snap.matchId,
-                            FirebaseAuth.instance.currentUser!.uid);
-                        setState(() {});
-                        widget.callbackFunction(widget.snap.locationName);
-                      },
-                    ),
-                  ),
-                ),
+                        child: IconButton(
+                          icon: Icon(Icons.play_circle),
+                          onPressed: () async {
+                            await MatchServices().matchPlayers(
+                                widget.snap.matchId,
+                                FirebaseAuth.instance.currentUser!.uid);
+                            setState(() {});
+                            widget.callbackFunction(widget.snap.locationName);
+                          },
+                        ),
+                      ),
+                    )
+                  : Container(),
           Stack(
             children: [
               Container(

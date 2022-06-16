@@ -1,8 +1,10 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitxkonnect/models/hp_match_model.dart';
 import 'package:fitxkonnect/services/match_services.dart';
 import 'package:fitxkonnect/services/sport_services.dart';
+import 'package:fitxkonnect/services/user_services.dart';
 import 'package:fitxkonnect/utils/colors.dart';
 import 'package:fitxkonnect/utils/constants.dart';
 import 'package:fitxkonnect/utils/utils.dart';
@@ -491,14 +493,18 @@ class _HomePageState extends State<HomePage> {
               height: MediaQuery.of(context).size.height - 342,
               padding: EdgeInsets.only(top: 20),
               child: FutureBuilder(
-                  future: MatchServices().getActualHomePageMatches(
-                      _sportFilter,
-                      _diffFilter,
-                      _dayFilter,
-                      _startingDateController.text,
-                      _finalDateController.text),
+                  future: Future.wait([
+                    MatchServices().getActualHomePageMatches(
+                        _sportFilter,
+                        _diffFilter,
+                        _dayFilter,
+                        _startingDateController.text,
+                        _finalDateController.text),
+                    UserServices().getSpecificUser(
+                        FirebaseAuth.instance.currentUser!.uid),
+                  ]),
                   builder: (BuildContext context,
-                      AsyncSnapshot<List<HomePageMatch>> snapshot) {
+                      AsyncSnapshot<List<dynamic>> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting ||
                         !snapshot.hasData) {
                       return Container(
@@ -538,7 +544,7 @@ class _HomePageState extends State<HomePage> {
                         ]),
                       );
                     }
-                    return snapshot.data!.length == 0
+                    return snapshot.data![0].length == 0
                         ? Center(
                             child: Container(
                               padding: EdgeInsets.only(
@@ -565,10 +571,12 @@ class _HomePageState extends State<HomePage> {
                                     },
                                     child: ListView.builder(
                                         shrinkWrap: true,
-                                        itemCount: snapshot.data!.length,
+                                        itemCount: snapshot.data![0].length,
                                         itemBuilder: (context, index) =>
                                             SpecialMatchCard(
-                                                snap: snapshot.data![index],
+                                                snap: snapshot.data![0][index],
+                                                user: snapshot
+                                                    .data![1].sports_configured,
                                                 callbackFunction: callback)),
                                   ),
                                 ),

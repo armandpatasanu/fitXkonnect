@@ -127,8 +127,7 @@ void listenFCM() async {
           1,
           sender,
           MatchServices().getEmptyMatch());
-
-      flutterLocalNotificationsPlugin.show(
+      await flutterLocalNotificationsPlugin.show(
         notification.hashCode,
         notification.title,
         notification.body,

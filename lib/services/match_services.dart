@@ -80,17 +80,9 @@ class MatchServices {
 
   List<MatchModel> getMatchesBasedOnStartingAndFinal(
       String st, String fi, List<MatchModel> list) {
-    print("PROBLEM ${st.substring(0, 4)}");
-    print("PROBLEM ${st.substring(5, 7)}");
-    print("PROBLEM ${st.substring(8, 10)}");
-
-    print("ROMANIA ST IS $st");
-    print("ROMANIA FI IS $fi");
-
     var dateFormat = DateFormat('y-MM-dd');
     List<MatchModel> wantedMatches = [];
     if (st != "" && fi != "") {
-      print("ROMANIA HELO1?");
       DateTime start = DateTime(
         int.parse(st.substring(0, 4)),
         int.parse(st.substring(6, 7)),
@@ -102,21 +94,17 @@ class MatchServices {
         int.parse(fi.substring(8, 10)),
       );
       list.forEach((element) {
-        print("am intrat");
-        print("${element.startingTime}");
         DateTime date = DateTime(
           int.parse(element.matchDate.substring(0, 4)),
           int.parse(element.matchDate.substring(6, 7)),
           int.parse(element.matchDate.substring(8, 10)),
         );
         if (start.isBefore(date) && finalmente.isAfter(date)) {
-          print("meh");
           wantedMatches.add(element);
         }
       });
     } else if (st != "" && fi == "") {
       {
-        print("ROMANIA HELO2?");
         DateTime start = DateTime(
           int.parse(st.substring(0, 4)),
           int.parse(st.substring(6, 7)),
@@ -129,14 +117,12 @@ class MatchServices {
             int.parse(element.matchDate.substring(8, 10)),
           );
           if (start.isBefore(date)) {
-            print("meh");
             wantedMatches.add(element);
           }
         });
       }
     } else if (st == "" && fi != "") {
       {
-        print("ROMANIA HELO3?");
         DateTime finalmente = DateTime(
           int.parse(fi.substring(0, 4)),
           int.parse(fi.substring(6, 7)),
@@ -149,7 +135,6 @@ class MatchServices {
             int.parse(element.matchDate.substring(8, 10)),
           );
           if (finalmente.isAfter(date)) {
-            print("meh");
             wantedMatches.add(element);
           }
         });
@@ -165,15 +150,15 @@ class MatchServices {
     int hour = 0;
     switch (diff) {
       case 'Morning':
-        startingHour = 8;
+        startingHour = 10;
         finishHour = 13;
         break;
       case 'Afternoon':
-        startingHour = 13;
+        startingHour = 14;
         finishHour = 19;
         break;
       case 'Night':
-        startingHour = 19;
+        startingHour = 20;
         finishHour = 24;
         break;
     }
@@ -259,11 +244,15 @@ class MatchServices {
     if (startingTime == "" && finalTime == "") {
       filtered4 = filteredThird;
     } else {
-      print("ROMANIA UHM!?");
-      print("ROMANIA UHM $startingTime");
-      print("ROMANIA UHM $finalTime");
-      filtered4 = MatchServices().getMatchesBasedOnStartingAndFinal(
-          startingTime, finalTime, filteredThird);
+      if (startingTime == "") {
+        startingTime = DateFormat('y-MM-dd').format(DateTime.now());
+
+        filtered4 = MatchServices().getMatchesBasedOnStartingAndFinal(
+            startingTime, finalTime, filteredThird);
+      } else {
+        filtered4 = MatchServices().getMatchesBasedOnStartingAndFinal(
+            startingTime, finalTime, filteredThird);
+      }
     }
     List<HomePageMatch> neededMatches = [];
 
@@ -284,6 +273,7 @@ class MatchServices {
           locationName: location.name,
           matchId: match.matchId));
     }
+    print("WTF? ${neededMatches.length}");
     return neededMatches;
   }
 
@@ -585,5 +575,19 @@ class MatchServices {
     } catch (error) {
       print(error.toString());
     }
+  }
+
+  bool checkUsersMatchConditions(
+      String matchSport, String matchDif, List<dynamic> sp_cf) {
+    List<dynamic> sports_configured = sp_cf;
+
+    bool conditionsPassed = false;
+
+    for (var map in sports_configured) {
+      if (map["sport"] == matchSport && map["difficulty"] == matchDif) {
+        conditionsPassed = true;
+      }
+    }
+    return conditionsPassed;
   }
 }
